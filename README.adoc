@@ -1,10 +1,36 @@
 = RMU API Attack
 
-REST API for attack management in the RMU system using MongoDB.
+REST API for attack management in the RMU system using MongoDB and Hexagonal Architecture.
 
 == Description
 
-This API exposes endpoints to manage attack information, including creating, querying, updating, and deleting attacks in the RMU (Role Master Unified) system. The API uses MongoDB for persistent data storage.
+This API exposes endpoints to manage attack information, including creating, querying, updating, and deleting attacks in the RMU (Role Master Unified) system. The API uses MongoDB for persistent data storage and follows Hexagonal Architecture (Ports and Adapters) principles for better separation of concerns, testability, and maintainability.
+
+== Architecture
+
+=== Hexagonal Architecture
+
+The project follows Hexagonal Architecture principles with clear separation between:
+
+* **Domain Layer** (`app/domain/`): Contains business logic, entities, and domain services
+** `entities/`: Domain entities like `Attack`, `AttackInput`, etc.
+** `ports/`: Interfaces (contracts) for external dependencies
+** `services/`: Domain services containing business rules
+
+* **Application Layer** (`app/application/`): Contains use cases that orchestrate domain operations
+** `use_cases/`: Application-specific business logic and workflows
+
+* **Infrastructure Layer** (`app/infrastructure/`): Contains adapters for external concerns
+** `adapters/persistence/`: Database adapters (MongoDB implementation)
+** `adapters/web/`: Web adapters (FastAPI controllers and DTOs)
+** `dependency_container.py`: Dependency injection container
+
+=== Benefits of This Architecture
+
+* **Independence**: Business logic is independent of external frameworks
+* **Testability**: Easy to unit test domain logic in isolation
+* **Flexibility**: Easy to swap adapters (e.g., change from MongoDB to PostgreSQL)
+* **Maintainability**: Clear separation of concerns makes code easier to maintain
 
 == Prerequisites
 
@@ -158,4 +184,43 @@ The API returns appropriate HTTP status codes:
 * **Pydantic**: Data validation and serialization
 * **Uvicorn**: ASGI server
 * **Pytest**: Testing framework
+* **Hexagonal Architecture**: Clean architecture with ports and adapters pattern
+
+== Project Structure
+
+[source,tree]
+----
+app/
+├── domain/                     # Domain layer (business logic)
+│   ├── entities/              # Domain entities
+│   │   ├── __init__.py
+│   │   └── attack.py          # Attack entity
+│   ├── ports/                 # Interfaces/contracts
+│   │   ├── __init__.py
+│   │   └── attack_ports.py    # Repository and service interfaces
+│   ├── services/              # Domain services
+│   │   ├── __init__.py
+│   │   └── attack_domain_service.py
+│   └── __init__.py
+├── application/               # Application layer (use cases)
+│   ├── use_cases/             # Business workflows
+│   │   ├── __init__.py
+│   │   └── attack_use_cases.py
+│   └── __init__.py
+├── infrastructure/            # Infrastructure layer (adapters)
+│   ├── adapters/
+│   │   ├── persistence/       # Database adapters
+│   │   │   ├── __init__.py
+│   │   │   └── mongo_attack_repository.py
+│   │   ├── web/               # Web adapters
+│   │   │   ├── __init__.py
+│   │   │   ├── attack_controller.py
+│   │   │   └── attack_dtos.py
+│   │   └── __init__.py
+│   ├── dependency_container.py # Dependency injection
+│   └── __init__.py
+├── config.py                  # Configuration
+├── main.py                    # FastAPI application setup
+└── __init__.py
+----
 

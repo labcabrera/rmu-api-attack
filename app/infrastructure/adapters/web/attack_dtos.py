@@ -1,0 +1,149 @@
+"""
+Data Transfer Objects for the web API.
+These convert between domain entities and API representations.
+"""
+
+from typing import Optional
+from pydantic import BaseModel, Field, ConfigDict
+from app.domain.entities import Attack, AttackInput, AttackRoll, AttackResult, AttackMode, Critical
+
+
+class AttackInputDTO(BaseModel):
+    """DTO for attack input"""
+    model_config = ConfigDict(use_enum_values=True)
+    
+    sourceId: str = Field(..., description="Attack source identifier")
+    targetId: str = Field(..., description="Attack target identifier") 
+    actionPoints: int = Field(..., description="Action points required")
+    mode: AttackMode = Field(..., description="Attack mode")
+
+
+class AttackRollDTO(BaseModel):
+    """DTO for attack roll"""
+    model_config = ConfigDict(use_enum_values=True)
+    
+    roll: int = Field(..., description="Roll result")
+
+
+class CriticalDTO(BaseModel):
+    """DTO for critical hit"""
+    model_config = ConfigDict(use_enum_values=True)
+    
+    id: str = Field(..., description="Critical ID")
+    status: str = Field(..., description="Critical status")
+
+
+class AttackResultDTO(BaseModel):
+    """DTO for attack result"""
+    model_config = ConfigDict(use_enum_values=True)
+    
+    labelResult: str = Field(..., description="Result label")
+    hitPoints: int = Field(..., description="Hit points")
+    criticals: list[CriticalDTO] = Field(..., description="Critical hits")
+
+
+class AttackDTO(BaseModel):
+    """DTO for complete attack"""
+    model_config = ConfigDict(
+        use_enum_values=True,
+        json_schema_extra={
+            "example": {
+                "id": "atk_001",
+                "tacticalGameId": "game_001",
+                "status": "executed",
+                "input": {
+                    "sourceId": "source_001",
+                    "targetId": "target_001", 
+                    "actionPoints": 3,
+                    "mode": "mainHand"
+                },
+                "roll": {"roll": 15},
+                "results": {
+                    "labelResult": "8AT",
+                    "hitPoints": 8,
+                    "criticals": []
+                }
+            }
+        }
+    )
+    
+    id: str = Field(..., description="Attack ID")
+    tacticalGameId: str = Field(..., description="Tactical game ID")
+    status: str = Field(..., description="Attack status")
+    input: AttackInputDTO = Field(..., description="Attack input")
+    roll: Optional[AttackRollDTO] = Field(None, description="Attack roll")
+    results: Optional[AttackResultDTO] = Field(None, description="Attack results")
+
+
+class CreateAttackRequestDTO(BaseModel):
+    """DTO for create attack request"""
+    model_config = ConfigDict(use_enum_values=True)
+    
+    id: str = Field(..., description="Attack ID")
+    tacticalGameId: str = Field(..., description="Tactical game ID")
+    sourceId: str = Field(..., description="Source ID")
+    targetId: str = Field(..., description="Target ID")
+    actionPoints: int = Field(..., description="Action points")
+    mode: AttackMode = Field(..., description="Attack mode")
+
+
+class AttackNotFoundDTO(BaseModel):
+    """DTO for attack not found error"""
+    model_config = ConfigDict(use_enum_values=True)
+    
+    detail: str = Field(..., description="Error message")
+    attack_id: str = Field(..., description="Attack ID that was not found")
+
+
+# Conversion functions between DTOs and domain entities
+
+def attack_to_dto(attack: Attack) -> AttackDTO:
+    """Convert domain Attack to DTO"""
+    input_dto = AttackInputDTO(
+        sourceId=attack.input.source_id,
+        targetId=attack.input.target_id,
+        actionPoints=attack.input.action_points,
+        mode=attack.input.mode
+    )
+    
+    roll_dto = None
+    if attack.roll:
+        roll_dto = AttackRollDTO(roll=attack.roll.roll)
+    
+    results_dto = None
+    if attack.results:
+        criticals_dto = [
+            CriticalDTO(id=c.id, status=c.status)
+            for c in attack.results.criticals
+        ]
+        results_dto = AttackResultDTO(
+            labelResult=attack.results.label_result,
+            hitPoints=attack.results.hit_points,
+            criticals=criticals_dto
+        )
+    
+    return AttackDTO(
+        id=attack.id,
+        tacticalGameId=attack.tactical_game_id,
+        status=attack.status,
+        input=input_dto,
+        roll=roll_dto,
+        results=results_dto
+    )
+
+
+def create_request_to_domain(dto: CreateAttackRequestDTO) -> Attack:
+    """Convert CreateAttackRequestDTO to domain Attack"""
+    attack_input = AttackInput(
+        source_id=dto.sourceId,
+        target_id=dto.targetId,
+        action_points=dto.actionPoints,
+        mode=dto.mode
+    )
+    
+    return Attack(
+        id=dto.id,
+        tactical_game_id=dto.tacticalGameId,
+        status="pending",
+        input=attack_input
+    )
