@@ -11,32 +11,39 @@ class AttackService:
             "atk_001": {
                 "id": "atk_001",
                 "tacticalGameId": "game_001",
-                "actionPoints": 3,
-                "mode": "mainHand",
-                # "name": "Fireball",
-                # "description": "A powerful magical attack that launches a sphere of fire",
-                # "damage": 85,
-                # "attack_type": "magical",
-                # "element": "fire",
-                # "accuracy": 95,
-                # "pp": 15,
-                # "created_at": datetime(2024, 1, 1, 12, 0, 0),
-                # "updated_at": datetime(2024, 1, 1, 12, 0, 0)
+                "status": "executed",
+                "input": {
+                    "sourceId": "source_001",
+                    "targetId": "target_001",
+                    "actionPoints": 3,
+                    "mode": "mainHand"
+                },
+                "roll": {
+                    "roll": 15
+                },
+                "results": {
+                    "labelResult": "8AT",
+                    "hitPoints": 8,
+                    "criticals": [
+                        {
+                            "id": "crit_001",
+                            "status": "applied"
+                        }
+                    ]
+                }
             },
             "atk_002": {
                 "id": "atk_002",
                 "tacticalGameId": "game_002",
-                "actionPoints": 4,
-                "mode": "mainHand",
-                # "name": "Critical Strike",
-                # "description": "A devastating physical attack with high critical hit probability",
-                # "damage": 75,
-                # "attack_type": "physical",
-                # "element": None,
-                # "accuracy": 85,
-                # "pp": 20,
-                # "created_at": datetime(2024, 1, 2, 10, 30, 0),
-                # "updated_at": datetime(2024, 1, 2, 10, 30, 0)
+                "status": "pending",
+                "input": {
+                    "sourceId": "source_002",
+                    "targetId": "target_002",
+                    "actionPoints": 4,
+                    "mode": "offHand"
+                },
+                "roll": None,
+                "results": None
             }
         }
     

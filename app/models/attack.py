@@ -2,36 +2,49 @@ from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
 
+class AttackInput(BaseModel):
+    """Model for attack creation or update request"""
+    
+    sourceId: str = Field(..., description="Attack source identifier")
+    targetId: str = Field(..., description="Attack target identifier")
+    actionPoints: int = Field(..., description="Action points required to execute the attack")
+    mode: str = Field(..., description="Attack mode (physical, magical, special)")
+
+class AttackRoll(BaseModel):
+    """Model for attack roll resolution"""
+    
+    roll: int = Field(..., description="Random roll result for the attack")
+
+class AttackResult(BaseModel):
+    """Model for attack result"""
+    
+    labelResult: str = Field(..., description="Label indicating the result of the attack")
+    hitPoints: int = Field(..., description="Hit points affected by the attack")
+    criticals: list[dict] = Field(..., description="List of critical hits associated with the attack")
+
 class Attack(BaseModel):
     """Model representing an attack in the RMU system"""
     
     id: str = Field(..., description="Unique attack identifier")
     tacticalGameId: str = Field(..., description="Tactical game identifier to which the attack belongs")
-    actionPoints: int = Field(..., description="Action points required to execute the attack")
-    mode: str = Field(..., description="Attack mode (physical, magical, special)")
+    status: str = Field(..., description="Current status of the attack (e.g., pending, executed)")
+    input: AttackInput = Field(..., description="Attack input data")
+    roll: Optional[AttackRoll] = Field(None, description="Attack roll resolution data")
+    results: Optional[AttackResult] = Field(None, description="Results of the attack execution")
 
-    # name: str = Field(..., description="Attack name")
-    # description: str = Field(..., description="Detailed attack description")
-    # damage: int = Field(..., ge=0, description="Base attack damage")
-    # attack_type: str = Field(..., description="Attack type (physical, magical, special)")
-    # element: Optional[str] = Field(None, description="Attack element (fire, water, earth, air, etc.)")
-    # accuracy: int = Field(100, ge=0, le=100, description="Attack accuracy (0-100)")
-    # pp: int = Field(..., ge=1, description="Power points (available uses)")
-    # created_at: datetime = Field(default_factory=datetime.now, description="Creation date")
-    # updated_at: Optional[datetime] = Field(None, description="Last update date")
-    
     class Config:
         json_schema_extra = {
             "example": {
                 "id": "atk_001",
-                "requestData":{
-                    "tacticalGameId": "game_001",
+                "tacticalGameId": "game_001",
+                "status": "executed",
+                "input": {
                     "sourceId": "source_001",
                     "targetId": "target_001",
                     "actionPoints": 3,
                     "mode": "mainHand"
                 },
-                "resolutionData": {
+                "roll": {
                     "roll": 12
                 },
                 "results": {
@@ -39,41 +52,13 @@ class Attack(BaseModel):
                     "hitPoints": 5,
                     "criticals": [
                         {
-                            "id": "foo",
+                            "id": "crit_001",
                             "status": "pending"
                         }
                     ]
-                },
-                "name": "Fireball",
-                "description": "A powerful magical attack that launches a sphere of fire",
-                "damage": 85,
-                "attack_type": "magical",
-                "element": "fire",
-                "accuracy": 95,
-                "pp": 15,
-                "created_at": "2024-01-01T12:00:00Z",
-                "updated_at": "2024-01-01T12:00:00Z"
+                }
             }
         }
-
-class AttackRequestData(BaseModel):
-    """Model for attack creation or update request"""
-    
-    tacticalGameId: str = Field(..., description="Tactical game identifier to which the attack belongs")
-    sourceId: str = Field(..., description="Attack source identifier")
-    targetId: str = Field(..., description="Attack target identifier")
-    actionPoints: int = Field(..., description="Action points required to execute the attack")
-    mode: str = Field(..., description="Attack mode (physical, magical, special)")
-
-
-    name: str = Field(..., description="Attack name")
-    description: str = Field(..., description="Detailed attack description")
-    damage: int = Field(..., ge=0, description="Base attack damage")
-    attack_type: str = Field(..., description="Attack type (physical, magical, special)")
-    element: Optional[str] = Field(None, description="Attack element (fire, water, earth, air, etc.)")
-    accuracy: int = Field(100, ge=0, le=100, description="Attack accuracy (0-100)")
-    pp: int = Field(..., ge=1, description="Power points (available uses)")
-
 
 class BonusModifier(BaseModel):
     """Model representing a bonus modifier for an attack"""
@@ -102,3 +87,14 @@ class AttackNotFound(BaseModel):
                 "attack_id": "atk_999"
             }
         }
+    type: str = Field(..., description="Bonus type (e.g., critical, elemental advantage, etc.)")
+    value: int = Field(..., description="Numeric bonus value")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "type": "critical",
+                "value": 20
+            }
+        }
+

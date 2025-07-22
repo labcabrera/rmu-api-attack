@@ -17,8 +17,17 @@ class TestAttacksAPI:
         data = response.json()
         assert data["id"] == attack_id
         assert data["tacticalGameId"] == "game_001"
-        assert data["actionPoints"] == 3
-        assert data["mode"] == "mainHand"
+        assert data["status"] == "executed"
+        assert "input" in data
+        assert data["input"]["sourceId"] == "source_001"
+        assert data["input"]["targetId"] == "target_001"
+        assert data["input"]["actionPoints"] == 3
+        assert data["input"]["mode"] == "mainHand"
+        assert "roll" in data
+        assert data["roll"]["roll"] == 15
+        assert "results" in data
+        assert data["results"]["labelResult"] == "8AT"
+        assert data["results"]["hitPoints"] == 8
     
     def test_get_nonexistent_attack(self):
         """Test to get a non-existent attack"""
@@ -42,11 +51,11 @@ class TestAttacksAPI:
     def test_get_multiple_existing_attacks(self):
         """Test to verify that multiple different attacks can be obtained"""
         test_cases = [
-            ("atk_001", "game_001", 3, "mainHand"),
-            ("atk_002", "game_002", 4, "mainHand")
+            ("atk_001", "game_001", "executed", "source_001", "target_001"),
+            ("atk_002", "game_002", "pending", "source_002", "target_002")
         ]
 
-        for attack_id, expected_game_id, expected_action_points, expected_mode in test_cases:
+        for attack_id, expected_game_id, expected_status, expected_source, expected_target in test_cases:
             response = client.get(f"/attacks/v1/{attack_id}")
             
             assert response.status_code == 200
@@ -54,8 +63,9 @@ class TestAttacksAPI:
             data = response.json()
             assert data["id"] == attack_id
             assert data["tacticalGameId"] == expected_game_id
-            assert data["actionPoints"] == expected_action_points
-            assert data["mode"] == expected_mode
+            assert data["status"] == expected_status
+            assert data["input"]["sourceId"] == expected_source
+            assert data["input"]["targetId"] == expected_target
 
 class TestHealthEndpoints:
     """Tests for health and root endpoints"""
