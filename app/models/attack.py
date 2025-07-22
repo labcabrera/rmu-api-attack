@@ -1,6 +1,11 @@
 from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
+from enum import Enum
+
+class AttackMode(Enum):
+    MAIN_HAND = "mainHand"
+    OFF_HAND = "offHand"
 
 class AttackInput(BaseModel):
     """Model for attack creation or update request"""
@@ -8,7 +13,7 @@ class AttackInput(BaseModel):
     sourceId: str = Field(..., description="Attack source identifier")
     targetId: str = Field(..., description="Attack target identifier")
     actionPoints: int = Field(..., description="Action points required to execute the attack")
-    mode: str = Field(..., description="Attack mode (physical, magical, special)")
+    mode: AttackMode = Field(..., description="Attack mode (mainHand, offHand)")
 
 class AttackRoll(BaseModel):
     """Model for attack roll resolution"""
