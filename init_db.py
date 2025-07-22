@@ -18,7 +18,7 @@ SAMPLE_ATTACKS = [
             "sourceId": "source_001",
             "targetId": "target_001",
             "actionPoints": 3,
-            "mode": AttackMode.MAIN_HAND
+            "mode": "mainHand"  # Use string value instead of enum
         },
         "roll": {
             "roll": 15
@@ -42,7 +42,7 @@ SAMPLE_ATTACKS = [
             "sourceId": "source_002",
             "targetId": "target_002",
             "actionPoints": 4,
-            "mode": AttackMode.OFF_HAND
+            "mode": "offHand"  # Use string value instead of enum
         },
         "roll": None,
         "results": None
@@ -55,7 +55,7 @@ SAMPLE_ATTACKS = [
             "sourceId": "source_003",
             "targetId": "target_003",
             "actionPoints": 2,
-            "mode": AttackMode.MAIN_HAND
+            "mode": "mainHand"  # Use string value instead of enum
         },
         "roll": {
             "roll": 8

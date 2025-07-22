@@ -142,62 +142,6 @@ async def patch_attack(
     
     return updated_attack
 
-@router.put(
-    "/{attackId}",
-    response_model=Attack,
-    responses={
-        200: {
-            "description": "Attack replaced successfully",
-            "model": Attack
-        },
-        404: {
-            "description": "Attack not found",
-            "model": AttackNotFound
-        },
-        400: {
-            "description": "Invalid input data"
-        }
-    },
-    summary="Fully replace an attack",
-    description="Completely replaces an existing attack (PUT operation)"
-)
-async def put_attack(
-    attackId: str = Path(
-        ...,
-        description="Unique attack identifier",
-        example="atk_001",
-        min_length=1,
-        max_length=50
-    ),
-    attack: Attack = ...
-) -> Attack:
-    """
-    Completely replaces an existing attack.
-    
-    - **attackId**: The unique identifier of the attack to replace
-    - **attack**: Complete Attack object with all required fields
-    
-    Note: The attack ID in the URL and in the request body must match.
-    """
-    if attack.id != attackId:
-        raise HTTPException(
-            status_code=400,
-            detail="Attack ID in URL and request body must match"
-        )
-    
-    updated_attack = await attack_service.update_attack_full(attackId, attack)
-    
-    if not updated_attack:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "detail": "Attack not found",
-                "attack_id": attackId
-            }
-        )
-    
-    return updated_attack
-
 @router.delete(
     "/{attackId}",
     status_code=204,

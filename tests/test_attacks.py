@@ -157,48 +157,6 @@ class TestAttacksAPI:
         data = response.json()
         assert data["detail"]["attack_id"] == "atk_999"
     
-    @patch.object(attack_service, 'update_attack_full')
-    def test_put_attack_success(self, mock_update_attack):
-        """Test successful full replacement of attack"""
-        # Mock the service response
-        mock_attack = Attack(**MOCK_ATTACK_DATA)
-        mock_update_attack.return_value = mock_attack
-        
-        response = client.put("/v1/attacks/atk_001", json=MOCK_ATTACK_DATA)
-        
-        assert response.status_code == 200
-        data = response.json()
-        assert data["id"] == "atk_001"
-        
-        mock_update_attack.assert_called_once()
-    
-    @patch.object(attack_service, 'update_attack_full')
-    def test_put_attack_id_mismatch(self, mock_update_attack):
-        """Test full replacement with ID mismatch"""
-        # Don't need to call mock since we should fail before service call
-        
-        wrong_data = MOCK_ATTACK_DATA.copy()
-        wrong_data["id"] = "atk_002"
-        
-        response = client.put("/v1/attacks/atk_001", json=wrong_data)
-        
-        assert response.status_code == 400
-        data = response.json()
-        assert "ID in URL and request body must match" in data["detail"]
-        
-        # Service should not be called
-        mock_update_attack.assert_not_called()
-    
-    @patch.object(attack_service, 'update_attack_full')
-    def test_put_attack_not_found(self, mock_update_attack):
-        """Test full replacement of non-existent attack"""
-        # Mock the service to return None
-        mock_update_attack.return_value = None
-        
-        response = client.put("/v1/attacks/atk_999", json=MOCK_ATTACK_DATA_2)
-        
-        assert response.status_code == 404
-    
     @patch.object(attack_service, 'delete_attack')
     def test_delete_attack_success(self, mock_delete_attack):
         """Test successful attack deletion"""

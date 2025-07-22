@@ -85,7 +85,8 @@ class AttackService:
         """
         await self.connect()
         
-        attack_dict = attack.model_dump()
+        # Use model_dump with mode='json' to properly serialize enums
+        attack_dict = attack.model_dump(mode='json')
         
         try:
             await self._collection.insert_one(attack_dict)
@@ -121,31 +122,6 @@ class AttackService:
             return None
         
         return await self.get_attack_by_id(attack_id)
-    
-    async def update_attack_full(self, attack_id: str, attack: Attack) -> Optional[Attack]:
-        """
-        Fully replaces an attack (PUT operation)
-        
-        Args:
-            attack_id: Unique attack ID
-            attack: Complete Attack object to replace with
-            
-        Returns:
-            Updated Attack if found and updated, None if not found
-        """
-        await self.connect()
-        
-        attack_dict = attack.model_dump()
-        
-        result = await self._collection.replace_one(
-            {"id": attack_id},
-            attack_dict
-        )
-        
-        if result.matched_count == 0:
-            return None
-        
-        return attack
     
     async def delete_attack(self, attack_id: str) -> bool:
         """

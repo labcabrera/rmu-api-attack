@@ -61,7 +61,6 @@ The application can be configured using environment variables:
 * `GET /v1/attacks/{attackId}` - Get details of a specific attack
 * `POST /v1/attacks/` - Create a new attack
 * `PATCH /v1/attacks/{attackId}` - Partially update an attack
-* `PUT /v1/attacks/{attackId}` - Fully replace an attack
 * `DELETE /v1/attacks/{attackId}` - Delete an attack
 * `GET /v1/attacks/` - List attacks with optional filtering
 
@@ -72,10 +71,9 @@ The application can be configured using environment variables:
 
 == API Features
 
-=== PATCH vs PUT Operations
+=== PATCH Operation
 
-* **PATCH**: Partial updates - only provided fields are updated, others remain unchanged
-* **PUT**: Full replacement - completely replaces the attack with new data
+* **PATCH**: Partial updates - only provided fields are updated, others remain unchanged. This allows for efficient updates where you only need to modify specific attributes of an attack without affecting the rest of the data.
 
 === Query Parameters for Listing
 
