@@ -1,3 +1,19 @@
-from .attack import Attack, AttackNotFound
+from .attack import (
+    Attack, 
+    AttackNotFound, 
+    AttackInput, 
+    AttackRoll, 
+    AttackResult, 
+    AttackMode,
+    BonusModifier
+)
 
-__all__ = ["Attack", "AttackNotFound"]
+__all__ = [
+    "Attack", 
+    "AttackNotFound", 
+    "AttackInput", 
+    "AttackRoll", 
+    "AttackResult", 
+    "AttackMode",
+    "BonusModifier"
+]

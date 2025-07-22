@@ -1,18 +1,42 @@
 = RMU API Attack
 
-REST API for attack management in the RMU system.
+REST API for attack management in the RMU system using MongoDB.
 
 == Description
 
-This API exposes endpoints to manage attack information, including querying details of specific attacks.
+This API exposes endpoints to manage attack information, including creating, querying, updating, and deleting attacks in the RMU (Role Master Unified) system. The API uses MongoDB for persistent data storage.
+
+== Prerequisites
+
+* Python 3.11+
+* MongoDB (local or remote instance)
+* pip
 
 == Installation
+
+. Clone the repository and navigate to the project directory
 
 . Install dependencies:
 +
 [source,bash]
 ----
 pip install -r requirements.txt
+----
+
+. Configure environment variables (optional):
++
+Copy `.env.example` to `.env` and modify as needed:
++
+[source,bash]
+----
+cp .env.example .env
+----
+
+. Initialize the database with sample data (optional):
++
+[source,bash]
+----
+python init_db.py
 ----
 
 . Run the application:
@@ -22,9 +46,45 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ----
 
+== Configuration
+
+The application can be configured using environment variables:
+
+* `MONGODB_URL`: MongoDB connection string (default: `mongodb://localhost:27017`)
+* `MONGODB_DATABASE`: Database name (default: `rmu_attacks`)
+* `DEBUG`: Enable debug mode (default: `false`)
+
 == Endpoints
 
-* `GET /attacks/v1/{attackId}` - Gets details of a specific attack
+=== Attack Management
+
+* `GET /v1/attacks/{attackId}` - Get details of a specific attack
+* `POST /v1/attacks/` - Create a new attack
+* `PATCH /v1/attacks/{attackId}` - Partially update an attack
+* `PUT /v1/attacks/{attackId}` - Fully replace an attack
+* `DELETE /v1/attacks/{attackId}` - Delete an attack
+* `GET /v1/attacks/` - List attacks with optional filtering
+
+=== System Endpoints
+
+* `GET /` - Root endpoint with API information
+* `GET /health` - Health check endpoint with database connectivity status
+
+== API Features
+
+=== PATCH vs PUT Operations
+
+* **PATCH**: Partial updates - only provided fields are updated, others remain unchanged
+* **PUT**: Full replacement - completely replaces the attack with new data
+
+=== Query Parameters for Listing
+
+When using `GET /v1/attacks/`, you can filter results:
+
+* `tactical_game_id`: Filter by tactical game ID
+* `status`: Filter by attack status
+* `limit`: Maximum number of results (1-1000, default: 100)
+* `skip`: Number of results to skip for pagination (default: 0)
 
 == Documentation
 
@@ -35,10 +95,69 @@ Once the application is running, you can access the interactive documentation at
 
 == Development
 
-To run tests:
+=== Running Tests
 
 [source,bash]
 ----
 pytest
 ----
+
+=== Using VS Code Tasks
+
+The project includes VS Code tasks for common operations:
+
+* **Start API Server**: Starts the development server
+* **Run Tests**: Executes the test suite
+* **Install Dependencies**: Installs Python dependencies
+
+== Database Schema
+
+The MongoDB collection `attacks` stores documents with the following structure:
+
+[source,json]
+----
+{
+  "id": "atk_001",
+  "tacticalGameId": "game_001",
+  "status": "executed",
+  "input": {
+    "sourceId": "source_001",
+    "targetId": "target_001",
+    "actionPoints": 3,
+    "mode": "mainHand"
+  },
+  "roll": {
+    "roll": 15
+  },
+  "results": {
+    "labelResult": "8AT",
+    "hitPoints": 8,
+    "criticals": [
+      {
+        "id": "crit_001",
+        "status": "applied"
+      }
+    ]
+  }
+}
+----
+
+== Error Handling
+
+The API returns appropriate HTTP status codes:
+
+* `200` - Success
+* `201` - Created
+* `204` - No Content (for successful deletions)
+* `400` - Bad Request
+* `404` - Not Found
+* `409` - Conflict (duplicate ID)
+
+== Technology Stack
+
+* **FastAPI**: Modern Python web framework
+* **MongoDB**: NoSQL database via Motor (async driver)
+* **Pydantic**: Data validation and serialization
+* **Uvicorn**: ASGI server
+* **Pytest**: Testing framework
 

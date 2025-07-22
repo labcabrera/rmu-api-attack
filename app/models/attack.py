@@ -92,14 +92,4 @@ class AttackNotFound(BaseModel):
                 "attack_id": "atk_999"
             }
         }
-    type: str = Field(..., description="Bonus type (e.g., critical, elemental advantage, etc.)")
-    value: int = Field(..., description="Numeric bonus value")
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "type": "critical",
-                "value": 20
-            }
-        }
 
