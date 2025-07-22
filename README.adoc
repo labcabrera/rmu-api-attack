@@ -1,0 +1,44 @@
+= RMU API Attack
+
+REST API for attack management in the RMU system.
+
+== Description
+
+This API exposes endpoints to manage attack information, including querying details of specific attacks.
+
+== Installation
+
+. Install dependencies:
++
+[source,bash]
+----
+pip install -r requirements.txt
+----
+
+. Run the application:
++
+[source,bash]
+----
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+----
+
+== Endpoints
+
+* `GET /attacks/v1/{attackId}` - Gets details of a specific attack
+
+== Documentation
+
+Once the application is running, you can access the interactive documentation at:
+
+* Swagger UI: http://localhost:8000/docs
+* ReDoc: http://localhost:8000/redoc
+
+== Development
+
+To run tests:
+
+[source,bash]
+----
+pytest
+----
+
