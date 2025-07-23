@@ -3,8 +3,7 @@ import pytest_asyncio
 from fastapi.testclient import TestClient
 from unittest.mock import AsyncMock, patch, MagicMock
 from app.main import app
-from app.models.attack import Attack, AttackInput, AttackMode
-from app.services.attack_service import attack_service
+from app.domain.entities.attack import Attack, AttackInput, AttackMode
 
 # Mock attack data for testing
 MOCK_ATTACK_DATA = {
