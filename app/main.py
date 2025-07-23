@@ -2,6 +2,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.config import settings
 from app.infrastructure.dependency_container import container
+from app.infrastructure.adapters.web.attack_controller import router as attack_router
+from app.infrastructure.adapters.web.critical_controller import router as critical_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,9 +29,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Get the attack controller from the container and include its router
-attack_controller = container.get_attack_controller()
-app.include_router(attack_controller.router, prefix="/v1/attacks", tags=["attacks"])
+# Include routers
+app.include_router(attack_router, prefix="/api/v1")
+app.include_router(critical_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

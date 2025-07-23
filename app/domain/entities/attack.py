@@ -5,6 +5,7 @@ Domain entities for the RMU Attack system.
 from typing import Optional
 from dataclasses import dataclass
 from enum import Enum
+from .critical import Critical
 
 
 class AttackMode(Enum):
@@ -26,13 +27,6 @@ class AttackInput:
 class AttackRoll:
     """Attack roll data"""
     roll: int
-
-
-@dataclass
-class Critical:
-    """Critical hit data"""
-    id: str
-    status: str
 
 
 @dataclass

@@ -1,4 +1,3 @@
-from .attack_controller import AttackController
 from .attack_dtos import (
     AttackDTO,
     CreateAttackRequestDTO,
@@ -6,12 +5,23 @@ from .attack_dtos import (
     attack_to_dto,
     create_request_to_domain
 )
+from .critical_dtos import (
+    CriticalCreateRequestDTO,
+    CriticalUpdateRequestDTO,
+    CriticalResponseDTO,
+    CriticalNotFoundDTO,
+    critical_to_dto
+)
 
 __all__ = [
-    "AttackController",
     "AttackDTO", 
     "CreateAttackRequestDTO",
     "AttackNotFoundDTO",
     "attack_to_dto",
-    "create_request_to_domain"
+    "create_request_to_domain",
+    "CriticalCreateRequestDTO",
+    "CriticalUpdateRequestDTO", 
+    "CriticalResponseDTO",
+    "CriticalNotFoundDTO",
+    "critical_to_dto"
 ]

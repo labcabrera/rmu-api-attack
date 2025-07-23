@@ -15,17 +15,28 @@ from app.config import settings
 class MongoAttackRepository(AttackRepository):
     """MongoDB implementation of AttackRepository"""
     
-    def __init__(self):
-        self.mongo_url = settings.MONGODB_URL
-        self.database_name = settings.MONGODB_DATABASE
-        self.collection_name = "attacks"
-        
-        self._client: Optional[AsyncIOMotorClient] = None
-        self._database: Optional[AsyncIOMotorDatabase] = None
-        self._collection: Optional[AsyncIOMotorCollection] = None
+    def __init__(self, database=None):
+        if database is not None:
+            # Use provided database connection (from container)
+            self._client = None
+            self._database = database
+            self._collection = database.attacks
+        else:
+            # Create own connection (legacy mode)
+            self.mongo_url = settings.MONGODB_URL
+            self.database_name = settings.MONGODB_DATABASE
+            self.collection_name = "attacks"
+            
+            self._client = None
+            self._database = None
+            self._collection = None
     
     async def connect(self):
         """Initialize MongoDB connection"""
+        if self._database is not None:
+            # Already connected via container
+            return
+        
         if not self._client:
             self._client = AsyncIOMotorClient(self.mongo_url)
             self._database = self._client[self.database_name]
