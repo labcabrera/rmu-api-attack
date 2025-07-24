@@ -72,7 +72,7 @@ class AttackModifiers:
             self.attack_type = AttackType(self.attack_type)
         elif not isinstance(self.attack_type, AttackType):
             raise ValueError("Invalid attack type")
-            
+
         if not isinstance(self.roll_modifiers, AttackRollModifiers):
             raise ValueError("Invalid roll modifiers")
 
@@ -106,7 +106,9 @@ class Attack:
     """Attack domain entity"""
 
     id: str
-    tactical_game_id: str
+    action_id: str
+    source_id: str
+    target_id: str
     status: AttackStatus
     modifiers: AttackModifiers
     roll: Optional[AttackRoll] = None

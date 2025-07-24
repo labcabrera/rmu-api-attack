@@ -12,6 +12,8 @@ from motor.motor_asyncio import (
 from pymongo.errors import DuplicateKeyError
 from bson import ObjectId
 
+from app.config import settings
+from app.domain.ports import AttackRepository
 from app.domain.entities import (
     Attack,
     AttackModifiers,
@@ -20,8 +22,7 @@ from app.domain.entities import (
     AttackMode,
     Critical,
 )
-from app.domain.ports import AttackRepository
-from app.config import settings
+from app.domain.entities.enums import AttackStatus
 
 
 class MongoAttackRepository(AttackRepository):
@@ -64,20 +65,30 @@ class MongoAttackRepository(AttackRepository):
     def _attack_to_dict(self, attack: Attack) -> Dict[str, Any]:
         """Convert Attack domain entity to dictionary for MongoDB"""
 
-        mode_str = (
-            attack.input.mode.value
-            if isinstance(attack.input.mode, AttackMode)
-            else attack.input.mode
+        status_str = (
+            attack.status.value
+            if isinstance(attack.status, AttackStatus)
+            else attack.status
         )
 
         attack_dict = {
-            "tactical_game_id": attack.tactical_game_id,
-            "status": attack.status,
-            "input": {
-                "source_id": attack.input.source_id,
-                "target_id": attack.input.target_id,
-                "action_points": attack.input.action_points,
-                "mode": mode_str,
+            "actionId": attack.action_id,
+            "sourceId": attack.source_id,
+            "targetId": attack.target_id,
+            "status": status_str,
+            "modifiers": {
+                "attack_type": "melee",
+                "roll_modifiers": {
+                    "bo": attack.modifiers.roll_modifiers.bo,
+                    "bo_injury_penalty": attack.modifiers.roll_modifiers.bo_injury_penalty,
+                    "bo_actions_points_penalty": attack.modifiers.roll_modifiers.bo_actions_points_penalty,
+                    "bo_pace_penalty": attack.modifiers.roll_modifiers.bo_pace_penalty,
+                    "bo_fatigue_penalty": attack.modifiers.roll_modifiers.bo_fatigue_penalty,
+                    "bd": attack.modifiers.roll_modifiers.bd,
+                    "range_penalty": attack.modifiers.roll_modifiers.range_penalty,
+                    "parry": attack.modifiers.roll_modifiers.parry,
+                    "custom_bonus": attack.modifiers.roll_modifiers.custom_bonus,
+                },
             },
         }
 
@@ -179,9 +190,9 @@ class MongoAttackRepository(AttackRepository):
             # Return attack with the generated MongoDB _id
             return Attack(
                 id=str(result.inserted_id),
-                tactical_game_id=attack.tactical_game_id,
-                status=attack.status,
-                input=attack.input,
+                source_id=attack.source_id,
+                target_id=attack.target_id,
+                modifiers=attack.modifiers,
                 roll=attack.roll,
                 results=attack.results,
             )

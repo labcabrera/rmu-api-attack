@@ -39,37 +39,37 @@ class TestAttackDomainConversions:
             parry=15,
             custom_bonus=10,
         )
-        
+
         attack_modifiers = AttackModifiers(
             attack_type=AttackType.MELEE,
             roll_modifiers=roll_modifiers,
         )
-        
+
         criticals = [
             Critical(
-                id="crit_001", 
-                type="slash", 
-                roll=95, 
-                result="Major wound to arm", 
-                status="applied"
+                id="crit_001",
+                type="slash",
+                roll=95,
+                result="Major wound to arm",
+                status="applied",
             ),
             Critical(
-                id="crit_002", 
-                type="puncture", 
-                roll=88, 
-                result="Minor wound to leg", 
-                status="pending"
+                id="crit_002",
+                type="puncture",
+                roll=88,
+                result="Minor wound to leg",
+                status="pending",
             ),
         ]
-        
+
         attack_result = AttackResult(
             label_result="12AT",
             hit_points=12,
             criticals=criticals,
         )
-        
+
         attack_roll = AttackRoll(roll=18)
-        
+
         attack = Attack(
             id="attack_001",
             tactical_game_id="game_001",
@@ -85,17 +85,21 @@ class TestAttackDomainConversions:
         # Assert: Verify DTO fields
         assert attack_dto.id == "attack_001"
         assert attack_dto.actionId == "game_001"
-        assert attack_dto.status == AttackStatus.APPLIED.value  # Compare with the string value
-        
+        assert (
+            attack_dto.status == AttackStatus.APPLIED.value
+        )  # Compare with the string value
+
         # Verify modifiers
-        assert attack_dto.modifiers.attackType == AttackType.MELEE.value  # Compare with the string value
+        assert (
+            attack_dto.modifiers.attackType == AttackType.MELEE.value
+        )  # Compare with the string value
         assert attack_dto.modifiers.rollModifiers.bo == 85
         assert attack_dto.modifiers.rollModifiers.bd == 25
-        
+
         # Verify roll
         assert attack_dto.roll is not None
         assert attack_dto.roll.roll == 18
-        
+
         # Verify results
         assert attack_dto.results is not None
         assert attack_dto.results.labelResult == "12AT"
@@ -111,12 +115,12 @@ class TestAttackDomainConversions:
             bo=80,
             bd=20,
         )
-        
+
         modifiers_dto = AttackModifiersDTO(
             attackType=AttackType.RANGED,
             rollModifiers=roll_modifiers_dto,
         )
-        
+
         create_request_dto = CreateAttackRequestDTO(
             actionId="action_123",
             sourceId="character_001",
@@ -131,19 +135,21 @@ class TestAttackDomainConversions:
         assert attack.id is None  # Should be None for new attacks
         assert attack.tactical_game_id == "action_123"
         assert attack.status == AttackStatus.DRAFT
-        
+
         # Verify modifiers
         assert attack.modifiers.attack_type == AttackType.RANGED
         assert attack.modifiers.roll_modifiers.bo == 80
         assert attack.modifiers.roll_modifiers.bd == 20
         assert attack.modifiers.roll_modifiers.bo_injury_penalty == 0  # Default value
-        assert attack.modifiers.roll_modifiers.bo_actions_points_penalty == 0  # Default value
+        assert (
+            attack.modifiers.roll_modifiers.bo_actions_points_penalty == 0
+        )  # Default value
         assert attack.modifiers.roll_modifiers.bo_pace_penalty == 0  # Default value
         assert attack.modifiers.roll_modifiers.bo_fatigue_penalty == 0  # Default value
         assert attack.modifiers.roll_modifiers.range_penalty == 0  # Default value
         assert attack.modifiers.roll_modifiers.parry == 0  # Default value
         assert attack.modifiers.roll_modifiers.custom_bonus == 0  # Default value
-        
+
         # Verify optional fields are None
         assert attack.roll is None
         assert attack.results is None
@@ -162,12 +168,12 @@ class TestAttackDomainConversions:
             parry=0,
             custom_bonus=0,
         )
-        
+
         attack_modifiers = AttackModifiers(
             attack_type=AttackType.MELEE,
             roll_modifiers=roll_modifiers,
         )
-        
+
         original_attack = Attack(
             id="attack_minimal",
             tactical_game_id="game_minimal",
@@ -179,7 +185,7 @@ class TestAttackDomainConversions:
 
         # Act: Convert to DTO and back to domain
         attack_dto = attack_to_dto(original_attack)
-        
+
         # Create a new CreateAttackRequestDTO from the DTO data
         create_request = CreateAttackRequestDTO(
             actionId=attack_dto.actionId,
@@ -187,15 +193,26 @@ class TestAttackDomainConversions:
             targetId="target_test",
             modifiers=attack_dto.modifiers,
         )
-        
+
         converted_attack = create_request_to_domain(create_request)
 
         # Assert: Verify the core data is preserved
         assert converted_attack.tactical_game_id == original_attack.tactical_game_id
-        assert converted_attack.status == AttackStatus.DRAFT  # Should be DRAFT for new attacks
-        assert converted_attack.modifiers.attack_type == original_attack.modifiers.attack_type
-        assert converted_attack.modifiers.roll_modifiers.bo == original_attack.modifiers.roll_modifiers.bo
-        assert converted_attack.modifiers.roll_modifiers.bd == original_attack.modifiers.roll_modifiers.bd
+        assert (
+            converted_attack.status == AttackStatus.DRAFT
+        )  # Should be DRAFT for new attacks
+        assert (
+            converted_attack.modifiers.attack_type
+            == original_attack.modifiers.attack_type
+        )
+        assert (
+            converted_attack.modifiers.roll_modifiers.bo
+            == original_attack.modifiers.roll_modifiers.bo
+        )
+        assert (
+            converted_attack.modifiers.roll_modifiers.bd
+            == original_attack.modifiers.roll_modifiers.bd
+        )
         assert converted_attack.roll is None
         assert converted_attack.results is None
 
@@ -213,14 +230,14 @@ class TestAttackDomainConversions:
             parry=10,
             custom_bonus=5,
         )
-        
+
         attack_modifiers = AttackModifiers(
             attack_type=AttackType.RANGED,
             roll_modifiers=roll_modifiers,
         )
-        
+
         attack_roll = AttackRoll(roll=15)
-        
+
         attack = Attack(
             id="attack_with_roll",
             tactical_game_id="game_with_roll",
@@ -236,13 +253,17 @@ class TestAttackDomainConversions:
         # Assert: Verify DTO has roll but no results
         assert attack_dto.id == "attack_with_roll"
         assert attack_dto.actionId == "game_with_roll"
-        assert attack_dto.status == AttackStatus.ROLLED.value  # Compare with the string value
-        assert attack_dto.modifiers.attackType == AttackType.RANGED.value  # Compare with the string value
-        
+        assert (
+            attack_dto.status == AttackStatus.ROLLED.value
+        )  # Compare with the string value
+        assert (
+            attack_dto.modifiers.attackType == AttackType.RANGED.value
+        )  # Compare with the string value
+
         # Verify roll is present
         assert attack_dto.roll is not None
         assert attack_dto.roll.roll == 15
-        
+
         # Verify results is None
         assert attack_dto.results is None
 
@@ -260,12 +281,12 @@ class TestAttackDomainConversions:
             parry=0,
             custom_bonus=0,
         )
-        
+
         # This should work fine with valid AttackType
         valid_modifiers = AttackModifiers(
             attack_type=AttackType.MELEE,
             roll_modifiers=roll_modifiers,
         )
-        
+
         assert valid_modifiers.attack_type == AttackType.MELEE
         assert isinstance(valid_modifiers.roll_modifiers, AttackRollModifiers)

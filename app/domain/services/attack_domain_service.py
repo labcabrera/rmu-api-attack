@@ -22,7 +22,6 @@ class AttackDomainService:
     async def create_attack(self, attack: Attack) -> Attack:
         """Create a new attack with business validation"""
 
-        attack.status = "pending"
         created_attack = await self._attack_repository.save(attack)
         if self._notification_port:
             await self._notification_port.notify_attack_created(created_attack)

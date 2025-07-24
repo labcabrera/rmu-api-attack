@@ -23,11 +23,11 @@ class CreateAttackUseCase:
         command.validate()
         attack = Attack(
             id=None,
-            actionId=command.action_id,
+            action_id=command.action_id,
             source_id=command.source_id,
             target_id=command.target_id,
             modifiers=command.modifiers,
-            status=AttackStatus.PENDING,
+            status=AttackStatus.DRAFT,
         )
         return await self._domain_service.create_attack(attack)
 
