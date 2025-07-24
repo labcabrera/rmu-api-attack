@@ -64,6 +64,14 @@ class MongoAttackRepository(AttackRepository):
     def _attack_to_dict(self, attack: Attack) -> Dict[str, Any]:
         """Convert Attack domain entity to dictionary for MongoDB"""
 
+        # Handle mode conversion safely
+        mode_value = attack.input.mode
+        if isinstance(mode_value, AttackMode):
+            mode_str = mode_value.value
+        else:
+            # If it's already a string, use it directly
+            mode_str = mode_value
+
         attack_dict = {
             "tactical_game_id": attack.tactical_game_id,
             "status": attack.status,
@@ -71,7 +79,7 @@ class MongoAttackRepository(AttackRepository):
                 "source_id": attack.input.source_id,
                 "target_id": attack.input.target_id,
                 "action_points": attack.input.action_points,
-                "mode": attack.input.mode.value,
+                "mode": mode_str,
             },
         }
 
