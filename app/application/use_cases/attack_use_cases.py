@@ -7,6 +7,7 @@ from typing import Optional, List, Dict, Any
 from app.domain.entities import Attack, AttackInput, AttackMode, Critical
 from app.domain.ports import AttackRepository, AttackNotificationPort
 from app.domain.services import AttackDomainService
+from app.application.commands import CreateAttackCommand
 
 
 class CreateAttackUseCase:
@@ -15,20 +16,22 @@ class CreateAttackUseCase:
     def __init__(self, domain_service: AttackDomainService):
         self._domain_service = domain_service
     
-    async def execute(self, attack_id: str, tactical_game_id: str, 
-                     source_id: str, target_id: str, action_points: int, 
-                     mode: AttackMode) -> Attack:
+    async def execute(self, command: CreateAttackCommand) -> Attack:
         """Execute the create attack use case"""
+        # Validate command
+        command.validate()
+        
+        # Create domain objects
         attack_input = AttackInput(
-            source_id=source_id,
-            target_id=target_id,
-            action_points=action_points,
-            mode=mode
+            source_id=command.source_id,
+            target_id=command.target_id,
+            action_points=command.action_points,
+            mode=command.mode
         )
         
         attack = Attack(
-            id=attack_id,
-            tactical_game_id=tactical_game_id,
+            id=command.attack_id,
+            tactical_game_id=command.tactical_game_id,
             status="pending",
             input=attack_input
         )

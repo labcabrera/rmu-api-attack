@@ -79,7 +79,6 @@ class CreateAttackRequestDTO(BaseModel):
     """DTO for create attack request"""
     model_config = ConfigDict(use_enum_values=True)
     
-    id: str = Field(..., description="Attack ID")
     tacticalGameId: str = Field(..., description="Tactical game ID")
     sourceId: str = Field(..., description="Source ID")
     targetId: str = Field(..., description="Target ID")

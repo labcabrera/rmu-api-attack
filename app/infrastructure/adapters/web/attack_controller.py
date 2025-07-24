@@ -1,10 +1,11 @@
 """
-Attack web controller using hexagonal architecture.
+Attack web controller
 """
 
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query
 from app.infrastructure.dependency_container import container
+from app.application.commands import CreateAttackCommand
 from app.infrastructure.adapters.web.attack_dtos import (
     AttackDTO,
     CreateAttackRequestDTO,
@@ -13,30 +14,28 @@ from app.infrastructure.adapters.web.attack_dtos import (
     create_request_to_domain
 )
 
-router = APIRouter(prefix="/attacks", tags=["attacks"])
+router = APIRouter(prefix="/attacks", tags=["Attacks"])
 
-
-@router.post("/", response_model=AttackDTO, status_code=201)
-async def create_attack(request: CreateAttackRequestDTO):
-    """Create a new attack"""
+@router.get("", response_model=List[AttackDTO])
+async def list_attacks(
+    tactical_game_id: Optional[str] = Query(None, description="Filter by tactical game ID"),
+    status: Optional[str] = Query(None, description="Filter by status"),
+    limit: int = Query(100, description="Maximum number of results", ge=1, le=1000),
+    skip: int = Query(0, description="Number of results to skip", ge=0)
+):
+    """List attacks with optional filters"""
     try:
-        create_use_case = container.get_create_attack_use_case()
-        attack = create_request_to_domain(request)
-        created_attack = await create_use_case.execute(
-            attack_id=attack.id,
-            tactical_game_id=attack.tactical_game_id,
-            source_id=attack.input.source_id,
-            target_id=attack.input.target_id,
-            action_points=attack.input.action_points,
-            mode=attack.input.mode
+        list_use_case = container.get_list_attacks_use_case()
+        attacks = await list_use_case.execute(
+            tactical_game_id=tactical_game_id,
+            status=status,
+            limit=limit,
+            skip=skip
         )
-        return attack_to_dto(created_attack)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        return [attack_to_dto(attack) for attack in attacks]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-
+    
 @router.get("/{attack_id}", response_model=AttackDTO, responses={404: {"model": AttackNotFoundDTO}})
 async def get_attack(attack_id: str):
     """Get attack by ID"""
@@ -56,27 +55,29 @@ async def get_attack(attack_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-
-@router.get("/", response_model=List[AttackDTO])
-async def list_attacks(
-    tactical_game_id: Optional[str] = Query(None, description="Filter by tactical game ID"),
-    status: Optional[str] = Query(None, description="Filter by status"),
-    limit: int = Query(100, description="Maximum number of results", ge=1, le=1000),
-    skip: int = Query(0, description="Number of results to skip", ge=0)
-):
-    """List attacks with optional filters"""
+@router.post("", response_model=AttackDTO, status_code=201)
+async def create_attack(request: CreateAttackRequestDTO):
+    """Create a new attack"""
     try:
-        list_use_case = container.get_list_attacks_use_case()
-        attacks = await list_use_case.execute(
-            tactical_game_id=tactical_game_id,
-            status=status,
-            limit=limit,
-            skip=skip
+        create_use_case = container.get_create_attack_use_case()
+        attack = create_request_to_domain(request)
+        
+        # Create command object
+        command = CreateAttackCommand(
+            attack_id=attack.id,
+            tactical_game_id=attack.tactical_game_id,
+            source_id=attack.input.source_id,
+            target_id=attack.input.target_id,
+            action_points=attack.input.action_points,
+            mode=attack.input.mode
         )
-        return [attack_to_dto(attack) for attack in attacks]
+        
+        created_attack = await create_use_case.execute(command)
+        return attack_to_dto(created_attack)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
 
 @router.patch("/{attack_id}", response_model=AttackDTO, responses={404: {"model": AttackNotFoundDTO}})
 async def update_attack(attack_id: str, update_data: dict):
