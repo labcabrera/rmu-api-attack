@@ -88,6 +88,8 @@ class AttackDTO(BaseModel):
 
     id: str = Field(..., description="Attack ID")
     actionId: str = Field(..., description="Action ID")
+    sourceId: str = Field(..., description="Source ID")
+    targetId: str = Field(..., description="Target ID")
     status: str = Field(..., description="Attack status")
     modifiers: AttackModifiersDTO = Field(..., description="Attack input")
     roll: Optional[AttackRollDTO] = Field(None, description="Attack roll")

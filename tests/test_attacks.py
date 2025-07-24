@@ -33,8 +33,8 @@ MOCK_ATTACK_1 = Attack(
             bd=10,
             range_penalty=0,
             parry=0,
-            custom_bonus=0
-        )
+            custom_bonus=0,
+        ),
     ),
     roll=AttackRoll(roll=15),
     results=None,
@@ -57,8 +57,8 @@ MOCK_ATTACK_2 = Attack(
             bd=8,
             range_penalty=-5,
             parry=0,
-            custom_bonus=0
-        )
+            custom_bonus=0,
+        ),
     ),
     roll=None,
     results=None,

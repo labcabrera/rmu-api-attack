@@ -82,6 +82,8 @@ class AttackDTOConverter:
         return AttackDTO(
             id=attack.id,
             actionId=attack.action_id,
+            sourceId=attack.source_id,
+            targetId=attack.target_id,
             status=attack.status,
             modifiers=modifiers_dto,
             roll=roll_dto,

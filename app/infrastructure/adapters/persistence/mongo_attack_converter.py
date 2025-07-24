@@ -41,22 +41,22 @@ class MongoAttackConverter:
         )
 
         attack_dict = {
-            "action_id": attack.action_id,
-            "source_id": attack.source_id,
-            "target_id": attack.target_id,
+            "actionId": attack.action_id,
+            "sourceId": attack.source_id,
+            "targetId": attack.target_id,
             "status": status_str,
             "modifiers": {
-                "attack_type": attack_type_str,
-                "roll_modifiers": {
+                "attackType": attack_type_str,
+                "rollModifiers": {
                     "bo": attack.modifiers.roll_modifiers.bo,
-                    "bo_injury_penalty": attack.modifiers.roll_modifiers.bo_injury_penalty,
-                    "bo_actions_points_penalty": attack.modifiers.roll_modifiers.bo_actions_points_penalty,
-                    "bo_pace_penalty": attack.modifiers.roll_modifiers.bo_pace_penalty,
-                    "bo_fatigue_penalty": attack.modifiers.roll_modifiers.bo_fatigue_penalty,
+                    "boInjuryPenalty": attack.modifiers.roll_modifiers.bo_injury_penalty,
+                    "boActionsPointsPenalty": attack.modifiers.roll_modifiers.bo_actions_points_penalty,
+                    "boPacePenalty": attack.modifiers.roll_modifiers.bo_pace_penalty,
+                    "boFatiguePenalty": attack.modifiers.roll_modifiers.bo_fatigue_penalty,
                     "bd": attack.modifiers.roll_modifiers.bd,
-                    "range_penalty": attack.modifiers.roll_modifiers.range_penalty,
+                    "rangePenalty": attack.modifiers.roll_modifiers.range_penalty,
                     "parry": attack.modifiers.roll_modifiers.parry,
-                    "custom_bonus": attack.modifiers.roll_modifiers.custom_bonus,
+                    "customBonus": attack.modifiers.roll_modifiers.custom_bonus,
                 },
             },
         }
@@ -74,8 +74,8 @@ class MongoAttackConverter:
         # Handle results conversion
         if attack.results:
             attack_dict["results"] = {
-                "label_result": attack.results.label_result,
-                "hit_points": attack.results.hit_points,
+                "labelResult": attack.results.label_result,
+                "hitPoints": attack.results.hit_points,
                 "criticals": [
                     {
                         "id": c.id,
@@ -105,27 +105,27 @@ class MongoAttackConverter:
         modifiers_data = attack_dict.get("modifiers", {})
 
         # Handle attack_type conversion (string to enum)
-        attack_type = AttackType.MELEE  # default
+        attack_type = AttackType.MELEE
         if "attack_type" in modifiers_data:
             try:
-                attack_type = AttackType(modifiers_data["attack_type"])
+                attack_type = AttackType(modifiers_data["attackType"])
             except ValueError:
                 attack_type = AttackType.MELEE  # fallback to default
 
         # Convert roll_modifiers
-        roll_modifiers_data = modifiers_data.get("roll_modifiers", {})
+        roll_modifiers_data = modifiers_data.get("rollModifiers", {})
         roll_modifiers = AttackRollModifiers(
             bo=roll_modifiers_data.get("bo", 0),
-            bo_injury_penalty=roll_modifiers_data.get("bo_injury_penalty", 0),
+            bo_injury_penalty=roll_modifiers_data.get("boInjuryPenalty", 0),
             bo_actions_points_penalty=roll_modifiers_data.get(
-                "bo_actions_points_penalty", 0
+                "boActionsPointsPenalty", 0
             ),
-            bo_pace_penalty=roll_modifiers_data.get("bo_pace_penalty", 0),
-            bo_fatigue_penalty=roll_modifiers_data.get("bo_fatigue_penalty", 0),
+            bo_pace_penalty=roll_modifiers_data.get("boPacePenalty", 0),
+            bo_fatigue_penalty=roll_modifiers_data.get("boFatiguePenalty", 0),
             bd=roll_modifiers_data.get("bd", 0),
-            range_penalty=roll_modifiers_data.get("range_penalty", 0),
+            range_penalty=roll_modifiers_data.get("rangePenalty", 0),
             parry=roll_modifiers_data.get("parry", 0),
-            custom_bonus=roll_modifiers_data.get("custom_bonus", 0),
+            custom_bonus=roll_modifiers_data.get("customBonus", 0),
         )
 
         modifiers = AttackModifiers(
@@ -169,9 +169,9 @@ class MongoAttackConverter:
 
         return Attack(
             id=attack_id,
-            action_id=attack_dict.get("action_id", ""),
-            source_id=attack_dict.get("source_id", ""),
-            target_id=attack_dict.get("target_id", ""),
+            action_id=attack_dict.get("actionId", ""),
+            source_id=attack_dict.get("sourceId", ""),
+            target_id=attack_dict.get("targetId", ""),
             status=status,
             modifiers=modifiers,
             roll=roll,
