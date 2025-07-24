@@ -14,6 +14,7 @@ class CreateAttackCommand:
     source_id: str
     target_id: str
     action_points: int
+    round: int
     mode: AttackMode
 
     def validate(self) -> None:
@@ -26,3 +27,5 @@ class CreateAttackCommand:
             raise ValueError("Target ID is required")
         if self.action_points < 1 or self.action_points > 4:
             raise ValueError("Invalid action points, must be between 1 and 4")
+        if self.round <= 0:
+            raise ValueError("Round must be greater than zero")

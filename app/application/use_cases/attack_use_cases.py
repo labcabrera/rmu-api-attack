@@ -27,6 +27,7 @@ class CreateAttackUseCase:
             target_id=command.target_id,
             action_points=command.action_points,
             mode=command.mode,
+            round=command.round,
         )
 
         attack = Attack(

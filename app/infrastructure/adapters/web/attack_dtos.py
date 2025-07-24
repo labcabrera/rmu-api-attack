@@ -23,6 +23,7 @@ class AttackInputDTO(BaseModel):
     sourceId: str = Field(..., description="Attack source identifier")
     targetId: str = Field(..., description="Attack target identifier")
     actionPoints: int = Field(..., description="Action points required")
+    round: int = Field(..., gt=0, description="Game round number")
     mode: AttackMode = Field(..., description="Attack mode")
 
 
@@ -67,6 +68,7 @@ class AttackDTO(BaseModel):
                     "sourceId": "source_001",
                     "targetId": "target_001",
                     "actionPoints": 3,
+                    "round": 1,
                     "mode": "mainHand",
                 },
                 "roll": {"roll": 15},
@@ -94,6 +96,7 @@ class CreateAttackRequestDTO(BaseModel):
                 "sourceId": "character_001",
                 "targetId": "character_002",
                 "actionPoints": 3,
+                "round": 1,
                 "mode": "mainHand",
             }
         },
@@ -103,6 +106,9 @@ class CreateAttackRequestDTO(BaseModel):
     sourceId: str = Field(..., description="Source ID")
     targetId: str = Field(..., description="Target ID")
     actionPoints: int = Field(..., description="Action points")
+    round: int = Field(
+        ..., gt=0, description="Game round number (must be greater than zero)"
+    )
     mode: AttackMode = Field(..., description="Attack mode")
 
 
@@ -127,6 +133,7 @@ def create_request_to_command(dto: CreateAttackRequestDTO) -> "CreateAttackComma
         source_id=dto.sourceId,
         target_id=dto.targetId,
         action_points=dto.actionPoints,
+        round=dto.round,
         mode=dto.mode,
     )
 
@@ -137,6 +144,7 @@ def attack_to_dto(attack: Attack) -> AttackDTO:
         sourceId=attack.input.source_id,
         targetId=attack.input.target_id,
         actionPoints=attack.input.action_points,
+        round=attack.input.round,
         mode=attack.input.mode,
     )
 
@@ -171,6 +179,7 @@ def create_request_to_domain(dto: CreateAttackRequestDTO) -> Attack:
         source_id=dto.sourceId,
         target_id=dto.targetId,
         action_points=dto.actionPoints,
+        round=dto.round,
         mode=dto.mode,
     )
 
