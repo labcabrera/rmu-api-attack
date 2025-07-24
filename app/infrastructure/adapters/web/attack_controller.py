@@ -10,6 +10,8 @@ from app.infrastructure.adapters.web.attack_dtos import (
     AttackDTO,
     CreateAttackRequestDTO,
     AttackNotFoundDTO,
+)
+from app.infrastructure.adapters.web.attack_dto_converter import (
     attack_to_dto,
     create_request_to_command,
 )
@@ -24,22 +26,27 @@ router = APIRouter(prefix="/attacks", tags=["Attacks"])
 @log_endpoint
 @log_errors
 async def list_attacks(
-    tactical_game_id: Optional[str] = Query(
-        None, description="Filter by tactical game ID"
-    ),
+    action_id: Optional[str] = Query(None, description="Filter by action ID"),
+    source_id: Optional[str] = Query(None, description="Filter by source ID"),
+    target_id: Optional[str] = Query(None, description="Filter by target ID"),
     status: Optional[str] = Query(None, description="Filter by status"),
     limit: int = Query(100, description="Maximum number of results", ge=1, le=1000),
     skip: int = Query(0, description="Number of results to skip", ge=0),
 ):
     """List attacks with optional filters"""
     logger.info(
-        f"Listing attacks with filters: tactical_game_id={tactical_game_id}, status={status}, limit={limit}, skip={skip}"
+        f"Listing attacks with filters - action_id: {action_id}, source_id: {source_id}, target_id: {target_id}, status: {status}, limit: {limit}, skip: {skip}"
     )
 
     try:
         list_use_case = container.get_list_attacks_use_case()
         attacks = await list_use_case.execute(
-            tactical_game_id=tactical_game_id, status=status, limit=limit, skip=skip
+            action_id=action_id,
+            source_id=source_id,
+            target_id=target_id,
+            status=status,
+            limit=limit,
+            skip=skip,
         )
 
         logger.info(f"Successfully retrieved {len(attacks)} attacks")

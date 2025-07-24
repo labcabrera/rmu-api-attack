@@ -8,22 +8,33 @@ from app.domain.entities import (
     AttackModifiers,
     AttackMode,
     AttackRoll,
+    AttackRollModifiers,
     AttackResult,
     AttackStatus,
+    AttackType,
 )
 from app.infrastructure.dependency_container import container
 
 # Mock attack data for testing
 MOCK_ATTACK_1 = Attack(
     id="atk_001",
-    tactical_game_id="game_001",
+    action_id="action_001",
+    source_id="source_001",
+    target_id="target_001",
     status=AttackStatus.APPLIED,
     modifiers=AttackModifiers(
-        source_id="source_001",
-        target_id="target_001",
-        action_points=3,
-        mode=AttackMode.MAIN_HAND,
-        round=1,
+        attack_type=AttackType.MELEE,
+        roll_modifiers=AttackRollModifiers(
+            bo=5,
+            bo_injury_penalty=0,
+            bo_actions_points_penalty=0,
+            bo_pace_penalty=0,
+            bo_fatigue_penalty=0,
+            bd=10,
+            range_penalty=0,
+            parry=0,
+            custom_bonus=0
+        )
     ),
     roll=AttackRoll(roll=15),
     results=None,
@@ -31,14 +42,23 @@ MOCK_ATTACK_1 = Attack(
 
 MOCK_ATTACK_2 = Attack(
     id="atk_002",
-    tactical_game_id="game_001",
+    action_id="action_002",
+    source_id="source_002",
+    target_id="target_002",
     status=AttackStatus.DRAFT,
     modifiers=AttackModifiers(
-        source_id="source_002",
-        target_id="target_002",
-        action_points=4,
-        mode=AttackMode.OFF_HAND,
-        round=1,
+        attack_type=AttackType.RANGED,
+        roll_modifiers=AttackRollModifiers(
+            bo=3,
+            bo_injury_penalty=-1,
+            bo_actions_points_penalty=-2,
+            bo_pace_penalty=0,
+            bo_fatigue_penalty=0,
+            bd=8,
+            range_penalty=-5,
+            parry=0,
+            custom_bonus=0
+        )
     ),
     roll=None,
     results=None,

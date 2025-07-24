@@ -2,6 +2,8 @@ from .attack_dtos import (
     AttackDTO,
     CreateAttackRequestDTO,
     AttackNotFoundDTO,
+)
+from .attack_dto_converter import (
     attack_to_dto,
     create_request_to_domain
 )

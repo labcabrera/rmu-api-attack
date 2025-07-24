@@ -82,6 +82,39 @@ class MongoAttackRepository(AttackRepository):
 
         return None
 
+    async def find_all(
+        self,
+        action_id: Optional[str] = None,
+        source_id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 100,
+        skip: int = 0,
+    ) -> List[Attack]:
+        """Find attacks with optional filters"""
+        await self.connect()
+
+        # Build filter query
+        filter_query = {}
+        if action_id:
+            filter_query["action_id"] = action_id
+        if source_id:
+            filter_query["source_id"] = source_id
+        if target_id:
+            filter_query["target_id"] = target_id
+        if status:
+            filter_query["status"] = status
+
+        cursor = self._collection.find(filter_query).skip(skip).limit(limit)
+        attacks = []
+
+        async for attack_dict in cursor:
+            attack = self._converter.dict_to_attack(attack_dict)
+            if attack:
+                attacks.append(attack)
+
+        return attacks
+
     async def save(self, attack: Attack) -> Attack:
         """Save a new attack"""
         await self.connect()
@@ -131,33 +164,6 @@ class MongoAttackRepository(AttackRepository):
         except Exception:
             # Invalid ObjectId format
             return False
-
-    async def find_all(
-        self,
-        action_id: Optional[str] = None,
-        status: Optional[str] = None,
-        limit: int = 100,
-        skip: int = 0,
-    ) -> List[Attack]:
-        """Find attacks with optional filters"""
-        await self.connect()
-
-        # Build filter query
-        filter_query = {}
-        if action_id:
-            filter_query["action_id"] = action_id
-        if status:
-            filter_query["status"] = status
-
-        cursor = self._collection.find(filter_query).skip(skip).limit(limit)
-        attacks = []
-
-        async for attack_dict in cursor:
-            attack = self._converter.dict_to_attack(attack_dict)
-            if attack:
-                attacks.append(attack)
-
-        return attacks
 
     async def exists(self, attack_id: str) -> bool:
         """Check if an attack exists"""

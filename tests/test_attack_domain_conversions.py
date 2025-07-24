@@ -17,6 +17,8 @@ from app.infrastructure.adapters.web.attack_dtos import (
     AttackModifiersDTO,
     AttackRollModifiersDTO,
     CreateAttackRequestDTO,
+)
+from app.infrastructure.adapters.web.attack_dto_converter import (
     attack_to_dto,
     create_request_to_domain,
 )
