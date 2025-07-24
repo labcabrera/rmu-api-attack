@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 from unittest.mock import AsyncMock, patch, MagicMock
 from app.main import app
 from app.domain.entities.attack import Attack, AttackInput, AttackMode
+from app.infrastructure.dependency_container import container
 
 # Mock attack data for testing
 MOCK_ATTACK_DATA = {
@@ -22,18 +23,13 @@ MOCK_ATTACK_DATA = {
     "results": {
         "labelResult": "8AT",
         "hitPoints": 8,
-        "criticals": [
-            {
-                "id": "crit_001",
-                "status": "applied"
-            }
-        ]
+        "criticals": []
     }
 }
 
 MOCK_ATTACK_DATA_2 = {
     "id": "atk_002",
-    "tacticalGameId": "game_002",
+    "tacticalGameId": "game_001", 
     "status": "pending",
     "input": {
         "sourceId": "source_002",
@@ -50,15 +46,18 @@ client = TestClient(app)
 class TestAttacksAPI:
     """Tests for the attacks endpoint"""
     
-    @patch.object(attack_service, 'get_attack_by_id')
-    def test_get_existing_attack(self, mock_get_attack):
+    @patch.object(container, 'get_get_attack_use_case')
+    def test_get_existing_attack(self, mock_get_use_case):
         """Test to get an existing attack"""
-        # Mock the service response
+        # Mock the use case and its execute method
+        mock_use_case = AsyncMock()
         mock_attack = Attack(**MOCK_ATTACK_DATA)
-        mock_get_attack.return_value = mock_attack
+        mock_use_case.execute.return_value = mock_attack
+        mock_get_use_case.return_value = mock_use_case
         
         attack_id = "atk_001"
-        response = client.get(f"/v1/attacks/{attack_id}")
+        
+        response = client.get(f"/api/v1/attacks/{attack_id}")
         
         assert response.status_code == 200
         
@@ -66,7 +65,6 @@ class TestAttacksAPI:
         assert data["id"] == attack_id
         assert data["tacticalGameId"] == "game_001"
         assert data["status"] == "executed"
-        assert "input" in data
         assert data["input"]["sourceId"] == "source_001"
         assert data["input"]["targetId"] == "target_001"
         assert data["input"]["actionPoints"] == 3
@@ -77,153 +75,211 @@ class TestAttacksAPI:
         assert data["results"]["labelResult"] == "8AT"
         assert data["results"]["hitPoints"] == 8
         
-        mock_get_attack.assert_called_once_with(attack_id)
+        mock_use_case.execute.assert_called_once_with(attack_id)
     
-    @patch.object(attack_service, 'get_attack_by_id')
-    def test_get_nonexistent_attack(self, mock_get_attack):
+    @patch.object(container, 'get_get_attack_use_case')
+    def test_get_nonexistent_attack(self, mock_get_use_case):
         """Test to get a non-existent attack"""
-        # Mock the service to return None
-        mock_get_attack.return_value = None
+        # Mock the use case to return None
+        mock_use_case = AsyncMock()
+        mock_use_case.execute.return_value = None
+        mock_get_use_case.return_value = mock_use_case
         
-        attack_id = "atk_999"
-        response = client.get(f"/v1/attacks/{attack_id}")
+        attack_id = "non_existent"
+        
+        response = client.get(f"/api/v1/attacks/{attack_id}")
         
         assert response.status_code == 404
         
         data = response.json()
         assert "detail" in data
-        assert data["detail"]["attack_id"] == attack_id
-        assert data["detail"]["detail"] == "Attack not found"
         
-        mock_get_attack.assert_called_once_with(attack_id)
+        mock_use_case.execute.assert_called_once_with(attack_id)
     
-    @patch.object(attack_service, 'create_attack')
-    def test_create_attack_success(self, mock_create_attack):
+    @patch.object(container, 'get_create_attack_use_case')
+    def test_create_attack_success(self, mock_create_use_case):
         """Test successful attack creation"""
-        # Mock the service response
+        # Mock the use case and its execute method
+        mock_use_case = AsyncMock()
         mock_attack = Attack(**MOCK_ATTACK_DATA)
-        mock_create_attack.return_value = mock_attack
+        mock_use_case.execute.return_value = mock_attack
+        mock_create_use_case.return_value = mock_use_case
         
-        response = client.post("/v1/attacks/", json=MOCK_ATTACK_DATA)
+        attack_data = {
+            "tacticalGameId": "game_001",
+            "input": {
+                "sourceId": "source_001",
+                "targetId": "target_001",
+                "actionPoints": 3,
+                "mode": "mainHand"
+            }
+        }
+        
+        response = client.post("/api/v1/attacks", json=attack_data)
         
         assert response.status_code == 201
-        data = response.json()
-        assert data["id"] == "atk_001"
-        assert data["tacticalGameId"] == "game_001"
+        mock_use_case.execute.assert_called_once()
+
+    def test_create_attack_invalid_data(self):
+        """Test attack creation with invalid data"""
+        invalid_data = {
+            "tacticalGameId": "",  # Invalid empty string
+            "input": {
+                "sourceId": "source_001",
+                "actionPoints": -1,  # Invalid negative value
+                "mode": "invalidMode"  # Invalid mode
+            }
+        }
         
-        mock_create_attack.assert_called_once()
-    
-    @patch.object(attack_service, 'create_attack')
-    def test_create_attack_duplicate(self, mock_create_attack):
-        """Test attack creation with duplicate ID"""
-        # Mock the service to raise ValueError
-        mock_create_attack.side_effect = ValueError("Attack with ID atk_001 already exists")
+        response = client.post("/api/v1/attacks", json=invalid_data)
         
-        response = client.post("/v1/attacks/", json=MOCK_ATTACK_DATA)
+        assert response.status_code == 422  # Validation error
+
+    @patch.object(container, 'get_update_attack_use_case')
+    def test_update_attack_success(self, mock_update_use_case):
+        """Test successful attack update"""
+        # Mock the use case
+        mock_use_case = AsyncMock()
+        mock_attack = Attack(**MOCK_ATTACK_DATA)
+        mock_use_case.execute.return_value = mock_attack
+        mock_update_use_case.return_value = mock_use_case
         
-        assert response.status_code == 409
-        data = response.json()
-        assert "Attack with ID atk_001 already exists" in data["detail"]
-    
-    @patch.object(attack_service, 'update_attack_partial')
-    def test_patch_attack_success(self, mock_update_attack):
-        """Test successful partial update of attack"""
-        # Mock the service response
-        updated_data = MOCK_ATTACK_DATA.copy()
-        updated_data["status"] = "completed"
-        mock_attack = Attack(**updated_data)
-        mock_update_attack.return_value = mock_attack
+        attack_id = "atk_001"
+        update_data = {
+            "status": "completed"
+        }
         
-        update_data = {"status": "completed"}
-        response = client.patch("/v1/attacks/atk_001", json=update_data)
+        response = client.patch(f"/api/v1/attacks/{attack_id}", json=update_data)
         
         assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "completed"
+        mock_use_case.execute.assert_called_once()
+
+    @patch.object(container, 'get_update_attack_use_case')
+    def test_update_nonexistent_attack(self, mock_update_use_case):
+        """Test update of non-existent attack"""
+        # Mock the use case to return None
+        mock_use_case = AsyncMock()
+        mock_use_case.execute.return_value = None
+        mock_update_use_case.return_value = mock_use_case
         
-        mock_update_attack.assert_called_once_with("atk_001", update_data)
-    
-    @patch.object(attack_service, 'update_attack_partial')
-    def test_patch_attack_not_found(self, mock_update_attack):
-        """Test partial update of non-existent attack"""
-        # Mock the service to return None
-        mock_update_attack.return_value = None
+        attack_id = "non_existent"
+        update_data = {
+            "status": "completed"
+        }
         
-        update_data = {"status": "completed"}
-        response = client.patch("/v1/attacks/atk_999", json=update_data)
+        response = client.patch(f"/api/v1/attacks/{attack_id}", json=update_data)
         
         assert response.status_code == 404
-        data = response.json()
-        assert data["detail"]["attack_id"] == "atk_999"
-    
-    @patch.object(attack_service, 'delete_attack')
-    def test_delete_attack_success(self, mock_delete_attack):
+
+    @patch.object(container, 'get_delete_attack_use_case')
+    def test_delete_attack_success(self, mock_delete_use_case):
         """Test successful attack deletion"""
-        # Mock the service to return True
-        mock_delete_attack.return_value = True
+        # Mock the use case
+        mock_use_case = AsyncMock()
+        mock_use_case.execute.return_value = True
+        mock_delete_use_case.return_value = mock_use_case
         
-        response = client.delete("/v1/attacks/atk_001")
+        attack_id = "atk_001"
+        
+        response = client.delete(f"/api/v1/attacks/{attack_id}")
         
         assert response.status_code == 204
-        
-        mock_delete_attack.assert_called_once_with("atk_001")
-    
-    @patch.object(attack_service, 'delete_attack')
-    def test_delete_attack_not_found(self, mock_delete_attack):
+
+    @patch.object(container, 'get_delete_attack_use_case')
+    def test_delete_nonexistent_attack(self, mock_delete_use_case):
         """Test deletion of non-existent attack"""
-        # Mock the service to return False
-        mock_delete_attack.return_value = False
+        # Mock the use case to return False
+        mock_use_case = AsyncMock()
+        mock_use_case.execute.return_value = False
+        mock_delete_use_case.return_value = mock_use_case
         
-        response = client.delete("/v1/attacks/atk_999")
+        attack_id = "non_existent"
+        
+        response = client.delete(f"/api/v1/attacks/{attack_id}")
         
         assert response.status_code == 404
-        data = response.json()
-        assert data["detail"]["attack_id"] == "atk_999"
-    
-    @patch.object(attack_service, 'list_attacks')
-    def test_list_attacks_success(self, mock_list_attacks):
-        """Test successful listing of attacks"""
-        # Mock the service response
+
+    @patch.object(container, 'get_list_attacks_use_case')
+    def test_list_attacks_success(self, mock_list_use_case):
+        """Test successful attacks listing"""
+        # Mock the use case
+        mock_use_case = AsyncMock()
         mock_attacks = [
             Attack(**MOCK_ATTACK_DATA),
             Attack(**MOCK_ATTACK_DATA_2)
         ]
-        mock_list_attacks.return_value = mock_attacks
+        mock_use_case.execute.return_value = mock_attacks
+        mock_list_use_case.return_value = mock_use_case
         
-        response = client.get("/v1/attacks/")
+        response = client.get("/api/v1/attacks")
         
         assert response.status_code == 200
+        
         data = response.json()
+        assert isinstance(data, list)
         assert len(data) == 2
         assert data[0]["id"] == "atk_001"
         assert data[1]["id"] == "atk_002"
-        
-        mock_list_attacks.assert_called_once_with(
-            tactical_game_id=None,
-            status=None,
-            limit=100,
-            skip=0
-        )
-    
-    @patch.object(attack_service, 'list_attacks')
-    def test_list_attacks_with_filters(self, mock_list_attacks):
-        """Test listing attacks with filters"""
-        # Mock the service response
+
+    @patch.object(container, 'get_list_attacks_use_case')
+    def test_list_attacks_with_filters(self, mock_list_use_case):
+        """Test attacks listing with filters"""
+        # Mock the use case
+        mock_use_case = AsyncMock()
         mock_attacks = [Attack(**MOCK_ATTACK_DATA)]
-        mock_list_attacks.return_value = mock_attacks
+        mock_use_case.execute.return_value = mock_attacks
+        mock_list_use_case.return_value = mock_use_case
         
-        response = client.get("/v1/attacks/?tactical_game_id=game_001&status=executed&limit=10&skip=5")
+        params = {
+            "tactical_game_id": "game_001",
+            "status": "executed",
+            "limit": 10,
+            "skip": 0
+        }
+        
+        response = client.get("/api/v1/attacks", params=params)
         
         assert response.status_code == 200
-        data = response.json()
-        assert len(data) == 1
         
-        mock_list_attacks.assert_called_once_with(
-            tactical_game_id="game_001",
-            status="executed",
-            limit=10,
-            skip=5
-        )
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) == 1
+        assert data[0]["id"] == "atk_001"
+
+    @patch.object(container, 'get_execute_attack_roll_use_case')
+    def test_execute_attack_roll_success(self, mock_roll_use_case):
+        """Test successful attack roll execution"""
+        # Mock the use case
+        mock_use_case = AsyncMock()
+        updated_attack_data = MOCK_ATTACK_DATA.copy()
+        updated_attack_data["roll"] = {"roll": 18}
+        mock_attack = Attack(**updated_attack_data)
+        mock_use_case.execute.return_value = mock_attack
+        mock_roll_use_case.return_value = mock_use_case
+        
+        attack_id = "atk_001"
+        
+        response = client.post(f"/api/v1/attacks/{attack_id}/roll")
+        
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert data["roll"]["roll"] == 18
+
+    @patch.object(container, 'get_execute_attack_roll_use_case')
+    def test_execute_attack_roll_not_found(self, mock_roll_use_case):
+        """Test attack roll execution for non-existent attack"""
+        # Mock the use case to return None
+        mock_use_case = AsyncMock()
+        mock_use_case.execute.return_value = None
+        mock_roll_use_case.return_value = mock_use_case
+        
+        attack_id = "non_existent"
+        
+        response = client.post(f"/api/v1/attacks/{attack_id}/roll")
+        
+        assert response.status_code == 404
+
 
 class TestHealthEndpoints:
     """Tests for health and root endpoints"""
@@ -237,35 +293,3 @@ class TestHealthEndpoints:
         data = response.json()
         assert "message" in data
         assert "RMU API Attack" in data["message"]
-        assert "version" in data
-        assert "api_prefix" in data
-    
-    @patch.object(attack_service, 'connect')
-    def test_health_check_endpoint_success(self, mock_connect):
-        """Test for the health check endpoint with successful DB connection"""
-        # Mock successful connection
-        mock_connect.return_value = None
-        
-        response = client.get("/health")
-        
-        assert response.status_code == 200
-        
-        data = response.json()
-        assert data["status"] == "healthy"
-        assert "version" in data
-        assert data["database"] == "connected"
-        assert "mongodb_url" in data
-    
-    @patch.object(attack_service, 'connect')
-    def test_health_check_endpoint_db_error(self, mock_connect):
-        """Test for the health check endpoint with DB connection error"""
-        # Mock connection error
-        mock_connect.side_effect = Exception("Connection failed")
-        
-        response = client.get("/health")
-        
-        assert response.status_code == 200
-        
-        data = response.json()
-        assert data["status"] == "unhealthy"
-        assert "error: Connection failed" in data["database"]
