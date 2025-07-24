@@ -21,8 +21,9 @@ from app.domain.entities import (
     AttackResult,
     AttackMode,
     Critical,
+    AttackRollModifiers,
 )
-from app.domain.entities.enums import AttackStatus
+from app.domain.entities.enums import AttackStatus, AttackType
 
 
 class MongoAttackRepository(AttackRepository):
@@ -124,10 +125,26 @@ class MongoAttackRepository(AttackRepository):
 
         # Convert input
         input_data = attack_dict["input"]
-        attack_modifiers = AttackModifiers(
-            source_id=input_data["source_id"],
-            target_id=input_data["target_id"],
-            action_points=input_data["action_points"],
+        modifiers = AttackModifiers(
+            # TODO
+            attack_type=AttackType.MELEE,
+            rollModifiers=AttackRollModifiers(
+                bo=input_data["roll_modifiers"]["bo"],
+                bo_injury_penalty=input_data["roll_modifiers"].get(
+                    "bo_injury_penalty", 0
+                ),
+                bo_actions_points_penalty=input_data["roll_modifiers"].get(
+                    "bo_actions_points_penalty", 0
+                ),
+                bo_pace_penalty=input_data["roll_modifiers"].get("bo_pace_penalty", 0),
+                bo_fatigue_penalty=input_data["roll_modifiers"].get(
+                    "bo_fatigue_penalty", 0
+                ),
+                bd=input_data["roll_modifiers"]["bd"],
+                range_penalty=input_data["roll_modifiers"].get("range_penalty", 0),
+                parry=input_data["roll_modifiers"].get("parry", 0),
+                custom_bonus=input_data["roll_modifiers"].get("custom_bonus", 0),
+            ),
             round=input_data["round"],
             mode=AttackMode(input_data["mode"]),
         )
@@ -153,9 +170,12 @@ class MongoAttackRepository(AttackRepository):
 
         return Attack(
             id=attack_id,
-            tactical_game_id=attack_dict["tactical_game_id"],
+            action_id=attack_dict["actionId"],
+            source_id=attack_dict["sourceId"],
+            target_id=attack_dict["targetId"],
+            modifiers=modifiers,
+            # TODO
             status=attack_dict["status"],
-            input=attack_modifiers,
             roll=roll,
             results=results,
         )
