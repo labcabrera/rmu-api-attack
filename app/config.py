@@ -19,6 +19,7 @@ class Settings:
     
     # Development Configuration
     DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
+    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO").upper()
     
     class Config:
         case_sensitive = True

@@ -2,8 +2,19 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.config import settings
 from app.infrastructure.dependency_container import container
+from app.infrastructure.logging import setup_logging, get_logger
 from app.infrastructure.adapters.web.attack_controller import router as attack_router
 from app.infrastructure.adapters.web.critical_controller import router as critical_router
+
+# Initialize logging
+setup_logging(
+    log_level=getattr(settings, 'LOG_LEVEL', 'INFO'),
+    enable_console=True,
+    enable_file=True
+)
+
+# Get logger for this module
+logger = get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -11,16 +22,18 @@ async def lifespan(app: FastAPI):
     Manage application lifecycle events
     """
     # Startup: Initialize dependencies
+    logger.info("🚀 Starting RMU Attack API...")
     await container.initialize()
-    print("Initialized hexagonal architecture dependencies")
-    print("Connected to MongoDB")
+    logger.info("✅ Initialized hexagonal architecture dependencies")
+    logger.info("✅ Connected to MongoDB")
     
     yield
     
     # Shutdown: Clean up dependencies
+    logger.info("🛑 Shutting down RMU Attack API...")
     await container.cleanup()
-    print("Cleaned up dependencies")
-    print("Disconnected from MongoDB")
+    logger.info("✅ Cleaned up dependencies")
+    logger.info("✅ Disconnected from MongoDB")
 
 app = FastAPI(
     title=settings.APP_NAME,
