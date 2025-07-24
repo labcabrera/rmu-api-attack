@@ -141,28 +141,86 @@ The MongoDB collection `attacks` stores documents with the following structure:
 [source,json]
 ----
 {
-  "id": "atk_001",
-  "tacticalGameId": "game_001",
-  "status": "executed",
-  "input": {
-    "sourceId": "source_001",
-    "targetId": "target_001",
-    "actionPoints": 3,
-    "mode": "mainHand"
-  },
-  "roll": {
-    "roll": 15
-  },
-  "results": {
-    "labelResult": "8AT",
-    "hitPoints": 8,
-    "criticals": [
-      {
-        "id": "crit_001",
-        "status": "applied"
-      }
-    ]
-  }
+    "id": "attack_001",
+    "actionId": "action_001",
+    "status": "draft",
+"modifiers":{
+        "attackType": "ranged|melee",
+        "rollModifiers": { // Calculados a partir del dominio táctico
+            "bo": 80,
+            "boInjuryPenalty": -10,
+            "boActionPointsPenalty": -5,
+            "boPacePenalty": 0,
+            "boFatiguePenalty": -1,
+            "bd": 20,
+            "rangePenalty": 0,
+            "parry": 20,
+            "custom": 20,
+        },
+        "calledShot": {
+            "calledShot": "head",
+            "calledShotAT": 5
+        },
+        "situations": {
+            "sizeDiference": 0,
+            "disabledDb": false,
+            "higherGround": true,
+            "surprised": false,
+            "proneAttacker": false,
+            "proneDefender": false,
+            "restrictedQuarters": "none",
+            "positionalAttacker": "none",
+            "positionalDefender": "none",
+            "rangedAttackInMelee": false,
+            "range": 10,
+            "flyingDefenseBonus": false,
+            "cover": "partial",
+            "canUseShield": true,
+            "dodge": "partial"
+        },
+        "features": [
+            {
+                "name": "slaying-attack",
+                "value": "1"
+            }
+        ],
+        "skills": [
+            {
+                "name": "foo",
+                "value": 10
+            },
+            {
+                "name": "bar",
+                "value": 5
+            }
+        ]
+    },
+    "calculated": {
+        "boModifiers": [
+            {
+                "name": "foo",
+                "value": 80
+            },
+            {
+                "name": "var",
+                "value": -20
+            },
+        ],
+        "totalBo": 60
+    },
+    "roll": {
+        "roll": 15
+    },
+    "result": {
+        "labelResult": "8AT",
+        "hitPoints": 8,
+        "criticals": [
+            {
+                "id": "crit_001",
+                "status": "applied"
+            }
+        ]
+    }
 }
 ----
 

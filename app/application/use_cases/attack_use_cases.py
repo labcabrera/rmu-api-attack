@@ -8,7 +8,7 @@ from app.domain.entities import Attack, AttackModifiers, AttackMode, Critical
 from app.domain.ports import AttackRepository, AttackNotificationPort
 from app.domain.services import AttackDomainService
 from app.application.commands import CreateAttackCommand
-from domain.entities.enums import AttackStatus
+from app.domain.entities.enums import AttackStatus
 
 
 class CreateAttackUseCase:

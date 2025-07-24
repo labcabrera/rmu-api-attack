@@ -67,8 +67,12 @@ class AttackModifiers:
 
     def __post_init__(self):
         """Validate input data after initialization"""
-        if not isinstance(self.attack_type, AttackType):
+        # Convert string values to enum if necessary
+        if isinstance(self.attack_type, str):
+            self.attack_type = AttackType(self.attack_type)
+        elif not isinstance(self.attack_type, AttackType):
             raise ValueError("Invalid attack type")
+            
         if not isinstance(self.roll_modifiers, AttackRollModifiers):
             raise ValueError("Invalid roll modifiers")
 

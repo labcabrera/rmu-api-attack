@@ -19,19 +19,6 @@ from app.domain.entities.enums import AttackType, AttackStatus
 from app.application.commands import CreateAttackCommand
 
 
-class AttackModifiersDTO(BaseModel):
-    """DTO for attack input"""
-
-    model_config = ConfigDict(use_enum_values=True)
-
-    attackType: AttackType = Field(
-        ..., description="Type of attack (melee, ranged, etc.)"
-    )
-    rollModifiers: AttackRollModifiers = Field(
-        ..., description="Modifiers for the attack roll including bonuses and penalties"
-    )
-
-
 class AttackRollDTO(BaseModel):
     """DTO for attack roll"""
 
@@ -204,7 +191,7 @@ def attack_to_dto(attack: Attack) -> AttackDTO:
         id=attack.id,
         actionId=attack.tactical_game_id,
         status=attack.status,
-        input=input_dto,
+        modifiers=modifiers_dto,
         roll=roll_dto,
         results=results_dto,
     )
@@ -213,11 +200,18 @@ def attack_to_dto(attack: Attack) -> AttackDTO:
 def create_request_to_domain(dto: CreateAttackRequestDTO) -> Attack:
     """Convert CreateAttackRequestDTO to domain Attack"""
     attack_modifiers = AttackModifiers(
-        source_id=dto.sourceId,
-        target_id=dto.targetId,
-        action_points=dto.actionPoints,
-        round=dto.round,
-        mode=dto.mode,
+        attack_type=dto.modifiers.attackType,
+        roll_modifiers=AttackRollModifiers(
+            bo=dto.modifiers.rollModifiers.bo,
+            bo_injury_penalty=0,
+            bo_actions_points_penalty=0,
+            bo_pace_penalty=0,
+            bo_fatigue_penalty=0,
+            bd=dto.modifiers.rollModifiers.bd,
+            range_penalty=0,
+            parry=0,
+            custom_bonus=0,
+        ),
     )
 
     return Attack(
