@@ -24,12 +24,15 @@ from app.domain.entities import (
     AttackRollModifiers,
 )
 from app.domain.entities.enums import AttackStatus, AttackType
+from .mongo_attack_converter import MongoAttackConverter
 
 
 class MongoAttackRepository(AttackRepository):
     """MongoDB implementation of AttackRepository"""
 
     def __init__(self, database=None):
+        self._converter = MongoAttackConverter()
+
         if database is not None:
             # Use provided database connection (from container)
             self._client = None
@@ -63,123 +66,6 @@ class MongoAttackRepository(AttackRepository):
             self._database = None
             self._collection = None
 
-    def _attack_to_dict(self, attack: Attack) -> Dict[str, Any]:
-        """Convert Attack domain entity to dictionary for MongoDB"""
-
-        status_str = (
-            attack.status.value
-            if isinstance(attack.status, AttackStatus)
-            else attack.status
-        )
-
-        attack_dict = {
-            "actionId": attack.action_id,
-            "sourceId": attack.source_id,
-            "targetId": attack.target_id,
-            "status": status_str,
-            "modifiers": {
-                "attack_type": "melee",
-                "roll_modifiers": {
-                    "bo": attack.modifiers.roll_modifiers.bo,
-                    "bo_injury_penalty": attack.modifiers.roll_modifiers.bo_injury_penalty,
-                    "bo_actions_points_penalty": attack.modifiers.roll_modifiers.bo_actions_points_penalty,
-                    "bo_pace_penalty": attack.modifiers.roll_modifiers.bo_pace_penalty,
-                    "bo_fatigue_penalty": attack.modifiers.roll_modifiers.bo_fatigue_penalty,
-                    "bd": attack.modifiers.roll_modifiers.bd,
-                    "range_penalty": attack.modifiers.roll_modifiers.range_penalty,
-                    "parry": attack.modifiers.roll_modifiers.parry,
-                    "custom_bonus": attack.modifiers.roll_modifiers.custom_bonus,
-                },
-            },
-        }
-
-        # Add _id if attack has an id (for updates)
-        if attack.id:
-            attack_dict["_id"] = ObjectId(attack.id)
-
-        if attack.roll:
-            attack_dict["roll"] = {"roll": attack.roll.roll}
-        else:
-            attack_dict["roll"] = None
-
-        if attack.results:
-            attack_dict["results"] = {
-                "label_result": attack.results.label_result,
-                "hit_points": attack.results.hit_points,
-                "criticals": [
-                    {"id": c.id, "status": c.status} for c in attack.results.criticals
-                ],
-            }
-        else:
-            attack_dict["results"] = None
-
-        return attack_dict
-
-    def _dict_to_attack(self, attack_dict: Dict[str, Any]) -> Attack:
-        """Convert dictionary from MongoDB to Attack domain entity"""
-        if not attack_dict:
-            return None
-
-        # Convert MongoDB's _id to string for domain entity
-        attack_id = str(attack_dict["_id"])
-
-        # Convert input
-        input_data = attack_dict["input"]
-        modifiers = AttackModifiers(
-            # TODO
-            attack_type=AttackType.MELEE,
-            rollModifiers=AttackRollModifiers(
-                bo=input_data["roll_modifiers"]["bo"],
-                bo_injury_penalty=input_data["roll_modifiers"].get(
-                    "bo_injury_penalty", 0
-                ),
-                bo_actions_points_penalty=input_data["roll_modifiers"].get(
-                    "bo_actions_points_penalty", 0
-                ),
-                bo_pace_penalty=input_data["roll_modifiers"].get("bo_pace_penalty", 0),
-                bo_fatigue_penalty=input_data["roll_modifiers"].get(
-                    "bo_fatigue_penalty", 0
-                ),
-                bd=input_data["roll_modifiers"]["bd"],
-                range_penalty=input_data["roll_modifiers"].get("range_penalty", 0),
-                parry=input_data["roll_modifiers"].get("parry", 0),
-                custom_bonus=input_data["roll_modifiers"].get("custom_bonus", 0),
-            ),
-            round=input_data["round"],
-            mode=AttackMode(input_data["mode"]),
-        )
-
-        # Convert roll
-        roll = None
-        if attack_dict.get("roll"):
-            roll = AttackRoll(roll=attack_dict["roll"]["roll"])
-
-        # Convert results
-        results = None
-        if attack_dict.get("results"):
-            results_data = attack_dict["results"]
-            criticals = [
-                Critical(id=c["id"], status=c["status"])
-                for c in results_data.get("criticals", [])
-            ]
-            results = AttackResult(
-                label_result=results_data["label_result"],
-                hit_points=results_data["hit_points"],
-                criticals=criticals,
-            )
-
-        return Attack(
-            id=attack_id,
-            action_id=attack_dict["actionId"],
-            source_id=attack_dict["sourceId"],
-            target_id=attack_dict["targetId"],
-            modifiers=modifiers,
-            # TODO
-            status=attack_dict["status"],
-            roll=roll,
-            results=results,
-        )
-
     async def find_by_id(self, attack_id: str) -> Optional[Attack]:
         """Find an attack by its ID"""
         await self.connect()
@@ -189,7 +75,7 @@ class MongoAttackRepository(AttackRepository):
             object_id = ObjectId(attack_id)
             attack_dict = await self._collection.find_one({"_id": object_id})
             if attack_dict:
-                return self._dict_to_attack(attack_dict)
+                return self._converter.dict_to_attack(attack_dict)
         except Exception:
             # Invalid ObjectId format
             pass
@@ -201,7 +87,7 @@ class MongoAttackRepository(AttackRepository):
         await self.connect()
 
         # Convert to dict (without _id for new documents)
-        attack_dict = self._attack_to_dict(attack)
+        attack_dict = self._converter.attack_to_dict(attack, include_id=False)
 
         try:
             # Insert and get the generated _id
@@ -210,8 +96,8 @@ class MongoAttackRepository(AttackRepository):
             # Return attack with the generated MongoDB _id
             return Attack(
                 id=str(result.inserted_id),
-                source_id=attack.source_id,
-                target_id=attack.target_id,
+                tactical_game_id=attack.tactical_game_id,
+                status=attack.status,
                 modifiers=attack.modifiers,
                 roll=attack.roll,
                 results=attack.results,
@@ -231,7 +117,7 @@ class MongoAttackRepository(AttackRepository):
         try:
             # Convert string ID to ObjectId
             object_id = ObjectId(attack.id)
-            attack_dict = self._attack_to_dict(attack)
+            attack_dict = self._converter.attack_to_dict(attack, include_id=True)
 
             result = await self._collection.replace_one({"_id": object_id}, attack_dict)
 
@@ -278,7 +164,7 @@ class MongoAttackRepository(AttackRepository):
         attacks = []
 
         async for attack_dict in cursor:
-            attack = self._dict_to_attack(attack_dict)
+            attack = self._converter.dict_to_attack(attack_dict)
             if attack:
                 attacks.append(attack)
 
