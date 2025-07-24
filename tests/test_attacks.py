@@ -9,6 +9,7 @@ from app.domain.entities import (
     AttackMode,
     AttackRoll,
     AttackResult,
+    AttackStatus,
 )
 from app.infrastructure.dependency_container import container
 
@@ -16,8 +17,8 @@ from app.infrastructure.dependency_container import container
 MOCK_ATTACK_1 = Attack(
     id="atk_001",
     tactical_game_id="game_001",
-    status="executed",
-    input=AttackModifiers(
+    status=AttackStatus.APPLIED,
+    modifiers=AttackModifiers(
         source_id="source_001",
         target_id="target_001",
         action_points=3,
@@ -31,8 +32,8 @@ MOCK_ATTACK_1 = Attack(
 MOCK_ATTACK_2 = Attack(
     id="atk_002",
     tactical_game_id="game_001",
-    status="pending",
-    input=AttackModifiers(
+    status=AttackStatus.DRAFT,
+    modifiers=AttackModifiers(
         source_id="source_002",
         target_id="target_002",
         action_points=4,
@@ -57,8 +58,8 @@ class TestAttacksAPI:
         mock_attack = Attack(
             id="atk_001",
             tactical_game_id="game_001",
-            status="executed",
-            input=AttackModifiers(
+            status=AttackStatus.APPLIED,
+            modifiers=AttackModifiers(
                 source_id="source_001",
                 target_id="target_001",
                 action_points=3,
@@ -117,8 +118,8 @@ class TestAttacksAPI:
         mock_attack = Attack(
             id="atk_001",
             tactical_game_id="game_001",
-            status="executed",
-            input=AttackModifiers(
+            status=AttackStatus.APPLIED,
+            modifiers=AttackModifiers(
                 source_id="source_001",
                 target_id="target_001",
                 action_points=3,
@@ -273,8 +274,8 @@ class TestAttacksAPI:
         updated_attack = Attack(
             id="atk_001",
             tactical_game_id="game_001",
-            status="executed",
-            input=AttackModifiers(
+            status=AttackStatus.APPLIED,
+            modifiers=AttackModifiers(
                 source_id="source_001",
                 target_id="target_001",
                 action_points=3,

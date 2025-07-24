@@ -87,7 +87,7 @@ async def get_attack(attack_id: str):
 @log_errors
 async def create_attack(request: CreateAttackRequestDTO):
     """Create a new attack"""
-    logger.info(f"Creating new attack for tactical game: {request.tacticalGameId}")
+    logger.info(f"Creating new attack << actionId: {request.actionId}")
 
     try:
         create_use_case = container.get_create_attack_use_case()

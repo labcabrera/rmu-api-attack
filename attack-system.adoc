@@ -48,10 +48,10 @@ _POST /api/v1/attacks_
 ----
 {
     "actionId": "action_001",
+    "sourceId": "source_001",
+    "targetId": "target_001",
     "modifiers":{
         "attackType": "ranged|melee",
-        "sourceId": "source_001",
-        "targetId": "target_001",
         "rollModifiers": { // Calculados a partir del dominio táctico
             "bo": 80,
             "boInjuryPenalty": -10,
@@ -131,7 +131,7 @@ La estructura del objeto del ataque es:
     "roll": {
         "roll": 15
     },
-    "results": {
+    "result": {
         "labelResult": "8AT",
         "hitPoints": 8,
         "criticals": [

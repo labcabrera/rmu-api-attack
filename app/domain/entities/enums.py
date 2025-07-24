@@ -12,6 +12,13 @@ class AttackMode(Enum):
     OFF_HAND = "offHand"
 
 
+class AttackType(Enum):
+    """Attack type enumeration"""
+
+    MELEE = "melee"
+    RANGED = "ranged"
+
+
 class AttackStatus(Enum):
     """Attack status enumeration"""
 
@@ -53,3 +60,22 @@ class Cover(Enum):
     PARTIAL = "partial"
     HALF = "half"
     FULL = "full"
+
+
+class DodgeType(Enum):
+    """Dodge type enumeration"""
+
+    NONE = "none"
+    PASSIVE = "passive"
+    PARTIAL = "partial"
+    FULL = "full"
+
+
+class RestrictedQuarters(Enum):
+    """Restricted quarters enumeration"""
+
+    NONE = "none"
+    CLOSE = "close"
+    CRAMPED = "cramped"
+    TIGHT = "tight"
+    CONFINED = "confined"

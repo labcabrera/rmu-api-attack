@@ -8,6 +8,7 @@ from app.domain.entities import Attack, AttackModifiers, AttackMode, Critical
 from app.domain.ports import AttackRepository, AttackNotificationPort
 from app.domain.services import AttackDomainService
 from app.application.commands import CreateAttackCommand
+from domain.entities.enums import AttackStatus
 
 
 class CreateAttackUseCase:
@@ -18,25 +19,16 @@ class CreateAttackUseCase:
 
     async def execute(self, command: CreateAttackCommand) -> Attack:
         """Execute the create attack use case"""
-        # Validate command
+
         command.validate()
-
-        # Create domain objects
-        attack_modifiers = AttackModifiers(
-            source_id=command.source_id,
-            target_id=command.target_id,
-            action_points=command.action_points,
-            mode=command.mode,
-            round=command.round,
-        )
-
         attack = Attack(
             id=None,
-            tactical_game_id=command.tactical_game_id,
-            status="pending",
-            input=attack_modifiers,
+            actionId=command.action_id,
+            source_id=command.source_id,
+            target_id=command.target_id,
+            modifiers=command.modifiers,
+            status=AttackStatus.PENDING,
         )
-
         return await self._domain_service.create_attack(attack)
 
 
