@@ -1,11 +1,13 @@
-from .attack import Attack, AttackInput, AttackRoll, AttackResult, AttackMode
+from .attack import Attack, AttackModifiers, AttackRoll, AttackResult
 from .critical import Critical
+from .enums import AttackMode, AttackStatus
 
 __all__ = [
     "Attack",
-    "AttackInput", 
+    "AttackModifiers", 
     "AttackRoll",
     "AttackResult",
     "AttackMode",
+    "AttackStatus",
     "Critical"
 ]

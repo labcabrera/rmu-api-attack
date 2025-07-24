@@ -14,7 +14,7 @@ from bson import ObjectId
 
 from app.domain.entities import (
     Attack,
-    AttackInput,
+    AttackModifiers,
     AttackRoll,
     AttackResult,
     AttackMode,
@@ -113,10 +113,11 @@ class MongoAttackRepository(AttackRepository):
 
         # Convert input
         input_data = attack_dict["input"]
-        attack_input = AttackInput(
+        attack_modifiers = AttackModifiers(
             source_id=input_data["source_id"],
             target_id=input_data["target_id"],
             action_points=input_data["action_points"],
+            round=input_data["round"],
             mode=AttackMode(input_data["mode"]),
         )
 
@@ -143,7 +144,7 @@ class MongoAttackRepository(AttackRepository):
             id=attack_id,
             tactical_game_id=attack_dict["tactical_game_id"],
             status=attack_dict["status"],
-            input=attack_input,
+            input=attack_modifiers,
             roll=roll,
             results=results,
         )

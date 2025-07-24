@@ -4,7 +4,7 @@ These orchestrate domain operations and contain application-specific logic.
 """
 
 from typing import Optional, List, Dict, Any
-from app.domain.entities import Attack, AttackInput, AttackMode, Critical
+from app.domain.entities import Attack, AttackModifiers, AttackMode, Critical
 from app.domain.ports import AttackRepository, AttackNotificationPort
 from app.domain.services import AttackDomainService
 from app.application.commands import CreateAttackCommand
@@ -22,7 +22,7 @@ class CreateAttackUseCase:
         command.validate()
 
         # Create domain objects
-        attack_input = AttackInput(
+        attack_modifiers = AttackModifiers(
             source_id=command.source_id,
             target_id=command.target_id,
             action_points=command.action_points,
@@ -34,7 +34,7 @@ class CreateAttackUseCase:
             id=None,
             tactical_game_id=command.tactical_game_id,
             status="pending",
-            input=attack_input,
+            input=attack_modifiers,
         )
 
         return await self._domain_service.create_attack(attack)

@@ -1,0 +1,204 @@
+= RMU Attack System
+
+== Flujo
+
+En primer lugar en el dominio táctico, durante la declaración de las acciones
+se declararán los ataques del personaje. Los ataques serán un mapa en los casos
+de multiples ataques:
+
+[source,json]
+----
+{
+    "actionId": "action_001",
+    "tacticalGameId": "game_001",
+    "characterId": "character_001",
+    "actionType": "attack",
+    "round": 1,
+    "actionPoints": 3,
+    "attacks": [
+        {
+            "attackMode": "main_hand",
+            "targetId": "character_002",
+            "parry": {
+                "targetId": "character_002",
+                "value": 20
+            },
+            "status": "draft"
+        },
+        {
+            "attackMode": "off_hand",
+            "targetId": "character_03",
+            "parry": {
+                "targetId": "character_02",
+                "value": 20
+            },
+            "status": "draft"
+        }
+    ]
+}
+----
+
+En el momento en el que se va a resolver el ataque el dominio táctico realizará una petición a la API
+de ataques para cada uno de ellos.
+
+La petición será:
+
+_POST /api/v1/attacks_
+[source,json]
+----
+{
+    "actionId": "action_001",
+    "modifiers":{
+        "attackType": "ranged|melee",
+        "sourceId": "source_001",
+        "targetId": "target_001",
+        "rollModifiers": { // Calculados a partir del dominio táctico
+            "bo": 80,
+            "boInjuryPenalty": -10,
+            "boActionPointsPenalty": -5,
+            "boPacePenalty": 0,
+            "boFatiguePenalty": -1,
+            "bd": 20,
+            "rangePenalty": 0,
+            "parry": 20,
+            "custom": 20,
+        },
+        "calledShot": {
+            "calledShot": "head",
+            "calledShotAT": 5
+        },
+        "situations": {
+            "sizeDiference": 0,
+            "disabledDb": false,
+            "higherGround": true,
+            "surprised": false,
+            "proneAttacker": false,
+            "proneDefender": false,
+            "restrictedQuarters": "none",
+            "positionalAttacker": "none",
+            "positionalDefender": "none",
+            "rangedAttackInMelee": false,
+            "range": 10,
+            "flyingDefenseBonus": false,
+            "cover": "partial",
+            "canUseShield": true,
+            "dodge": "partial"
+        },
+        "features": [
+            {
+                "name": "slaying-attack",
+                "value": "1"
+            }
+        ],
+        "skills": [
+            {
+                "name": "foo",
+                "value": 10
+            },
+            {
+                "name": "bar",
+                "value": 5
+            }
+        ]
+    }
+}
+----
+
+La estructura del objeto del ataque es:
+
+[source,json]
+----
+{
+    "id": "attack_001",
+    "actionId": "action_001",
+    "status": "draft",
+    "modifiers": {
+        "...": "...",
+    },
+    "calculated": {
+        "boModifiers": [
+            {
+                "name": "foo",
+                "value": 80
+            },
+            {
+                "name": "var",
+                "value": -20
+            },
+        ],
+        "totalBo": 60
+    },
+    "roll": {
+        "roll": 15
+    },
+    "results": {
+        "labelResult": "8AT",
+        "hitPoints": 8,
+        "criticals": [
+            {
+                "id": "crit_001",
+                "status": "applied"
+            }
+        ]
+    }
+}
+----
+
+== Modificadores BO
+
+|===
+|Nombre                     |Domain |Descripción
+|_bo_                       |TC     |Bonificador de ataque obenido a partir del atacante y el attackMode.
+|_bo_injury_penalty_        |TC     |Penalizacion al BO por heridas.
+|_bo_action_points_penalty_ |TC     |Penalización al BO por puntos de acción.
+|_bo_pace_penalty_          |TC     |Penalización al BO por el movimiento del atacante.
+|_bo_fatigue_penalty_       |TC     |Penalización al BO por fatiga.
+|_facing_                   |AT     |Orientación del atacante respecto al defensor.
+|_bd_                       |TC     |Bonificador de defensa
+|_parry_                    |TC     |Valor de parry del defensor aplicado al atacante
+|_called_shot_              |AT     |TODO
+|===
+
+=== Situaciones
+
+*Declaradas*:
+
+* _higher_ground_ (boolean)
+* _surprised_ (boolean)
+* _prone_attacker_ (boolean)
+* _prone_defender_ (boolean)
+* _restricted_quarters_ (enum: none, close, cramped, tight, confined)
+* _positional_attacker_ (melee only. Enum: none, to_flank, to_rear)
+* _positional_defender_ (melee only. Enum: none, flank, rear)
+* _ranged_attack_in_melee_ (boolean)
+* _range_ (int)
+* _flying_defense_bonus_ (boolean)
+* _cover_ (enum: none, partial, half, full)
+
+* _can_use_shield_ (boolean)
+* _dodge_ (enum: pasive, partial, full)
+
+*Calculadas*:
+
+* _off_hand_
+* _two_handed_ (melee only)
+* _stunned_
+* _shield_db_bounus_
+* _shield_block_bonus_
+* _size_difference_
+
+== Modificadores al critico
+
+* Tamaño
+* Resultado extra de la tirada abierta
+
+== Habilidades
+
+* _addrenal_defense_: maniobra para hacer dodge (accion a coste 0 o con concentracion)
+* _adrenal_strength_: modifica el tamaño del ataque en +1
+
+* _multiple_attacks_: reduce la penalizacion por realizar multiples ataques en un turno
+* _footwork_: reduce la penalizacion por moverse y atacar en el mismo turno
+* _reverse_strike_: reduce la penalizacion por atacar por los flancos
+
+

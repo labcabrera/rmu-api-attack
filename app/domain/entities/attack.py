@@ -4,31 +4,13 @@ Domain entities for the RMU Attack system.
 
 from typing import Optional
 from dataclasses import dataclass
-from enum import Enum
 from .critical import Critical
-
-
-class AttackMode(Enum):
-    """Attack mode enumeration"""
-
-    MAIN_HAND = "mainHand"
-    OFF_HAND = "offHand"
-
-
-class AttackStatus(Enum):
-    """Attack status enumeration"""
-
-    DRAFT = "draft"
-    READY_TO_ROLL = "ready_to_roll"
-    ROLLED = "ready_to_critical_roll"
-    CALCULATED = "calculated"
-    APPLIED = "applied"
-    FAILED = "failed"
+from .enums import AttackMode, AttackStatus
 
 
 @dataclass
-class AttackInput:
-    """Attack input data"""
+class AttackModifiers:
+    """Attack modifiers data"""
 
     source_id: str
     target_id: str
@@ -67,7 +49,7 @@ class Attack:
     id: str
     tactical_game_id: str
     status: str
-    input: AttackInput
+    input: AttackModifiers
     roll: Optional[AttackRoll] = None
     results: Optional[AttackResult] = None
 

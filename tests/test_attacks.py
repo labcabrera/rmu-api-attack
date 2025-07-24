@@ -3,9 +3,9 @@ import pytest_asyncio
 from fastapi.testclient import TestClient
 from unittest.mock import AsyncMock, patch, MagicMock
 from app.main import app
-from app.domain.entities.attack import (
+from app.domain.entities import (
     Attack,
-    AttackInput,
+    AttackModifiers,
     AttackMode,
     AttackRoll,
     AttackResult,
@@ -17,7 +17,7 @@ MOCK_ATTACK_1 = Attack(
     id="atk_001",
     tactical_game_id="game_001",
     status="executed",
-    input=AttackInput(
+    input=AttackModifiers(
         source_id="source_001",
         target_id="target_001",
         action_points=3,
@@ -32,7 +32,7 @@ MOCK_ATTACK_2 = Attack(
     id="atk_002",
     tactical_game_id="game_001",
     status="pending",
-    input=AttackInput(
+    input=AttackModifiers(
         source_id="source_002",
         target_id="target_002",
         action_points=4,
@@ -58,7 +58,7 @@ class TestAttacksAPI:
             id="atk_001",
             tactical_game_id="game_001",
             status="executed",
-            input=AttackInput(
+            input=AttackModifiers(
                 source_id="source_001",
                 target_id="target_001",
                 action_points=3,
@@ -118,7 +118,7 @@ class TestAttacksAPI:
             id="atk_001",
             tactical_game_id="game_001",
             status="executed",
-            input=AttackInput(
+            input=AttackModifiers(
                 source_id="source_001",
                 target_id="target_001",
                 action_points=3,
@@ -274,7 +274,7 @@ class TestAttacksAPI:
             id="atk_001",
             tactical_game_id="game_001",
             status="executed",
-            input=AttackInput(
+            input=AttackModifiers(
                 source_id="source_001",
                 target_id="target_001",
                 action_points=3,

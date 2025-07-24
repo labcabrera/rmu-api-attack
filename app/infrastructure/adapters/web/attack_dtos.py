@@ -7,7 +7,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
 from app.domain.entities import (
     Attack,
-    AttackInput,
+    AttackModifiers,
     AttackRoll,
     AttackResult,
     AttackMode,
@@ -175,7 +175,7 @@ def attack_to_dto(attack: Attack) -> AttackDTO:
 
 def create_request_to_domain(dto: CreateAttackRequestDTO) -> Attack:
     """Convert CreateAttackRequestDTO to domain Attack"""
-    attack_input = AttackInput(
+    attack_modifiers = AttackModifiers(
         source_id=dto.sourceId,
         target_id=dto.targetId,
         action_points=dto.actionPoints,
@@ -187,5 +187,5 @@ def create_request_to_domain(dto: CreateAttackRequestDTO) -> Attack:
         id=None,
         tactical_game_id=dto.tacticalGameId,
         status="pending",
-        input=attack_input,
+        input=attack_modifiers,
     )
