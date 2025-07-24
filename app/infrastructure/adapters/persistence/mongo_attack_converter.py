@@ -169,7 +169,9 @@ class MongoAttackConverter:
 
         return Attack(
             id=attack_id,
-            tactical_game_id=attack_dict.get("tactical_game_id", ""),
+            action_id=attack_dict.get("action_id", ""),
+            source_id=attack_dict.get("source_id", ""),
+            target_id=attack_dict.get("target_id", ""),
             status=status,
             modifiers=modifiers,
             roll=roll,

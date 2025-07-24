@@ -189,7 +189,9 @@ def attack_to_dto(attack: Attack) -> AttackDTO:
 
     return AttackDTO(
         id=attack.id,
-        actionId=attack.tactical_game_id,
+        actionId=attack.action_id,
+        sourceId=attack.source_id,
+        targetId=attack.target_id,
         status=attack.status,
         modifiers=modifiers_dto,
         roll=roll_dto,

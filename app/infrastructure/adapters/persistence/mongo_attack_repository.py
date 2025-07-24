@@ -86,23 +86,12 @@ class MongoAttackRepository(AttackRepository):
         """Save a new attack"""
         await self.connect()
 
-        # Convert to dict (without _id for new documents)
         attack_dict = self._converter.attack_to_dict(attack, include_id=False)
-
         try:
-            # Insert and get the generated _id
             result = await self._collection.insert_one(attack_dict)
-
-            # Return attack with the generated MongoDB _id
-            return Attack(
-                id=str(result.inserted_id),
-                tactical_game_id=attack.tactical_game_id,
-                status=attack.status,
-                modifiers=attack.modifiers,
-                roll=attack.roll,
-                results=attack.results,
+            return self._converter.dict_to_attack(
+                {**attack_dict, "_id": result.inserted_id}
             )
-
         except DuplicateKeyError:
             raise ValueError(f"Attack with ID {attack.id} already exists")
 
@@ -145,7 +134,7 @@ class MongoAttackRepository(AttackRepository):
 
     async def find_all(
         self,
-        tactical_game_id: Optional[str] = None,
+        action_id: Optional[str] = None,
         status: Optional[str] = None,
         limit: int = 100,
         skip: int = 0,
@@ -155,8 +144,8 @@ class MongoAttackRepository(AttackRepository):
 
         # Build filter query
         filter_query = {}
-        if tactical_game_id:
-            filter_query["tactical_game_id"] = tactical_game_id
+        if action_id:
+            filter_query["action_id"] = action_id
         if status:
             filter_query["status"] = status
 

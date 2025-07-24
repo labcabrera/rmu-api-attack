@@ -51,14 +51,14 @@ class ListAttacksUseCase:
 
     async def execute(
         self,
-        tactical_game_id: Optional[str] = None,
+        action_id: Optional[str] = None,
         status: Optional[str] = None,
         limit: int = 100,
         skip: int = 0,
     ) -> List[Attack]:
         """Execute the list attacks use case"""
         return await self._attack_repository.find_all(
-            tactical_game_id=tactical_game_id, status=status, limit=limit, skip=skip
+            action_id=action_id, status=status, limit=limit, skip=skip
         )
 
 
