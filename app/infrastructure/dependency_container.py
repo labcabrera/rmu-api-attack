@@ -3,11 +3,11 @@ Dependency injection container for hexagonal architecture.
 This assembles all the components and their dependencies.
 """
 
-import os
 from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.config import settings
 
+from app.domain.services.attack_calculator import AttackCalculator
 from app.domain.services.attack_domain_service import AttackDomainService
 from app.domain.ports.attack_ports import AttackRepository
 from app.domain.ports.critical_ports import CriticalRepository
@@ -58,6 +58,7 @@ class DependencyContainer:
 
         # Domain services
         self._attack_domain_service: Optional[AttackDomainService] = None
+        self._attack_calculator: Optional[AttackCalculator] = None
 
         # Attack Use Cases
         self._apply_attack_use_case: Optional[ApplyAttackUseCase] = None
@@ -97,7 +98,11 @@ class DependencyContainer:
         await self._critical_repository.initialize()
 
         # Initialize domain services
-        self._attack_domain_service = AttackDomainService(self._attack_repository)
+        self._attack_calculator = AttackCalculator(self._attack_repository)
+        self._attack_domain_service = AttackDomainService(
+            attack_calculator=self._attack_calculator,
+            attack_repository=self._attack_repository,
+        )
 
         # Initialize Attack use cases
         self._apply_attack_results_use_case = ApplyAttackUseCase(
@@ -167,8 +172,8 @@ class DependencyContainer:
         return self._update_attack_modifiers_use_case
 
     def get_update_attack_roll_use_case(self) -> UpdateAttackRollUseCase:
-        """Get execute attack roll use case instance"""
-        return self._execute_attack_roll_use_case
+        """Get update attack roll use case instance"""
+        return self._update_attack_roll_use_case
 
     # Critical repository and use cases
     def get_critical_repository(self) -> CriticalRepository:

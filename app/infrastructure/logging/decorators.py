@@ -43,7 +43,7 @@ def log_endpoint(func: Callable) -> Callable:
                 safe_kwargs[key] = str(value)[:100]  # Limit length
 
         logger.info(
-            f"🚀 ENDPOINT START: {func.__name__}",
+            f"ENDPOINT START: {func.__name__}",
             extra={
                 "endpoint": func.__name__,
                 "endpoint_args": [
@@ -61,7 +61,7 @@ def log_endpoint(func: Callable) -> Callable:
             execution_time = time.time() - start_time
 
             logger.info(
-                f"✅ ENDPOINT SUCCESS: {func.__name__} ({execution_time:.3f}s)",
+                f"ENDPOINT SUCCESS: {func.__name__} ({execution_time:.3f}s)",
                 extra={
                     "endpoint": func.__name__,
                     "execution_time": execution_time,
@@ -160,7 +160,7 @@ def log_errors(func: Callable) -> Callable:
             return func(*args, **kwargs)
         except Exception as e:
             logger.error(
-                f"💥 UNEXPECTED ERROR in {func.__name__}",
+                f"UNEXPECTED ERROR in {func.__name__}",
                 extra={
                     "function": func.__name__,
                     "error_type": type(e).__name__,

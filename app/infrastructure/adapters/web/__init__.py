@@ -1,6 +1,7 @@
 from .attack_dtos import (
     AttackDTO,
     CreateAttackRequestDTO,
+    UpdateAttackRollRequestDTO,
     AttackNotFoundDTO,
 )
 from .attack_dto_converter import attack_to_dto, create_request_to_domain
@@ -15,6 +16,7 @@ from .critical_dtos import (
 __all__ = [
     "AttackDTO",
     "CreateAttackRequestDTO",
+    "UpdateAttackRollRequestDTO",
     "AttackNotFoundDTO",
     "attack_to_dto",
     "create_request_to_domain",

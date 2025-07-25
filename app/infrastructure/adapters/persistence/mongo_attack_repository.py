@@ -9,10 +9,13 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import DuplicateKeyError
 from bson import ObjectId
 
+from app.domain.exceptions import AttackNotFoundException
+
 from app.config import settings
 from app.domain.ports import AttackRepository
 from app.domain.entities import Attack
 from app.infrastructure.logging import get_logger
+
 from .rsql_parser import RSQLParser
 from .mongo_attack_converter import MongoAttackConverter
 
@@ -68,7 +71,7 @@ class MongoAttackRepository(AttackRepository):
                 return self._converter.dict_to_attack(attack_dict)
             else:
                 logger.warning(f"Attack with ID {attack_id} not found")
-                raise HTTPException(status_code=404, detail="Attack not found")
+                raise AttackNotFoundException(attack_id)
         except Exception as e:
             logger.error(f"Error finding attack by ID: {attack_id} - {e}")
             raise HTTPException(status_code=500, detail=str(e))

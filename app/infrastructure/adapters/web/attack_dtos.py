@@ -6,15 +6,6 @@ These convert between domain entities and API representations.
 from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
 
-from app.domain.entities import (
-    Attack,
-    AttackRollModifiers,
-    AttackModifiers,
-    AttackMode,
-    AttackRoll,
-    AttackResult,
-    Critical,
-)
 from app.domain.entities.enums import AttackType, AttackStatus
 
 
@@ -63,6 +54,24 @@ class AttackModifiersDTO(BaseModel):
     )
 
 
+class AttackBonusEntryDTO(BaseModel):
+    """DTO for attack bonus entry"""
+
+    key: str = Field(..., description="Bonus key")
+    value: int = Field(..., description="Bonus value")
+
+
+class AttackCalculationsDTO(BaseModel):
+    """DTO for attack calculations"""
+
+    model_config = ConfigDict(use_enum_values=True)
+
+    modifiers: list[AttackBonusEntryDTO] = Field(
+        ..., description="Attack modifiers in key-value pairs"
+    )
+    total: int = Field(..., description="Total calculated value")
+
+
 class AttackDTO(BaseModel):
     """DTO for complete attack"""
 
@@ -93,6 +102,9 @@ class AttackDTO(BaseModel):
     status: str = Field(..., description="Attack status")
     modifiers: AttackModifiersDTO = Field(..., description="Attack input")
     roll: Optional[AttackRollDTO] = Field(None, description="Attack roll")
+    calculated: Optional[AttackCalculationsDTO] = Field(
+        None, description="Calculated attack data"
+    )
     results: Optional[AttackResultDTO] = Field(None, description="Attack results")
 
 
@@ -120,6 +132,21 @@ class CreateAttackRequestDTO(BaseModel):
     modifiers: AttackModifiersDTO = Field(
         ..., description="Attack modifiers including type and bonuses"
     )
+
+
+class UpdateAttackRollRequestDTO(BaseModel):
+    """DTO for update attack roll request"""
+
+    model_config = ConfigDict(
+        use_enum_values=True,
+        json_schema_extra={
+            "example": {
+                "roll": 15,
+            }
+        },
+    )
+
+    roll: int = Field(..., description="Roll value to apply to the attack")
 
 
 class AttackNotFoundDTO(BaseModel):

@@ -16,6 +16,7 @@ from .attack_dtos import (
     AttackModifiersDTO,
     AttackRollModifiersDTO,
     CreateAttackRequestDTO,
+    AttackCalculationsDTO,
     CriticalDTO,
     AttackResultDTO,
     AttackRollDTO,
@@ -71,6 +72,17 @@ class AttackDTOConverter:
         if attack.roll:
             roll_dto = AttackRollDTO(roll=attack.roll.roll)
 
+        calculated = None
+        if attack.calculated:
+            modifiers_list = [
+                {"key": modifier.key, "value": modifier.value}
+                for modifier in attack.calculated.modifiers
+            ]
+            calculated = AttackCalculationsDTO(
+                total=attack.calculated.total,
+                modifiers=modifiers_list,
+            )
+
         results_dto = None
         if attack.results:
             criticals_dto = [
@@ -90,6 +102,7 @@ class AttackDTOConverter:
             status=attack.status,
             modifiers=modifiers_dto,
             roll=roll_dto,
+            calculated=calculated,
             results=results_dto,
         )
 

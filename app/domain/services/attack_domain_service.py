@@ -12,6 +12,7 @@ from app.domain.exceptions import (
     AttackNotFoundException,
     AttackValidationException,
 )
+from .attack_calculator import AttackCalculator
 
 
 class AttackDomainService:
@@ -20,9 +21,11 @@ class AttackDomainService:
     def __init__(
         self,
         attack_repository: AttackRepository,
+        attack_calculator: AttackCalculator,
         notification_port: Optional[AttackNotificationPort] = None,
     ):
         self._attack_repository = attack_repository
+        self._attack_calculator = attack_calculator
         self._notification_port = notification_port
 
     async def create_attack(self, attack: Attack) -> Attack:
@@ -34,26 +37,13 @@ class AttackDomainService:
 
         return created_attack
 
-    async def execute_attack_roll(
-        self, attack_id: str, roll_value: int
-    ) -> Optional[Attack]:
+    async def update_attack_roll(self, attack_id: str, roll_value: int) -> Attack:
         """Execute a roll for an attack"""
+
         attack = await self._attack_repository.find_by_id(attack_id)
-        if not attack:
-            return None
-
-        # Business rule: Can only roll for pending attacks
-        if not attack.is_pending():
-            raise ValueError(
-                f"Cannot roll for attack {attack_id}: attack is not pending"
-            )
-
-        # Execute the roll
-        attack.execute_roll(roll_value)
-
-        # Update the attack
+        attack.roll = AttackRoll(roll=roll_value)
+        await self._attack_calculator.calculate_attack(attack)
         updated_attack = await self._attack_repository.update(attack)
-
         return updated_attack
 
     async def apply_attack_results(

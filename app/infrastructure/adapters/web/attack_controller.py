@@ -5,6 +5,8 @@ Attack web controller.
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 
+from app.application.commands.update_attack_roll_command import UpdateAttackRollCommand
+
 from app.infrastructure.dependency_container import container
 from app.infrastructure.logging import log_endpoint, log_errors, get_logger
 from app.infrastructure.adapters.web.attack_dtos import (
@@ -12,6 +14,7 @@ from app.infrastructure.adapters.web.attack_dtos import (
     CreateAttackRequestDTO,
     AttackNotFoundDTO,
     PagedAttacksDTO,
+    UpdateAttackRollRequestDTO,
 )
 from app.infrastructure.adapters.web.attack_dto_converter import (
     attack_to_dto,
@@ -188,7 +191,7 @@ async def delete_attack(attack_id: str):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
-@router.post(
+@router.patch(
     "/{attack_id}/roll",
     summary="Apply attack roll",
     description="Applies the result of the damage roll to an attack.",
@@ -197,24 +200,17 @@ async def delete_attack(attack_id: str):
 )
 @log_endpoint
 @log_errors
-async def execute_attack_roll(attack_id: str, roll_data: dict):
+async def execute_attack_roll(attack_id: str, request: UpdateAttackRollRequestDTO):
     """Applies the result of the damage roll to an attack."""
-    logger.info(f"Executing roll for attack {attack_id}: {roll_data}")
+    logger.info(f"Executing roll for attack {attack_id}: {request}")
 
     try:
-        roll_value = roll_data.get("roll")
-        if roll_value is None:
-            logger.warning(f"No roll value provided for attack: {attack_id}")
-            raise HTTPException(status_code=400, detail="Roll value is required")
+
+        command = UpdateAttackRollCommand(attack_id=attack_id, roll=request.roll)
+        command.validate()
         use_case = container.get_update_attack_roll_use_case()
-        attack = await use_case.execute(attack_id, roll_value)
-        if not attack:
-            logger.warning(f"Attack not found for roll execution: {attack_id}")
-            raise HTTPException(
-                status_code=404,
-                detail={"detail": "Attack not found", "attack_id": attack_id},
-            )
-        logger.info(f"Successfully executed roll for attack {attack_id}: {roll_value}")
+        attack = await use_case.execute(command=command)
+        logger.info(f"Successfully executed roll for attack {attack_id}: {attack_id}")
         return attack_to_dto(attack)
 
     except HTTPException:

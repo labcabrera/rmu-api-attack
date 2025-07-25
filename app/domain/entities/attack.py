@@ -15,7 +15,7 @@ from .enums import (
 
 
 @dataclass
-class AttackKeyBonus:
+class AttackBonusEntry:
     """Attack bonus data"""
 
     key: str
@@ -81,7 +81,7 @@ class AttackModifiers:
 class AttackCalculations:
     """Calculated data for attack processing"""
 
-    modifiers: list[AttackKeyBonus]
+    modifiers: list[AttackBonusEntry]
     total: int
 
 
@@ -112,4 +112,5 @@ class Attack:
     status: AttackStatus
     modifiers: AttackModifiers
     roll: Optional[AttackRoll] = None
+    calculated: Optional[AttackCalculations] = None
     results: Optional[AttackResult] = None

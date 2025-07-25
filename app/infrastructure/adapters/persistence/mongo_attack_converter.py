@@ -13,6 +13,8 @@ from app.domain.entities import (
     AttackResult,
     Critical,
     AttackRollModifiers,
+    AttackCalculations,
+    AttackBonusEntry,
 )
 from app.domain.entities.enums import AttackStatus, AttackType
 
@@ -69,6 +71,18 @@ class MongoAttackConverter:
             attack_dict["roll"] = {"roll": attack.roll.roll}
         else:
             attack_dict["roll"] = None
+
+        # Handle calculated conversion
+        if attack.calculated:
+            attack_dict["calculated"] = {
+                "total": attack.calculated.total,
+                "modifiers": [
+                    {"key": modifier.key, "value": modifier.value}
+                    for modifier in attack.calculated.modifiers
+                ],
+            }
+        else:
+            attack_dict["calculated"] = None
 
         # Handle results conversion
         if attack.results:
@@ -132,6 +146,21 @@ class MongoAttackConverter:
         if attack_dict.get("roll"):
             roll = AttackRoll(roll=attack_dict["roll"]["roll"])
 
+        # Handle calculated conversion
+        calculated = None
+        if attack_dict.get("calculated"):
+            calculated_data = attack_dict["calculated"]
+            modifiers_list = []
+            for modifier_data in calculated_data.get("modifiers", []):
+                modifier = AttackBonusEntry(
+                    key=modifier_data["key"], value=modifier_data["value"]
+                )
+                modifiers_list.append(modifier)
+
+            calculated = AttackCalculations(
+                total=calculated_data.get("total", 0), modifiers=modifiers_list
+            )
+
         results = None
         if attack_dict.get("results"):
             results_data = attack_dict["results"]
@@ -168,5 +197,6 @@ class MongoAttackConverter:
             status=status,
             modifiers=modifiers,
             roll=roll,
+            calculated=calculated,
             results=results,
         )
