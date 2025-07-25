@@ -6,6 +6,9 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 
 from app.application.commands.update_attack_roll_command import UpdateAttackRollCommand
+from app.application.commands.update_attack_modifiers_command import (
+    UpdateAttackModifiersCommand,
+)
 
 from app.infrastructure.dependency_container import container
 from app.infrastructure.logging import log_endpoint, log_errors, get_logger
@@ -14,6 +17,7 @@ from app.infrastructure.adapters.web.attack_dtos import (
     CreateAttackRequestDTO,
     AttackNotFoundDTO,
     PagedAttacksDTO,
+    UpdateAttackModifiersRequestDTO,
     UpdateAttackRollRequestDTO,
 )
 from app.infrastructure.adapters.web.attack_dto_converter import (
@@ -129,25 +133,19 @@ async def create_attack(request: CreateAttackRequestDTO):
 )
 @log_endpoint
 @log_errors
-async def update_attack(attack_id: str, update_data: dict):
+async def update_attack(attack_id: str, request: UpdateAttackModifiersRequestDTO):
     """Update attack (partial update)"""
-    logger.info(f"Updating attack {attack_id} with data: {update_data}")
+    logger.info(f"Update attack << attack_id:{attack_id}")
 
     try:
-        if not update_data:
-            logger.warning(f"No update data provided for attack: {attack_id}")
-            raise HTTPException(status_code=400, detail="No fields to update")
+        command = UpdateAttackModifiersCommand(
+            attack_id=attack_id,
+            modifiers=request.modifiers,
+        )
         use_case = container.get_update_attack_modifiers_use_case()
-        attack = await use_case.execute(attack_id, update_data)
-
-        if not attack:
-            logger.warning(f"Attack not found for update: {attack_id}")
-            raise HTTPException(
-                status_code=404,
-                detail={"detail": "Attack not found", "attack_id": attack_id},
-            )
-
-        logger.info(f"Successfully updated attack: {attack_id}")
+        attack = await use_case.execute(command)
+        # TODO if roll is present recalculate
+        logger.info(f"Attack {attack_id} updated successfully")
         return attack_to_dto(attack)
 
     except HTTPException:
@@ -205,7 +203,6 @@ async def execute_attack_roll(attack_id: str, request: UpdateAttackRollRequestDT
     logger.info(f"Executing roll for attack {attack_id}: {request}")
 
     try:
-
         command = UpdateAttackRollCommand(attack_id=attack_id, roll=request.roll)
         command.validate()
         use_case = container.get_update_attack_roll_use_case()

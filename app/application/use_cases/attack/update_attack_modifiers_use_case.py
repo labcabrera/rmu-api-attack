@@ -2,6 +2,9 @@ from typing import Any, Dict, Optional
 from app.domain.entities.attack import Attack
 from app.domain.entities.critical import Critical
 from app.domain.ports.attack_ports import AttackNotificationPort, AttackRepository
+from app.application.commands.update_attack_modifiers_command import (
+    UpdateAttackModifiersCommand,
+)
 
 
 class UpdateAttackModifiersUseCase:
@@ -15,34 +18,13 @@ class UpdateAttackModifiersUseCase:
         self._attack_repository = attack_repository
         self._notification_port = notification_port
 
-    async def execute(
-        self, attack_id: str, update_data: Dict[str, Any]
-    ) -> Optional[Attack]:
+    async def execute(self, command: UpdateAttackModifiersCommand) -> Optional[Attack]:
         """Execute the update attack use case"""
+
+        attack_id = command.attack_id
         attack = await self._attack_repository.find_by_id(attack_id)
-        if not attack:
-            return None
 
-        # Apply updates to the attack
-        if "status" in update_data:
-            attack.status = update_data["status"]
-
-        if "roll" in update_data and update_data["roll"]:
-            attack.execute_roll(update_data["roll"]["roll"])
-
-        if "results" in update_data and update_data["results"]:
-            results_data = update_data["results"]
-            criticals = []
-            if "criticals" in results_data:
-                criticals = [
-                    Critical(id=c.get("id", ""), status=c.get("status", ""))
-                    for c in results_data["criticals"]
-                ]
-            attack.apply_results(
-                results_data.get("label_result", ""),
-                results_data.get("hit_points", 0),
-                criticals,
-            )
+        attack.modifiers = command.modifiers
 
         updated_attack = await self._attack_repository.update(attack)
 

@@ -29,6 +29,9 @@ class AttackCalculator:
         attack.calculated = AttackCalculations(total=0, modifiers=[])
 
         attack.calculated.modifiers.append(
+            AttackBonusEntry(key="roll", value=attack.roll.roll)
+        )
+        attack.calculated.modifiers.append(
             AttackBonusEntry(key="bo", value=attack.modifiers.roll_modifiers.bo)
         )
         attack.calculated.modifiers.append(

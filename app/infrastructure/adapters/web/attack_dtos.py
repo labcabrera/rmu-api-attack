@@ -134,6 +134,26 @@ class CreateAttackRequestDTO(BaseModel):
     )
 
 
+class UpdateAttackModifiersRequestDTO(BaseModel):
+    """DTO for update attack modifiers request"""
+
+    model_config = ConfigDict(
+        use_enum_values=True,
+        json_schema_extra={
+            "example": {
+                "modifiers": {
+                    "attackType": "ranged",
+                    "rollModifiers": {"bo": 90, "bd": -10},
+                }
+            }
+        },
+    )
+
+    modifiers: AttackModifiersDTO = Field(
+        ..., description="Updated attack modifiers including type and bonuses"
+    )
+
+
 class UpdateAttackRollRequestDTO(BaseModel):
     """DTO for update attack roll request"""
 

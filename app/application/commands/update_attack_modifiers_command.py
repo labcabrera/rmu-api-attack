@@ -5,5 +5,5 @@ from app.domain.entities.attack import AttackModifiers
 @dataclass
 class UpdateAttackModifiersCommand:
 
-    action_id: str
+    attack_id: str
     modifiers: AttackModifiers

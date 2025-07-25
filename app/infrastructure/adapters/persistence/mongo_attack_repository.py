@@ -118,8 +118,8 @@ class MongoAttackRepository(AttackRepository):
             if result.matched_count == 0:
                 return None
             return attack
-        except Exception:
-            return None
+        except Exception as e:
+            raise ValueError(f"Failed to update attack: {str(e)}")
 
     async def delete(self, attack_id: str) -> bool:
         await self.connect()
