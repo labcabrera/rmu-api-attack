@@ -26,9 +26,12 @@ class UpdateAttackModifiersUseCase:
     async def execute(self, command: UpdateAttackModifiersCommand) -> Optional[Attack]:
         """Execute the update attack use case"""
 
+        command.validate()
+
         attack_id = command.attack_id
         attack = await self._attack_repository.find_by_id(attack_id)
 
+        # TODO override values in patch mode, not replace it
         attack.modifiers = command.modifiers
 
         if attack.roll:

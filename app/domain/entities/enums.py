@@ -5,6 +5,14 @@ Domain enumerations for the RMU Attack system.
 from enum import Enum
 
 
+class AttackSize(Enum):
+    """Attack size enumeration"""
+
+    SMALL = "small"
+    MEDIUM = "medium"
+    BIG = "big"
+
+
 class AttackMode(Enum):
     """Attack mode enumeration"""
 

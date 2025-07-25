@@ -66,6 +66,7 @@ class AttackModifiers:
     attack_type: AttackType
     roll_modifiers: AttackRollModifiers
     attack_table: str
+    # TODO convert to enum
     attack_size: str
     at: int
 
