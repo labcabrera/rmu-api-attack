@@ -24,13 +24,18 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/attacks", tags=["Attacks"])
 
 
-@router.get("", response_model=PagedAttacksDTO)
+@router.get(
+    "",
+    summary="Search attacks by RSQL",
+    description="Search attacks using RSQL query language.",
+    response_model=PagedAttacksDTO,
+)
 @log_endpoint
 @log_errors
-async def list_attacks(
+async def search_attacks_by_rsql(
     search: Optional[str] = Query(
         "",
-        description="RSQL query string for filtering (e.g., 'status==DRAFT;actionId==action_001')",
+        description="RSQL query string for filtering (e.g., 'status==draft;actionId==action_001')",
     ),
     page: int = Query(0, description="Page number (0-based)", ge=0),
     size: int = Query(10, description="Page size", ge=1),
@@ -52,12 +57,14 @@ async def list_attacks(
 
 @router.get(
     "/{attack_id}",
+    summary="Get attack by Id",
+    description="Retrieve an attack by its unique identifier.",
     response_model=AttackDTO,
     responses={404: {"model": AttackNotFoundDTO}},
 )
 @log_endpoint
 @log_errors
-async def get_attack(attack_id: str):
+async def search_attack_by_id(attack_id: str):
     """Get attack by ID"""
     logger.info(f"Retrieving attack with ID: {attack_id}")
 
@@ -82,7 +89,13 @@ async def get_attack(attack_id: str):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
-@router.post("", response_model=AttackDTO, status_code=201)
+@router.post(
+    "",
+    summary="Create a new attack",
+    description="Create a new attack with the provided details.",
+    response_model=AttackDTO,
+    status_code=201,
+)
 @log_endpoint
 @log_errors
 async def create_attack(request: CreateAttackRequestDTO):
@@ -106,6 +119,8 @@ async def create_attack(request: CreateAttackRequestDTO):
 
 @router.patch(
     "/{attack_id}",
+    summary="Update attack modifiers",
+    description="Update an existing attack with the provided information.",
     response_model=AttackDTO,
     responses={404: {"model": AttackNotFoundDTO}},
 )
@@ -142,7 +157,12 @@ async def update_attack(attack_id: str, update_data: dict):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
-@router.delete("/{attack_id}", status_code=204)
+@router.delete(
+    "/{attack_id}",
+    summary="Delete attack by ID",
+    description="Delete an existing attack by its unique identifier.",
+    status_code=204,
+)
 @log_endpoint
 @log_errors
 async def delete_attack(attack_id: str):
@@ -170,6 +190,8 @@ async def delete_attack(attack_id: str):
 
 @router.post(
     "/{attack_id}/roll",
+    summary="Apply attack roll",
+    description="Applies the result of the damage roll to an attack.",
     response_model=AttackDTO,
     responses={404: {"model": AttackNotFoundDTO}},
 )
@@ -209,6 +231,8 @@ async def execute_attack_roll(attack_id: str, roll_data: dict):
 
 @router.post(
     "/{attack_id}/apply",
+    summary="Apply attack result",
+    description="Apply the result of the attack to the tactical module.",
     response_model=AttackDTO,
     responses={404: {"model": AttackNotFoundDTO}},
 )
