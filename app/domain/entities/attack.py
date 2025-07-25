@@ -64,6 +64,9 @@ class AttackModifiers:
 
     attack_type: AttackType
     roll_modifiers: AttackRollModifiers
+    attack_table: str
+    attack_size: str
+    at: int
 
     def __post_init__(self):
         """Validate input data after initialization"""
@@ -75,6 +78,15 @@ class AttackModifiers:
 
         if not isinstance(self.roll_modifiers, AttackRollModifiers):
             raise ValueError("Invalid roll modifiers")
+
+        if not isinstance(self.attack_table, str):
+            raise ValueError("attack_table must be a string")
+
+        if not isinstance(self.attack_size, str):
+            raise ValueError("attack_size must be a string")
+
+        if not isinstance(self.at, int) or self.at < 0:
+            raise ValueError("at must be a non-negative integer")
 
 
 @dataclass

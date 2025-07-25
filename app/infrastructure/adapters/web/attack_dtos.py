@@ -60,6 +60,9 @@ class AttackModifiersDTO(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
     attackType: AttackType = Field(..., description="Type of attack (melee, ranged)")
+    attackTable: str = Field(..., description="Attack table identifier")
+    attackSize: str = Field(..., description="Attack size identifier")
+    at: int = Field(..., description="Attack table type", ge=0)
     rollModifiers: AttackRollModifiersDTO = Field(
         ..., description="Modifiers for the attack roll"
     )

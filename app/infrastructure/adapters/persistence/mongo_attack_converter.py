@@ -59,6 +59,9 @@ class MongoAttackConverter:
                     "parry": attack.modifiers.roll_modifiers.parry,
                     "customBonus": attack.modifiers.roll_modifiers.custom_bonus,
                 },
+                "attackTable": attack.modifiers.attack_table,
+                "attackSize": attack.modifiers.attack_size,
+                "at": attack.modifiers.at,
             },
         }
 
@@ -140,6 +143,9 @@ class MongoAttackConverter:
         modifiers = AttackModifiers(
             attack_type=attack_type,
             roll_modifiers=roll_modifiers,
+            attack_table=attack_dict.get("modifiers", {}).get("attackTable", ""),
+            attack_size=attack_dict.get("modifiers", {}).get("attackSize", ""),
+            at=attack_dict.get("modifiers", {}).get("at", 0),
         )
 
         roll = None

@@ -48,6 +48,9 @@ class AttackDTOConverter:
                 parry=0,
                 custom_bonus=0,
             ),
+            attack_table=dto.modifiers.attackTable,
+            attack_size=dto.modifiers.attackSize,
+            at=dto.modifiers.at,
         )
 
         return CreateAttackCommand(
@@ -66,6 +69,9 @@ class AttackDTOConverter:
                 bo=attack.modifiers.roll_modifiers.bo,
                 bd=attack.modifiers.roll_modifiers.bd,
             ),
+            attackTable=attack.modifiers.attack_table,
+            attackSize=attack.modifiers.attack_size,
+            at=attack.modifiers.at,
         )
 
         roll_dto = None
@@ -122,6 +128,9 @@ class AttackDTOConverter:
                 parry=0,
                 custom_bonus=0,
             ),
+            attack_table=dto.modifiers.attackTable,
+            attack_size=dto.modifiers.attackSize,
+            at=dto.modifiers.at,
         )
 
         return Attack(
@@ -164,6 +173,9 @@ class AttackDTOConverter:
                 parry=0,
                 custom_bonus=0,
             ),
+            attack_table=modifiers_dto.attackTable,
+            attack_size=modifiers_dto.attackSize,
+            at=modifiers_dto.at,
         )
 
 
