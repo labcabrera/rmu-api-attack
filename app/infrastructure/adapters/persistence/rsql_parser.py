@@ -78,16 +78,6 @@ class RSQLParser:
     ) -> Dict[str, Any]:
         """Convert RSQL field-operator-value to MongoDB query"""
 
-        # # Map RSQL field names to MongoDB field names
-        # field_mapping = {
-        #     "actionId": "action_id",
-        #     "sourceId": "source_id",
-        #     "targetId": "target_id",
-        #     "status": "status",
-        # }
-
-        # mongo_field = field_mapping.get(field, field)
-
         if operator == RSQLOperator.EQUAL.value:
             return {field: value}
 

@@ -94,16 +94,13 @@ class MongoAttackConverter:
     @staticmethod
     def dict_to_attack(attack_dict: Dict[str, Any]) -> Optional[Attack]:
         """Convert dictionary from MongoDB to Attack domain entity"""
+
         if not attack_dict:
             return None
 
-        # Convert MongoDB's _id to string for domain entity
         attack_id = str(attack_dict["_id"])
-
-        # Convert modifiers
         modifiers_data = attack_dict.get("modifiers", {})
 
-        # Handle attack_type conversion (string to enum)
         attack_type = AttackType.MELEE
         if "attack_type" in modifiers_data:
             try:
@@ -111,7 +108,6 @@ class MongoAttackConverter:
             except ValueError:
                 attack_type = AttackType.MELEE  # fallback to default
 
-        # Convert roll_modifiers
         roll_modifiers_data = modifiers_data.get("rollModifiers", {})
         roll_modifiers = AttackRollModifiers(
             bo=roll_modifiers_data.get("bo", 0),
@@ -132,12 +128,10 @@ class MongoAttackConverter:
             roll_modifiers=roll_modifiers,
         )
 
-        # Convert roll
         roll = None
         if attack_dict.get("roll"):
             roll = AttackRoll(roll=attack_dict["roll"]["roll"])
 
-        # Convert results
         results = None
         if attack_dict.get("results"):
             results_data = attack_dict["results"]
@@ -158,13 +152,13 @@ class MongoAttackConverter:
                 criticals=criticals,
             )
 
-        # Handle status conversion (string to enum)
-        status = AttackStatus.DRAFT  # default
-        if "status" in attack_dict:
-            try:
-                status = AttackStatus(attack_dict["status"])
-            except ValueError:
-                status = AttackStatus.DRAFT  # fallback to default
+        if not "status" in attack_dict:
+            raise ValueError("Attack dictionary must contain 'status' field")
+
+        try:
+            status = AttackStatus(attack_dict["status"])
+        except ValueError:
+            raise ValueError(f"Invalid 'status' value: {attack_dict['status']}")
 
         return Attack(
             id=attack_id,
