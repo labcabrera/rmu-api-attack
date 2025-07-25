@@ -129,3 +129,22 @@ class AttackNotFoundDTO(BaseModel):
 
     detail: str = Field(..., description="Error message")
     attack_id: str = Field(..., description="Attack ID that was not found")
+
+
+class PaginationDTO(BaseModel):
+    """DTO for pagination metadata"""
+
+    model_config = ConfigDict(use_enum_values=True)
+
+    page: int = Field(..., description="Current page number (0-based)")
+    size: int = Field(..., description="Page size")
+    totalElements: int = Field(..., description="Total number of elements")
+
+
+class PagedAttacksDTO(BaseModel):
+    """DTO for paginated attack results"""
+
+    model_config = ConfigDict(use_enum_values=True)
+
+    content: list[AttackDTO] = Field(..., description="List of attacks")
+    pagination: PaginationDTO = Field(..., description="Pagination metadata")

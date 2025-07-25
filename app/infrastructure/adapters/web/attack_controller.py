@@ -10,10 +10,12 @@ from app.infrastructure.adapters.web.attack_dtos import (
     AttackDTO,
     CreateAttackRequestDTO,
     AttackNotFoundDTO,
+    PagedAttacksDTO,
 )
 from app.infrastructure.adapters.web.attack_dto_converter import (
     attack_to_dto,
     create_request_to_command,
+    page_to_dto,
 )
 
 # Initialize logger for this module
@@ -22,7 +24,7 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/attacks", tags=["Attacks"])
 
 
-@router.get("", response_model=List[AttackDTO])
+@router.get("", response_model=PagedAttacksDTO)
 @log_endpoint
 @log_errors
 async def list_attacks(
@@ -40,7 +42,7 @@ async def list_attacks(
 
     try:
         list_use_case = container.get_list_attacks_use_case()
-        attacks = await list_use_case.execute(
+        page = await list_use_case.execute(
             action_id=action_id,
             source_id=source_id,
             target_id=target_id,
@@ -49,8 +51,10 @@ async def list_attacks(
             skip=skip,
         )
 
-        logger.info(f"Successfully retrieved {len(attacks)} attacks")
-        return [attack_to_dto(attack) for attack in attacks]
+        logger.info(
+            f"Successfully retrieved page {page.page_number} with {len(page.content)} attacks (total: {page.total_elements})"
+        )
+        return page_to_dto(page)
 
     except Exception as e:
         logger.error(f"Error listing attacks: {str(e)}")

@@ -6,7 +6,8 @@ from .attack import (
     AttackRollModifiers,
 )
 from .critical import Critical
-from .enums import AttackMode, AttackStatus
+from .enums import AttackMode, AttackStatus, AttackType
+from .page import Page, Pagination
 
 __all__ = [
     "Attack",
@@ -16,5 +17,8 @@ __all__ = [
     "AttackResult",
     "AttackMode",
     "AttackStatus",
+    "AttackType",
     "Critical",
+    "Page",
+    "Pagination",
 ]

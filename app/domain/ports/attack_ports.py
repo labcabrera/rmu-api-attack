@@ -45,6 +45,17 @@ class AttackRepository(ABC):
         pass
 
     @abstractmethod
+    async def count_all(
+        self,
+        action_id: Optional[str] = None,
+        source_id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        status: Optional[str] = None,
+    ) -> int:
+        """Count attacks with optional filters"""
+        pass
+
+    @abstractmethod
     async def exists(self, attack_id: str) -> bool:
         """Check if an attack exists"""
         pass

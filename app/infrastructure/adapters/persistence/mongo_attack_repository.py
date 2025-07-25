@@ -115,6 +115,29 @@ class MongoAttackRepository(AttackRepository):
 
         return attacks
 
+    async def count_all(
+        self,
+        action_id: Optional[str] = None,
+        source_id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        status: Optional[str] = None,
+    ) -> int:
+        """Count attacks with optional filters"""
+        await self.connect()
+
+        # Build filter query (same as find_all)
+        filter_query = {}
+        if action_id:
+            filter_query["action_id"] = action_id
+        if source_id:
+            filter_query["source_id"] = source_id
+        if target_id:
+            filter_query["target_id"] = target_id
+        if status:
+            filter_query["status"] = status
+
+        return await self._collection.count_documents(filter_query)
+
     async def save(self, attack: Attack) -> Attack:
         """Save a new attack"""
         await self.connect()

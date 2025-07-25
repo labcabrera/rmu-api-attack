@@ -7,6 +7,8 @@ from app.domain.entities import (
     Attack,
     AttackRollModifiers,
     AttackModifiers,
+    Page,
+    Pagination,
 )
 from app.domain.entities.enums import AttackType, AttackStatus
 from app.application.commands import CreateAttackCommand
@@ -18,6 +20,8 @@ from .attack_dtos import (
     CriticalDTO,
     AttackResultDTO,
     AttackRollDTO,
+    PagedAttacksDTO,
+    PaginationDTO,
 )
 
 
@@ -115,6 +119,22 @@ class AttackDTOConverter:
             modifiers=attack_modifiers,
         )
 
+    @staticmethod
+    def page_to_dto(page: Page[Attack]) -> PagedAttacksDTO:
+        """Convert Page[Attack] to PagedAttacksDTO"""
+        pagination_dto = PaginationDTO(
+            page=page.pagination.page,
+            size=page.pagination.size,
+            totalElements=page.pagination.total_elements,
+        )
+
+        return PagedAttacksDTO(
+            content=[
+                AttackDTOConverter.attack_to_dto(attack) for attack in page.content
+            ],
+            pagination=pagination_dto,
+        )
+
 
 # Convenience functions that delegate to the converter class
 def create_request_to_command(dto: CreateAttackRequestDTO) -> CreateAttackCommand:
@@ -130,3 +150,8 @@ def attack_to_dto(attack: Attack) -> AttackDTO:
 def create_request_to_domain(dto: CreateAttackRequestDTO) -> Attack:
     """Convert CreateAttackRequestDTO to domain Attack"""
     return AttackDTOConverter.create_request_to_domain(dto)
+
+
+def page_to_dto(page: Page[Attack]) -> PagedAttacksDTO:
+    """Convert Page[Attack] to PagedAttacksDTO"""
+    return AttackDTOConverter.page_to_dto(page)

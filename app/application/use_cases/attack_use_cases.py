@@ -4,7 +4,14 @@ These orchestrate domain operations and contain application-specific logic.
 """
 
 from typing import Optional, List, Dict, Any
-from app.domain.entities import Attack, AttackModifiers, AttackMode, Critical
+from app.domain.entities import (
+    Attack,
+    AttackModifiers,
+    AttackMode,
+    Critical,
+    Page,
+    Pagination,
+)
 from app.domain.ports import AttackRepository, AttackNotificationPort
 from app.domain.services import AttackDomainService
 from app.application.commands import CreateAttackCommand
@@ -57,15 +64,38 @@ class ListAttacksUseCase:
         status: Optional[str] = None,
         limit: int = 100,
         skip: int = 0,
-    ) -> List[Attack]:
+    ) -> Page[Attack]:
         """Execute the list attacks use case"""
-        return await self._attack_repository.find_all(
+        # Get attacks and total count in parallel
+        attacks = await self._attack_repository.find_all(
             action_id=action_id,
             source_id=source_id,
             target_id=target_id,
             status=status,
             limit=limit,
             skip=skip,
+        )
+
+        total_elements = await self._attack_repository.count_all(
+            action_id=action_id,
+            source_id=source_id,
+            target_id=target_id,
+            status=status,
+        )
+
+        # Calculate page number (0-based)
+        page_number = skip // limit if limit > 0 else 0
+
+        # Create pagination metadata
+        pagination = Pagination(
+            page=page_number,
+            size=limit,
+            total_elements=total_elements,
+        )
+
+        return Page(
+            content=attacks,
+            pagination=pagination,
         )
 
 
