@@ -11,8 +11,10 @@ from app.domain.services.attack_domain_service import AttackDomainService
 from app.domain.ports.attack_ports import AttackRepository
 from app.domain.ports.critical_ports import CriticalRepository
 
-from app.application.use_cases.attack_creation_use_case import CreateAttackUseCase
-from app.application.use_cases.attack_rsql_search_use_case import ListAttacksUseCase
+from app.application.use_cases.attack.create_attack_use_case import CreateAttackUseCase
+from app.application.use_cases.attack.search_attacks_use_case import (
+    SearchAttacksUseCase,
+)
 from app.application.use_cases.attack_use_cases import (
     GetAttackUseCase,
     UpdateAttackUseCase,
@@ -55,7 +57,7 @@ class DependencyContainer:
         self._create_attack_use_case: Optional[CreateAttackUseCase] = None
         self._get_attack_use_case: Optional[GetAttackUseCase] = None
         self._update_attack_use_case: Optional[UpdateAttackUseCase] = None
-        self._list_attacks_use_case: Optional[ListAttacksUseCase] = None
+        self._list_attacks_use_case: Optional[SearchAttacksUseCase] = None
         self._delete_attack_use_case: Optional[DeleteAttackUseCase] = None
         self._execute_attack_roll_use_case: Optional[ExecuteAttackRollUseCase] = None
         self._apply_attack_results_use_case: Optional[ApplyAttackResultsUseCase] = None
@@ -90,7 +92,7 @@ class DependencyContainer:
         self._create_attack_use_case = CreateAttackUseCase(self._attack_domain_service)
         self._get_attack_use_case = GetAttackUseCase(self._attack_repository)
         self._update_attack_use_case = UpdateAttackUseCase(self._attack_repository)
-        self._list_attacks_use_case = ListAttacksUseCase(self._attack_repository)
+        self._list_attacks_use_case = SearchAttacksUseCase(self._attack_repository)
         self._delete_attack_use_case = DeleteAttackUseCase(self._attack_repository)
         self._execute_attack_roll_use_case = ExecuteAttackRollUseCase(
             self._attack_domain_service
@@ -134,7 +136,7 @@ class DependencyContainer:
         """Get update attack use case instance"""
         return self._update_attack_use_case
 
-    def get_list_attacks_use_case(self) -> ListAttacksUseCase:
+    def get_list_attacks_use_case(self) -> SearchAttacksUseCase:
         """Get list attacks use case instance"""
         return self._list_attacks_use_case
 

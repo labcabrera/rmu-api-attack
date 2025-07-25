@@ -1,9 +1,8 @@
-from .attack_creation_use_case import CreateAttackUseCase
-from .attack_rsql_search_use_case import ListAttacksUseCase
+from .attack.create_attack_use_case import CreateAttackUseCase
+from .attack.search_attacks_use_case import SearchAttacksUseCase
 
 from .attack_use_cases import (
     GetAttackUseCase,
-    ListAttacksUseCase,
     UpdateAttackUseCase,
     DeleteAttackUseCase,
     ExecuteAttackRollUseCase,
@@ -13,7 +12,7 @@ from .attack_use_cases import (
 __all__ = [
     "CreateAttackUseCase",
     "GetAttackUseCase",
-    "ListAttacksUseCase",
+    "SearchAttacksUseCase",
     "UpdateAttackUseCase",
     "DeleteAttackUseCase",
     "ExecuteAttackRollUseCase",

@@ -103,7 +103,7 @@ class AttackResult:
 
 @dataclass
 class Attack:
-    """Attack domain entity"""
+    """Attack domain entity."""
 
     id: str
     action_id: str

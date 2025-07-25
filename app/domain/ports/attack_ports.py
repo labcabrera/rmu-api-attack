@@ -34,14 +34,9 @@ class AttackRepository(ABC):
     @abstractmethod
     async def find_all(
         self,
-        action_id: Optional[str] = None,
-        source_id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        status: Optional[str] = None,
         limit: int = 100,
         skip: int = 0,
     ) -> List[Attack]:
-        """Find attacks with optional filters"""
         pass
 
     @abstractmethod
@@ -53,6 +48,24 @@ class AttackRepository(ABC):
         status: Optional[str] = None,
     ) -> int:
         """Count attacks with optional filters"""
+        pass
+
+    @abstractmethod
+    async def find_by_rsql(
+        self,
+        rsql_query: Optional[str] = None,
+        limit: int = 100,
+        skip: int = 0,
+    ) -> List[Attack]:
+        """Find attacks using RSQL query"""
+        pass
+
+    @abstractmethod
+    async def count_by_rsql(
+        self,
+        rsql_query: Optional[str] = None,
+    ) -> int:
+        """Count attacks using RSQL query"""
         pass
 
     @abstractmethod

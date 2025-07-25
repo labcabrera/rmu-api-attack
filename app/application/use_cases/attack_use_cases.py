@@ -4,14 +4,7 @@ These orchestrate domain operations and contain application-specific logic.
 """
 
 from typing import Optional, List, Dict, Any
-from app.domain.entities import (
-    Attack,
-    AttackModifiers,
-    AttackMode,
-    Critical,
-    Page,
-    Pagination,
-)
+from app.domain.entities import Attack, Critical
 from app.domain.ports import AttackRepository, AttackNotificationPort
 from app.domain.services import AttackDomainService
 from app.domain.entities.enums import AttackStatus
@@ -26,56 +19,6 @@ class GetAttackUseCase:
     async def execute(self, attack_id: str) -> Optional[Attack]:
         """Execute the get attack use case"""
         return await self._attack_repository.find_by_id(attack_id)
-
-
-class ListAttacksUseCase:
-    """Use case for listing attacks"""
-
-    def __init__(self, attack_repository: AttackRepository):
-        self._attack_repository = attack_repository
-
-    async def execute(
-        self,
-        action_id: Optional[str] = None,
-        source_id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        status: Optional[str] = None,
-        page: int = 0,
-        size: int = 100,
-    ) -> Page[Attack]:
-        """Execute the list attacks use case"""
-        # Calculate skip and limit from page and size
-        skip = page * size
-        limit = size
-
-        # Get attacks and total count in parallel
-        attacks = await self._attack_repository.find_all(
-            action_id=action_id,
-            source_id=source_id,
-            target_id=target_id,
-            status=status,
-            limit=limit,
-            skip=skip,
-        )
-
-        total_elements = await self._attack_repository.count_all(
-            action_id=action_id,
-            source_id=source_id,
-            target_id=target_id,
-            status=status,
-        )
-
-        # Create pagination metadata
-        pagination = Pagination(
-            page=page,
-            size=size,
-            total_elements=total_elements,
-        )
-
-        return Page(
-            content=attacks,
-            pagination=pagination,
-        )
 
 
 class UpdateAttackUseCase:

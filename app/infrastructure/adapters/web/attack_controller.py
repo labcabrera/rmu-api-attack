@@ -1,9 +1,10 @@
 """
-Attack web controller
+Attack web controller.
 """
 
-from typing import List, Optional
+from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
+
 from app.infrastructure.dependency_container import container
 from app.infrastructure.logging import log_endpoint, log_errors, get_logger
 from app.infrastructure.adapters.web.attack_dtos import (
@@ -18,7 +19,6 @@ from app.infrastructure.adapters.web.attack_dto_converter import (
     page_to_dto,
 )
 
-# Initialize logger for this module
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/attacks", tags=["Attacks"])
@@ -28,31 +28,22 @@ router = APIRouter(prefix="/attacks", tags=["Attacks"])
 @log_endpoint
 @log_errors
 async def list_attacks(
-    action_id: Optional[str] = Query(None, description="Filter by action ID"),
-    source_id: Optional[str] = Query(None, description="Filter by source ID"),
-    target_id: Optional[str] = Query(None, description="Filter by target ID"),
-    status: Optional[str] = Query(None, description="Filter by status"),
+    search: Optional[str] = Query(
+        "",
+        description="RSQL query string for filtering (e.g., 'status==DRAFT;actionId==action_001')",
+    ),
     page: int = Query(0, description="Page number (0-based)", ge=0),
-    size: int = Query(100, description="Page size", ge=1, le=1000),
+    size: int = Query(100, description="Page size", ge=1),
 ):
-    """List attacks with optional filters"""
-    logger.info(
-        f"Listing attacks with filters - action_id: {action_id}, source_id: {source_id}, target_id: {target_id}, status: {status}, page: {page}, size: {size}"
-    )
+
+    logger.info(f"Search attacks << search: {search}, page: {page}, size: {size}")
 
     try:
         list_use_case = container.get_list_attacks_use_case()
         result_page = await list_use_case.execute(
-            action_id=action_id,
-            source_id=source_id,
-            target_id=target_id,
-            status=status,
+            rsql_query=search,
             page=page,
             size=size,
-        )
-
-        logger.info(
-            f"Successfully retrieved page {result_page.pagination.page} with {len(result_page.content)} attacks (total: {result_page.pagination.total_elements})"
         )
         return page_to_dto(result_page)
 
