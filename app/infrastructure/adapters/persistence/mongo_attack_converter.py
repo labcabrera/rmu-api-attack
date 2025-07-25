@@ -16,6 +16,7 @@ from app.domain.entities import (
     AttackCalculations,
     AttackBonusEntry,
 )
+from app.domain.entities.attack_table import AttackTableEntry
 from app.domain.entities.enums import AttackStatus, AttackType
 
 
@@ -48,6 +49,9 @@ class MongoAttackConverter:
             "status": status_str,
             "modifiers": {
                 "attackType": attack_type_str,
+                "attackTable": attack.modifiers.attack_table,
+                "attackSize": attack.modifiers.attack_size,
+                "at": attack.modifiers.at,
                 "rollModifiers": {
                     "bo": attack.modifiers.roll_modifiers.bo,
                     "boInjuryPenalty": attack.modifiers.roll_modifiers.bo_injury_penalty,
@@ -89,20 +93,19 @@ class MongoAttackConverter:
 
         # Handle results conversion
         if attack.results:
-            attack_dict["results"] = {
-                "labelResult": attack.results.label_result,
-                "hitPoints": attack.results.hit_points,
-                "criticals": [
-                    {
-                        "id": c.id,
-                        "type": c.type,
-                        "roll": c.roll,
-                        "result": c.result,
-                        "status": c.status,
-                    }
-                    for c in attack.results.criticals
-                ],
-            }
+            results_dict = {}
+
+            if attack.results.attack_table_entry:
+                results_dict["attackTableEntry"] = {
+                    "roll": attack.results.attack_table_entry.roll,
+                    "at": attack.results.attack_table_entry.at,
+                    "literal": attack.results.attack_table_entry.literal,
+                    "damage": attack.results.attack_table_entry.damage,
+                    "criticalType": attack.results.attack_table_entry.criticalType,
+                    "criticalSeverity": attack.results.attack_table_entry.criticalSeverity,
+                }
+
+            attack_dict["results"] = results_dict
         else:
             attack_dict["results"] = None
 
@@ -181,11 +184,21 @@ class MongoAttackConverter:
                 )
                 criticals.append(critical)
 
-            results = AttackResult(
-                label_result=results_data["label_result"],
-                hit_points=results_data["hit_points"],
-                criticals=criticals,
-            )
+            # Handle attack table entry conversion
+            attack_table_entry = None
+            if results_data.get("attackTableEntry"):
+                entry_data = results_data["attackTableEntry"]
+                attack_table_entry = AttackTableEntry(
+                    roll=entry_data["roll"],
+                    at=entry_data["at"],
+                    literal=entry_data["literal"],
+                    damage=entry_data["damage"],
+                    criticalType=entry_data.get("criticalType"),
+                    criticalSeverity=entry_data.get("criticalSeverity"),
+                )
+
+            results = AttackResult()
+            results.attack_table_entry = attack_table_entry
 
         if not "status" in attack_dict:
             raise ValueError("Attack dictionary must contain 'status' field")

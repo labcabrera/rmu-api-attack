@@ -5,6 +5,7 @@ Domain entities for the RMU Attack system.
 from typing import Optional
 from dataclasses import dataclass
 from .critical import Critical
+from .attack_table import AttackTableEntry
 from .enums import (
     AttackStatus,
     AttackType,
@@ -108,9 +109,8 @@ class AttackRoll:
 class AttackResult:
     """Attack result data"""
 
-    label_result: str
-    hit_points: int
-    criticals: list[Critical]
+    attack_table_entry: Optional[AttackTableEntry] = None
+    criticals: list[Critical] = None
 
 
 @dataclass

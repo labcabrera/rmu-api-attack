@@ -19,6 +19,7 @@ from .attack_dtos import (
     AttackCalculationsDTO,
     CriticalDTO,
     AttackResultDTO,
+    AttackTableEntryDTO,
     AttackRollDTO,
     PagedAttacksDTO,
     PaginationDTO,
@@ -91,13 +92,23 @@ class AttackDTOConverter:
 
         results_dto = None
         if attack.results:
-            criticals_dto = [
-                CriticalDTO(id=c.id, status=c.status) for c in attack.results.criticals
-            ]
+            # criticals_dto = [
+            #     CriticalDTO(id=c.id, status=c.status) for c in attack.results.criticals
+            # ]
+
+            attack_table_entry_dto = None
+            if attack.results.attack_table_entry:
+                attack_table_entry_dto = AttackTableEntryDTO(
+                    roll=attack.results.attack_table_entry.roll,
+                    at=attack.results.attack_table_entry.at,
+                    literal=attack.results.attack_table_entry.literal,
+                    damage=attack.results.attack_table_entry.damage,
+                    criticalType=attack.results.attack_table_entry.criticalType,
+                    criticalSeverity=attack.results.attack_table_entry.criticalSeverity,
+                )
+
             results_dto = AttackResultDTO(
-                labelResult=attack.results.label_result,
-                hitPoints=attack.results.hit_points,
-                criticals=criticals_dto,
+                attackTableEntry=attack_table_entry_dto,
             )
 
         return AttackDTO(

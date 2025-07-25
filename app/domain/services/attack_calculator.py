@@ -1,6 +1,12 @@
 from typing import Optional
 
-from app.domain.entities.attack import Attack, AttackCalculations, AttackBonusEntry
+from app.domain.entities.attack import (
+    Attack,
+    AttackCalculations,
+    AttackBonusEntry,
+    AttackResult,
+)
+from app.domain.entities.attack_table import AttackTableEntry
 from app.domain.ports.attack_ports import AttackNotificationPort, AttackRepository
 from app.domain.ports.attack_table_port import AttackTableClient
 
@@ -62,19 +68,14 @@ class AttackCalculator:
 
         attack.calculated.total = sum(p.value for p in attack.calculated.modifiers)
 
-        # TODO add to model
-        attack_table = "arming-sword"
-        attack_size = "medium"
+        attack.results = AttackResult()
 
         if self._attack_table_client:
-            attack_table_entry = await self._attack_table_client.get_attack_table_entry(
-                attack_table=attack_table,
-                size=attack_size,
-                roll=attack.calculated.total,
-                at=5,
-            )
-            logger.debug(
-                f"Attack table entry for {attack_table} "
-                f"with size {attack_size} and roll "
-                f"{attack.roll.roll}: {attack_table_entry}"
+            attack.results.attack_table_entry = (
+                await self._attack_table_client.get_attack_table_entry(
+                    attack_table=attack.modifiers.attack_table,
+                    size=attack.modifiers.attack_size,
+                    roll=attack.calculated.total,
+                    at=5,
+                )
             )

@@ -90,6 +90,13 @@ class AttackTableRestAdapter(AttackTableClient):
             criticalType = None
             criticalSeverity = None
 
+            if literal.isdigit():
+                damage = int(literal)
+            else:
+                damage = int(literal[:-2])
+                criticalType = literal[-2]
+                criticalSeverity = literal[-1]
+
             entry = AttackTableEntry(
                 roll=json.get("roll", roll),
                 at=json.get("at", at),

@@ -26,14 +26,32 @@ class CriticalDTO(BaseModel):
     status: str = Field(..., description="Critical status")
 
 
+class AttackTableEntryDTO(BaseModel):
+    """DTO for attack table entry"""
+
+    model_config = ConfigDict(use_enum_values=True)
+
+    roll: int = Field(..., description="Roll value")
+    at: int = Field(..., description="AT value")
+    literal: str = Field(..., description="Literal result description")
+    damage: int = Field(..., description="Damage points")
+    criticalType: Optional[str] = Field(None, description="Critical type")
+    criticalSeverity: Optional[str] = Field(None, description="Critical severity")
+
+
 class AttackResultDTO(BaseModel):
     """DTO for attack result"""
 
     model_config = ConfigDict(use_enum_values=True)
 
-    labelResult: str = Field(..., description="Result label")
-    hitPoints: int = Field(..., description="Hit points")
-    criticals: list[CriticalDTO] = Field(..., description="Critical hits")
+    attackTableEntry: Optional[AttackTableEntryDTO] = Field(
+        None, description="Attack table entry"
+    )
+    criticals: list[CriticalDTO] = Field(None, description="Critical hits")
+
+    # TODO remove from model
+    labelResult: str = Field(None, description="Result label")
+    hitPoints: int = Field(None, description="Hit points")
 
 
 class AttackRollModifiersDTO(BaseModel):
