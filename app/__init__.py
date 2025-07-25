@@ -1,8 +1,8 @@
 """
-RMU API Attack - API REST para gestión de ataques
+RMU API Attack - REST API for attack management
 
-Este paquete contiene toda la lógica de la API REST para gestionar
-información de ataques en el sistema RMU.
+This package contains all the REST API logic for managing
+attack information in the RMU system.
 """
 
 __version__ = "1.0.0"

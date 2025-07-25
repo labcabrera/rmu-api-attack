@@ -62,10 +62,14 @@ class ListAttacksUseCase:
         source_id: Optional[str] = None,
         target_id: Optional[str] = None,
         status: Optional[str] = None,
-        limit: int = 100,
-        skip: int = 0,
+        page: int = 0,
+        size: int = 100,
     ) -> Page[Attack]:
         """Execute the list attacks use case"""
+        # Calculate skip and limit from page and size
+        skip = page * size
+        limit = size
+
         # Get attacks and total count in parallel
         attacks = await self._attack_repository.find_all(
             action_id=action_id,
@@ -83,13 +87,10 @@ class ListAttacksUseCase:
             status=status,
         )
 
-        # Calculate page number (0-based)
-        page_number = skip // limit if limit > 0 else 0
-
         # Create pagination metadata
         pagination = Pagination(
-            page=page_number,
-            size=limit,
+            page=page,
+            size=size,
             total_elements=total_elements,
         )
 

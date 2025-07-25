@@ -32,29 +32,29 @@ async def list_attacks(
     source_id: Optional[str] = Query(None, description="Filter by source ID"),
     target_id: Optional[str] = Query(None, description="Filter by target ID"),
     status: Optional[str] = Query(None, description="Filter by status"),
-    limit: int = Query(100, description="Maximum number of results", ge=1, le=1000),
-    skip: int = Query(0, description="Number of results to skip", ge=0),
+    page: int = Query(0, description="Page number (0-based)", ge=0),
+    size: int = Query(100, description="Page size", ge=1, le=1000),
 ):
     """List attacks with optional filters"""
     logger.info(
-        f"Listing attacks with filters - action_id: {action_id}, source_id: {source_id}, target_id: {target_id}, status: {status}, limit: {limit}, skip: {skip}"
+        f"Listing attacks with filters - action_id: {action_id}, source_id: {source_id}, target_id: {target_id}, status: {status}, page: {page}, size: {size}"
     )
 
     try:
         list_use_case = container.get_list_attacks_use_case()
-        page = await list_use_case.execute(
+        result_page = await list_use_case.execute(
             action_id=action_id,
             source_id=source_id,
             target_id=target_id,
             status=status,
-            limit=limit,
-            skip=skip,
+            page=page,
+            size=size,
         )
 
         logger.info(
-            f"Successfully retrieved page {page.page_number} with {len(page.content)} attacks (total: {page.total_elements})"
+            f"Successfully retrieved page {result_page.pagination.page} with {len(result_page.content)} attacks (total: {result_page.pagination.total_elements})"
         )
-        return page_to_dto(page)
+        return page_to_dto(result_page)
 
     except Exception as e:
         logger.error(f"Error listing attacks: {str(e)}")
