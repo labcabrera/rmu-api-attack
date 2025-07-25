@@ -15,7 +15,8 @@ class AttackTableApiConfig:
     api_key: Optional[str] = None
     max_retries: int = 3
     retry_delay: float = 1.0
-    enable_retry: bool = True
+    # enable_retry: bool = True
+    enable_retry: bool = False
 
     @classmethod
     def from_env(cls) -> "AttackTableApiConfig":
@@ -28,6 +29,8 @@ class AttackTableApiConfig:
             api_key=os.getenv("RMU_API_ATTACK_TABLES_KEY"),
             max_retries=int(os.getenv("RMU_API_ATTACK_TABLES_MAX_RETRIES", "3")),
             retry_delay=float(os.getenv("RMU_API_ATTACK_TABLES_RETRY_DELAY", "1.0")),
-            enable_retry=os.getenv("RMU_API_ATTACK_TABLES_ENABLE_RETRY", "true").lower()
+            enable_retry=os.getenv(
+                "RMU_API_ATTACK_TABLES_ENABLE_RETRY", "false"
+            ).lower()
             == "true",
         )

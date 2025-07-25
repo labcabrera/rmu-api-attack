@@ -46,7 +46,7 @@ class AttackTableRestAdapter(AttackTableClient):
         return self._client
 
     async def get_attack_table_entry(
-        attack_table: str, size: str, self, roll: int, at: int
+        self, attack_table: str, size: str, roll: int, at: int
     ) -> Optional[AttackTableEntry]:
         """
         Get attack table entry from external API
@@ -79,20 +79,21 @@ class AttackTableRestAdapter(AttackTableClient):
 
             response.raise_for_status()
 
-            data = response.json()
-            logger.debug(f"Received response: {data}")
+            json = response.json()
+            logger.debug(f"Received response: {json}")
 
             # Parse response and create AttackTableEntry
 
             # TODO parse
+            literal = json.get("data", {})
             damage = 0
             criticalType = None
             criticalSeverity = None
 
             entry = AttackTableEntry(
-                roll=data.get("roll", roll),
-                at=data.get("at", at),
-                literal=data.data,
+                roll=json.get("roll", roll),
+                at=json.get("at", at),
+                literal=literal,
                 damage=damage,
                 criticalType=criticalType,
                 criticalSeverity=criticalSeverity,
@@ -156,7 +157,7 @@ class AttackTableRestAdapterWithRetry(AttackTableRestAdapter):
         self.retry_delay = retry_delay
 
     async def get_attack_table_entry(
-        self, roll: int, at: int
+        self, attack_table: str, size: str, roll: int, at: int
     ) -> Optional[AttackTableEntry]:
         """
         Get attack table entry with retry mechanism
@@ -169,7 +170,9 @@ class AttackTableRestAdapterWithRetry(AttackTableRestAdapter):
                     logger.info(f"Retry attempt {attempt} for roll={roll}, at={at}")
                     await asyncio.sleep(self.retry_delay * attempt)
 
-                return await super().get_attack_table_entry(roll, at)
+                return await super().get_attack_table_entry(
+                    attack_table=attack_table, size=size, roll=roll, at=at
+                )
 
             except Exception as e:
                 last_exception = e

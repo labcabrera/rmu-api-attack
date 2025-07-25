@@ -124,7 +124,9 @@ class DependencyContainer:
         await self._critical_repository.initialize()
 
         # Initialize domain services
-        self._attack_calculator = AttackCalculator(self._attack_repository)
+        self._attack_calculator = AttackCalculator(
+            attack_table_client=self._attack_table_service,
+        )
         self._attack_domain_service = AttackDomainService(
             attack_calculator=self._attack_calculator,
             attack_repository=self._attack_repository,

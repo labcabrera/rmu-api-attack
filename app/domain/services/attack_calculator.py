@@ -2,6 +2,11 @@ from typing import Optional
 
 from app.domain.entities.attack import Attack, AttackCalculations, AttackBonusEntry
 from app.domain.ports.attack_ports import AttackNotificationPort, AttackRepository
+from app.domain.ports.attack_table_port import AttackTableClient
+
+from app.infrastructure.logging.logger_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class AttackCalculator:
@@ -9,12 +14,14 @@ class AttackCalculator:
     def __init__(
         self,
         notification_port: Optional[AttackNotificationPort] = None,
+        attack_table_client: AttackTableClient = None,
     ):
         self._notification_port = notification_port
+        self._attack_table_client = attack_table_client
 
     async def calculate_attack(self, attack: Attack) -> Attack:
         self.validate_attack(attack)
-        self.calculate_attack_results(attack)
+        await self.calculate_attack_results(attack)
 
     def validate_attack(self, attack: Attack) -> None:
         if not attack:
@@ -24,7 +31,7 @@ class AttackCalculator:
         if not attack.modifiers:
             raise ValueError("Attack must have modifiers to calculate results")
 
-    def calculate_attack_results(self, attack: Attack) -> Attack:
+    async def calculate_attack_results(self, attack: Attack) -> Attack:
 
         attack.calculated = AttackCalculations(total=0, modifiers=[])
 
@@ -54,3 +61,20 @@ class AttackCalculator:
         ]
 
         attack.calculated.total = sum(p.value for p in attack.calculated.modifiers)
+
+        # TODO add to model
+        attack_table = "arming-sword"
+        attack_size = "medium"
+
+        if self._attack_table_client:
+            attack_table_entry = await self._attack_table_client.get_attack_table_entry(
+                attack_table=attack_table,
+                size=attack_size,
+                roll=attack.calculated.total,
+                at=5,
+            )
+            logger.debug(
+                f"Attack table entry for {attack_table} "
+                f"with size {attack_size} and roll "
+                f"{attack.roll.roll}: {attack_table_entry}"
+            )
