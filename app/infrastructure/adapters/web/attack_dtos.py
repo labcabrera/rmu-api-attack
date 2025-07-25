@@ -139,6 +139,7 @@ class PaginationDTO(BaseModel):
     page: int = Field(..., description="Current page number (0-based)")
     size: int = Field(..., description="Page size")
     totalElements: int = Field(..., description="Total number of elements")
+    totalPages: int = Field(..., description="Total number of pages")
 
 
 class PagedAttacksDTO(BaseModel):

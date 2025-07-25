@@ -14,9 +14,9 @@ T = TypeVar("T")
 class Pagination:
     """Pagination metadata"""
 
-    page: int  # 0-based page number
-    size: int  # page size
-    total_elements: int  # total number of elements
+    page: int
+    size: int
+    total_elements: int
 
     @property
     def total_pages(self) -> int:

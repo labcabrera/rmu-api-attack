@@ -126,6 +126,7 @@ class AttackDTOConverter:
             page=page.pagination.page,
             size=page.pagination.size,
             totalElements=page.pagination.total_elements,
+            totalPages=page.pagination.total_pages,
         )
 
         return PagedAttacksDTO(
