@@ -5,12 +5,12 @@ This assembles all the components and their dependencies.
 
 from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorClient
-from app.config import settings
 
 from app.domain.services.attack_calculator import AttackCalculator
 from app.domain.services.attack_domain_service import AttackDomainService
 from app.domain.ports.attack_ports import AttackRepository
 from app.domain.ports.critical_ports import CriticalRepository
+from app.domain.ports.attack_table_port import AttackTableClient
 
 
 from app.application.use_cases.attack.apply_attack_use_case import ApplyAttackUseCase
@@ -37,12 +37,18 @@ from app.application.use_cases.critical_use_cases import (
     ApplyCriticalUseCase,
 )
 
+from app.infrastructure.config.config import settings
 from app.infrastructure.adapters.persistence.mongo_attack_repository import (
     MongoAttackRepository,
 )
 from app.infrastructure.adapters.persistence.mongo_critical_repository import (
     MongoCriticalRepository,
 )
+from app.infrastructure.adapters.external.attack_table_rest_adapter import (
+    AttackTableRestAdapter,
+    AttackTableRestAdapterWithRetry,
+)
+from app.infrastructure.config.attack_table_config import AttackTableApiConfig
 
 
 class DependencyContainer:
@@ -55,6 +61,9 @@ class DependencyContainer:
         # Repositories
         self._attack_repository: Optional[AttackRepository] = None
         self._critical_repository: Optional[CriticalRepository] = None
+
+        # External services
+        self._attack_table_service: Optional[AttackTableClient] = None
 
         # Domain services
         self._attack_domain_service: Optional[AttackDomainService] = None
@@ -93,6 +102,23 @@ class DependencyContainer:
         # Initialize repositories
         self._attack_repository = MongoAttackRepository(self._database)
         self._critical_repository = MongoCriticalRepository(self._database)
+
+        # Initialize external services
+        attack_table_config = AttackTableApiConfig.from_env()
+        if attack_table_config.enable_retry:
+            self._attack_table_service = AttackTableRestAdapterWithRetry(
+                base_url=attack_table_config.base_url,
+                timeout=attack_table_config.timeout,
+                api_key=attack_table_config.api_key,
+                max_retries=attack_table_config.max_retries,
+                retry_delay=attack_table_config.retry_delay,
+            )
+        else:
+            self._attack_table_service = AttackTableRestAdapter(
+                base_url=attack_table_config.base_url,
+                timeout=attack_table_config.timeout,
+                api_key=attack_table_config.api_key,
+            )
 
         # Initialize indexes
         await self._critical_repository.initialize()
@@ -174,6 +200,11 @@ class DependencyContainer:
     def get_update_attack_roll_use_case(self) -> UpdateAttackRollUseCase:
         """Get update attack roll use case instance"""
         return self._update_attack_roll_use_case
+
+    # External services
+    def get_attack_table_service(self) -> AttackTableClient:
+        """Get attack table service instance"""
+        return self._attack_table_service
 
     # Critical repository and use cases
     def get_critical_repository(self) -> CriticalRepository:

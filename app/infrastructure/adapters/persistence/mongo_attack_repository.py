@@ -11,7 +11,7 @@ from bson import ObjectId
 
 from app.domain.exceptions import AttackNotFoundException
 
-from app.config import settings
+from app.infrastructure.config.config import settings
 from app.domain.ports import AttackRepository
 from app.domain.entities import Attack
 from app.infrastructure.logging import get_logger

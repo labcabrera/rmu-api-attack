@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.config import settings
+
+from app.infrastructure.config.config import settings
 from app.infrastructure.dependency_container import container
 from app.infrastructure.logging import setup_logging, get_logger
 from app.infrastructure.adapters.web.attack_controller import router as attack_router

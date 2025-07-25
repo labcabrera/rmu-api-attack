@@ -7,5 +7,8 @@ class AttackTableEntry:
 
     roll: int
     at: int
+    literal: str
     damage: int
-    critical: Optional[str] = None
+    # TODO enum
+    criticalType: Optional[str] = None
+    criticalSeverity: Optional[str] = None
