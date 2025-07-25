@@ -41,6 +41,17 @@ class AttackRollModifiersDTO(BaseModel):
 
     bo: int = Field(..., description="Source offensive bonus")
     bd: int = Field(..., description="Target defensive bonus")
+    boInjuryPenalty: int = Field(None, description="Injury penalty to offensive bonus")
+    boActionsPointsPenalty: int = Field(
+        None, description="Actions points penalty to offensive bonus"
+    )
+    boPacePenalty: int = Field(None, description="Pace penalty to offensive bonus")
+    boFatiguePenalty: int = Field(
+        None, description="Fatigue penalty to offensive bonus"
+    )
+    rangePenalty: int = Field(None, description="Range penalty")
+    parry: int = Field(None, description="Parry value")
+    customBonus: int = Field(None, description="Custom bonus to offensive bonus")
 
 
 class AttackModifiersDTO(BaseModel):
@@ -79,18 +90,35 @@ class AttackDTO(BaseModel):
         use_enum_values=True,
         json_schema_extra={
             "example": {
-                "id": "atk_001",
+                "id": "68837ba24b9293ca54e6ff72",
                 "actionId": "action_001",
-                "status": "executed",
-                "input": {
-                    "sourceId": "source_001",
-                    "targetId": "target_001",
-                    "actionPoints": 3,
-                    "round": 1,
-                    "mode": "mainHand",
+                "sourceId": "character_001",
+                "targetId": "character_002",
+                "status": "draft",
+                "modifiers": {
+                    "attackType": "melee",
+                    "rollModifiers": {
+                        "bo": 96,
+                        "bd": -11,
+                        "boInjuryPenalty": -5,
+                        "boActionsPointsPenalty": -2,
+                        "boPacePenalty": -3,
+                        "boFatiguePenalty": -1,
+                        "rangePenalty": 0,
+                        "parry": 10,
+                        "customBonus": 5,
+                    },
                 },
-                "roll": {"roll": 15},
-                "results": {"labelResult": "8AT", "hitPoints": 8, "criticals": []},
+                "roll": {"roll": 55},
+                "calculated": {
+                    "modifiers": [
+                        {"key": "roll", "value": 55},
+                        {"key": "bo", "value": 96},
+                        {"key": "bd", "value": -11},
+                    ],
+                    "total": 140,
+                },
+                "results": None,
             }
         },
     )
@@ -120,7 +148,17 @@ class CreateAttackRequestDTO(BaseModel):
                 "targetId": "character_002",
                 "modifiers": {
                     "attackType": "melee",
-                    "rollModifiers": {"bo": 80, "bd": -20},
+                    "rollModifiers": {
+                        "bo": 96,
+                        "bd": -11,
+                        "boInjuryPenalty": -5,
+                        "boActionsPointsPenalty": -2,
+                        "boPacePenalty": -3,
+                        "boFatiguePenalty": -1,
+                        "rangePenalty": 0,
+                        "parry": 10,
+                        "customBonus": 5,
+                    },
                 },
             }
         },
