@@ -69,6 +69,30 @@ class AttackRepository(ABC):
         pass
 
     @abstractmethod
+    async def find_with_filters(
+        self,
+        action_id: Optional[str] = None,
+        source_id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 100,
+        skip: int = 0,
+    ) -> List[Attack]:
+        """Find attacks with individual filters (deprecated, use find_by_rsql instead)"""
+        pass
+
+    @abstractmethod
+    async def count_with_filters(
+        self,
+        action_id: Optional[str] = None,
+        source_id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        status: Optional[str] = None,
+    ) -> int:
+        """Count attacks with individual filters (deprecated, use count_by_rsql instead)"""
+        pass
+
+    @abstractmethod
     async def exists(self, attack_id: str) -> bool:
         """Check if an attack exists"""
         pass

@@ -11,7 +11,11 @@ from bson import ObjectId
 from app.config import settings
 from app.domain.ports import AttackRepository
 from app.domain.entities import Attack
+from app.infrastructure.logging import get_logger
+from .rsql_parser import RSQLParser
 from .mongo_attack_converter import MongoAttackConverter
+
+logger = get_logger(__name__)
 
 
 class MongoAttackRepository(AttackRepository):
@@ -19,6 +23,7 @@ class MongoAttackRepository(AttackRepository):
 
     def __init__(self, database=None):
         self._converter = MongoAttackConverter()
+        self._rsql_parser = RSQLParser()
 
         if database is not None:
             # Use provided database connection (from container)
@@ -64,16 +69,23 @@ class MongoAttackRepository(AttackRepository):
             pass
         return None
 
-    async def find_by_rsql(self, rsql_query: str) -> List[Attack]:
-        """Find attacks by RSQL query"""
+    async def find_by_rsql(
+        self, rsql_query: Optional[str] = None, limit: int = 100, skip: int = 0
+    ) -> List[Attack]:
         await self.connect()
         try:
-            cursor = self._collection.find({"$text": {"$search": rsql_query}})
+            if rsql_query:
+                mongo_query = self._rsql_parser.parse(rsql_query)
+            else:
+                mongo_query = {}
+            logger.info("Searching using query: %s", mongo_query)
+            cursor = self._collection.find(mongo_query).skip(skip).limit(limit)
             attacks = []
             async for doc in cursor:
                 attacks.append(self._converter.dict_to_attack(doc))
             return attacks
-        except Exception:
+        except Exception as e:
+            print(f"Error in find_by_rsql: {e}")
             return []
 
     async def save(self, attack: Attack) -> Attack:
@@ -119,14 +131,22 @@ class MongoAttackRepository(AttackRepository):
         except Exception:
             return False
 
-    async def count_by_rsql(self, rsql_query: str) -> int:
+    async def count_by_rsql(self, rsql_query: Optional[str] = None) -> int:
         """Count attacks by RSQL query"""
         await self.connect()
         try:
-            cursor = self._collection.find({"$text": {"$search": rsql_query}})
-            count = await cursor.count()
+            if rsql_query:
+                # Parse RSQL query to MongoDB query
+                mongo_query = self._rsql_parser.parse(rsql_query)
+            else:
+                # Empty query counts all documents
+                mongo_query = {}
+
+            count = await self._collection.count_documents(mongo_query)
             return count
-        except Exception:
+        except Exception as e:
+            # In case of parsing error, return 0
+            print(f"Error in count_by_rsql: {e}")
             return 0
 
     async def find_all(
@@ -174,3 +194,37 @@ class MongoAttackRepository(AttackRepository):
             query["status"] = status
 
         return await self._collection.count_documents(query)
+
+    async def find_with_filters(
+        self,
+        action_id: Optional[str] = None,
+        source_id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 100,
+        skip: int = 0,
+    ) -> List[Attack]:
+        """Find attacks with individual filters (deprecated, use find_by_rsql instead)"""
+        return await self.find_all(
+            action_id=action_id,
+            source_id=source_id,
+            target_id=target_id,
+            status=status,
+            limit=limit,
+            skip=skip,
+        )
+
+    async def count_with_filters(
+        self,
+        action_id: Optional[str] = None,
+        source_id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        status: Optional[str] = None,
+    ) -> int:
+        """Count attacks with individual filters (deprecated, use count_by_rsql instead)"""
+        return await self.count_all(
+            action_id=action_id,
+            source_id=source_id,
+            target_id=target_id,
+            status=status,
+        )

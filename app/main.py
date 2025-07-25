@@ -8,14 +8,12 @@ from app.infrastructure.adapters.web.critical_controller import (
     router as critical_router,
 )
 
-# Initialize logging
 setup_logging(
     log_level=getattr(settings, "LOG_LEVEL", "INFO"),
     enable_console=True,
-    enable_file=True,
+    enable_file=False,
 )
 
-# Get logger for this module
 logger = get_logger(__name__)
 
 
