@@ -11,7 +11,6 @@ from app.domain.entities import (
     AttackModifiers,
     AttackRoll,
     AttackResult,
-    AttackMode,
     Critical,
     AttackRollModifiers,
 )

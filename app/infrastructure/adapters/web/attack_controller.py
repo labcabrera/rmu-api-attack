@@ -33,11 +33,10 @@ async def list_attacks(
         description="RSQL query string for filtering (e.g., 'status==DRAFT;actionId==action_001')",
     ),
     page: int = Query(0, description="Page number (0-based)", ge=0),
-    size: int = Query(100, description="Page size", ge=1),
+    size: int = Query(10, description="Page size", ge=1),
 ):
 
     logger.info(f"Search attacks << search: {search}, page: {page}, size: {size}")
-
     try:
         list_use_case = container.get_list_attacks_use_case()
         result_page = await list_use_case.execute(
@@ -46,7 +45,6 @@ async def list_attacks(
             size=size,
         )
         return page_to_dto(result_page)
-
     except Exception as e:
         logger.error(f"Error listing attacks: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
@@ -181,7 +179,7 @@ async def delete_attack(attack_id: str):
 @log_endpoint
 @log_errors
 async def execute_attack_roll(attack_id: str, roll_data: dict):
-    """Execute attack roll"""
+    """Applies the result of the damage roll to an attack."""
     logger.info(f"Executing roll for attack {attack_id}: {roll_data}")
 
     try:
@@ -217,23 +215,21 @@ async def execute_attack_roll(attack_id: str, roll_data: dict):
 
 
 @router.post(
-    "/{attack_id}/results",
+    "/{attack_id}/apply",
     response_model=AttackDTO,
     responses={404: {"model": AttackNotFoundDTO}},
 )
 @log_endpoint
 @log_errors
 async def apply_attack_results(attack_id: str, results_data: dict):
-    """Apply attack results"""
+    """Apply attack results."""
     logger.info(f"Applying results for attack {attack_id}: {results_data}")
 
     try:
         results_use_case = container.get_apply_attack_results_use_case()
-
         label = results_data.get("label")
         hit_points = results_data.get("hit_points", 0)
         criticals = results_data.get("criticals", [])
-
         if not label:
             logger.warning(f"No result label provided for attack: {attack_id}")
             raise HTTPException(status_code=400, detail="Result label is required")

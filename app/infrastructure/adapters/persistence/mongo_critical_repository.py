@@ -3,7 +3,6 @@ MongoDB adapter for Critical repository.
 """
 
 from typing import Optional, List, Dict, Any
-from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import DuplicateKeyError
 from app.domain.entities.critical import Critical
 from app.domain.ports.critical_ports import CriticalRepository
@@ -11,18 +10,18 @@ from app.domain.ports.critical_ports import CriticalRepository
 
 class MongoCriticalRepository(CriticalRepository):
     """MongoDB implementation of CriticalRepository"""
-    
+
     def __init__(self, database):
         self._database = database
         self._collection = database.criticals
-        
+
     async def initialize(self):
         """Initialize the repository with indexes"""
         # Create unique index on id field
         await self._collection.create_index("id", unique=True)
         # Create index on status for filtering
         await self._collection.create_index("status")
-        # Create index on type for filtering  
+        # Create index on type for filtering
         await self._collection.create_index("type")
 
     def _critical_to_dict(self, critical: Critical) -> Dict[str, Any]:
@@ -32,7 +31,7 @@ class MongoCriticalRepository(CriticalRepository):
             "type": critical.type,
             "roll": critical.roll,
             "result": critical.result,
-            "status": critical.status
+            "status": critical.status,
         }
 
     def _dict_to_critical(self, critical_dict: Dict[str, Any]) -> Optional[Critical]:
@@ -48,13 +47,13 @@ class MongoCriticalRepository(CriticalRepository):
             type=critical_dict["type"],
             roll=critical_dict["roll"],
             result=critical_dict["result"],
-            status=critical_dict["status"]
+            status=critical_dict["status"],
         )
 
     async def save(self, critical: Critical) -> Critical:
         """Save a critical to MongoDB"""
         critical_dict = self._critical_to_dict(critical)
-        
+
         try:
             await self._collection.insert_one(critical_dict)
             return critical
@@ -69,12 +68,9 @@ class MongoCriticalRepository(CriticalRepository):
     async def update(self, critical: Critical) -> Optional[Critical]:
         """Update a critical in MongoDB"""
         critical_dict = self._critical_to_dict(critical)
-        
-        result = await self._collection.replace_one(
-            {"id": critical.id},
-            critical_dict
-        )
-        
+
+        result = await self._collection.replace_one({"id": critical.id}, critical_dict)
+
         if result.matched_count > 0:
             return critical
         return None
@@ -84,10 +80,13 @@ class MongoCriticalRepository(CriticalRepository):
         result = await self._collection.delete_one({"id": critical_id})
         return result.deleted_count > 0
 
-    async def find_all(self, status: Optional[str] = None,
-                      type: Optional[str] = None,
-                      limit: int = 100, 
-                      skip: int = 0) -> List[Critical]:
+    async def find_all(
+        self,
+        status: Optional[str] = None,
+        type: Optional[str] = None,
+        limit: int = 100,
+        skip: int = 0,
+    ) -> List[Critical]:
         """Find criticals with optional filters"""
         query = {}
         if status:
@@ -97,12 +96,12 @@ class MongoCriticalRepository(CriticalRepository):
 
         cursor = self._collection.find(query).skip(skip).limit(limit)
         criticals = []
-        
+
         async for critical_dict in cursor:
             critical = self._dict_to_critical(critical_dict)
             if critical:
                 criticals.append(critical)
-                
+
         return criticals
 
     async def exists(self, critical_id: str) -> bool:
