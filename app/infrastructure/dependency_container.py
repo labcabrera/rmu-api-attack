@@ -3,6 +3,7 @@ Dependency injection container for hexagonal architecture.
 This assembles all the components and their dependencies.
 """
 
+import os
 from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.config import settings
@@ -80,6 +81,7 @@ class DependencyContainer:
 
     async def initialize(self):
         """Initialize all dependencies"""
+
         # Database connection
         self._client = AsyncIOMotorClient(settings.MONGODB_URL)
         self._database = self._client[settings.MONGODB_DATABASE]

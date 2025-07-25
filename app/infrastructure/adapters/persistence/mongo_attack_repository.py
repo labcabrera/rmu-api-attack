@@ -4,6 +4,7 @@ This is an infrastructure adapter that implements the AttackRepository port.
 """
 
 from typing import Optional, List
+from fastapi import HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import DuplicateKeyError
 from bson import ObjectId
@@ -65,12 +66,15 @@ class MongoAttackRepository(AttackRepository):
             attack_dict = await self._collection.find_one({"_id": object_id})
             if attack_dict:
                 return self._converter.dict_to_attack(attack_dict)
-        except Exception:
-            pass
-        return None
+            else:
+                logger.warning(f"Attack with ID {attack_id} not found")
+                raise HTTPException(status_code=404, detail="Attack not found")
+        except Exception as e:
+            logger.error(f"Error finding attack by ID: {attack_id} - {e}")
+            raise HTTPException(status_code=500, detail=str(e))
 
     async def find_by_rsql(
-        self, rsql_query: Optional[str] = None, limit: int = 100, skip: int = 0
+        self, rsql_query: Optional[str] = None, limit: int = 10, skip: int = 0
     ) -> List[Attack]:
         await self.connect()
         try:
@@ -96,8 +100,9 @@ class MongoAttackRepository(AttackRepository):
             return self._converter.dict_to_attack(
                 {**attack_dict, "_id": result.inserted_id}
             )
-        except DuplicateKeyError:
-            raise ValueError(f"Attack with ID {attack.id} already exists")
+        except Exception as e:
+            logger.error(f"Error saving attack: {e}")
+            raise ValueError(f"Failed to save attack: {str(e)}")
 
     async def update(self, attack: Attack) -> Optional[Attack]:
         await self.connect()
@@ -136,18 +141,14 @@ class MongoAttackRepository(AttackRepository):
         await self.connect()
         try:
             if rsql_query:
-                # Parse RSQL query to MongoDB query
                 mongo_query = self._rsql_parser.parse(rsql_query)
             else:
-                # Empty query counts all documents
                 mongo_query = {}
-
             count = await self._collection.count_documents(mongo_query)
             return count
         except Exception as e:
-            # In case of parsing error, return 0
-            print(f"Error in count_by_rsql: {e}")
-            return 0
+            logger.error(f"Error counting by RSQL: {e}")
+            raise ValueError(f"Failed to count attacks: {str(e)}")
 
     async def find_all(
         self,
