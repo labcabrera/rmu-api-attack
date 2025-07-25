@@ -109,7 +109,6 @@ class DependencyContainer:
             self._attack_domain_service
         )
         self._create_attack_use_case = CreateAttackUseCase(self._attack_domain_service)
-        # TODO change to domain service
         self._delete_attack_use_case = DeleteAttackUseCase(self._attack_repository)
         self._search_attack_by_id_use_case = SearchAttackByIdUseCase(
             self._attack_repository
@@ -118,7 +117,8 @@ class DependencyContainer:
             self._attack_repository
         )
         self._update_attack_modifiers_use_case = UpdateAttackModifiersUseCase(
-            self._attack_repository, self._attack_domain_service
+            attack_repository=self._attack_repository,
+            attack_calculator=self._attack_calculator,
         )
         self._update_attack_roll_use_case = UpdateAttackRollUseCase(
             self._attack_domain_service

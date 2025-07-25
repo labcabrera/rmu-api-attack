@@ -24,6 +24,7 @@ from app.infrastructure.adapters.web.attack_dto_converter import (
     attack_to_dto,
     create_request_to_command,
     page_to_dto,
+    modifiers_dto_to_domain,
 )
 
 logger = get_logger(__name__)
@@ -138,9 +139,12 @@ async def update_attack(attack_id: str, request: UpdateAttackModifiersRequestDTO
     logger.info(f"Update attack << attack_id:{attack_id}")
 
     try:
+        # Convert DTO modifiers to domain modifiers
+        domain_modifiers = modifiers_dto_to_domain(request.modifiers)
+
         command = UpdateAttackModifiersCommand(
             attack_id=attack_id,
-            modifiers=request.modifiers,
+            modifiers=domain_modifiers,
         )
         use_case = container.get_update_attack_modifiers_use_case()
         attack = await use_case.execute(command)

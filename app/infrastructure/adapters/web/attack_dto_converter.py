@@ -148,6 +148,24 @@ class AttackDTOConverter:
             pagination=pagination_dto,
         )
 
+    @staticmethod
+    def modifiers_dto_to_domain(modifiers_dto: AttackModifiersDTO) -> AttackModifiers:
+        """Convert AttackModifiersDTO to domain AttackModifiers"""
+        return AttackModifiers(
+            attack_type=modifiers_dto.attackType,
+            roll_modifiers=AttackRollModifiers(
+                bo=modifiers_dto.rollModifiers.bo,
+                bo_injury_penalty=0,
+                bo_actions_points_penalty=0,
+                bo_pace_penalty=0,
+                bo_fatigue_penalty=0,
+                bd=modifiers_dto.rollModifiers.bd,
+                range_penalty=0,
+                parry=0,
+                custom_bonus=0,
+            ),
+        )
+
 
 # Convenience functions that delegate to the converter class
 def create_request_to_command(dto: CreateAttackRequestDTO) -> CreateAttackCommand:
@@ -168,3 +186,8 @@ def create_request_to_domain(dto: CreateAttackRequestDTO) -> Attack:
 def page_to_dto(page: Page[Attack]) -> PagedAttacksDTO:
     """Convert Page[Attack] to PagedAttacksDTO"""
     return AttackDTOConverter.page_to_dto(page)
+
+
+def modifiers_dto_to_domain(modifiers_dto: AttackModifiersDTO) -> AttackModifiers:
+    """Convert AttackModifiersDTO to domain AttackModifiers"""
+    return AttackDTOConverter.modifiers_dto_to_domain(modifiers_dto)
