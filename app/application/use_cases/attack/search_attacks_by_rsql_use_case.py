@@ -5,7 +5,7 @@ from app.domain.entities.page import Page, Pagination
 from app.domain.ports.attack_ports import AttackRepository
 
 
-class SearchAttacksUseCase:
+class SearchAttacksByRsqlUseCase:
     """Use case for listing attacks with support for both RSQL queries and individual filters"""
 
     def __init__(self, attack_repository: AttackRepository):

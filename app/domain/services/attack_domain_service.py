@@ -6,6 +6,12 @@ These contain business logic that doesn't naturally fit into entities.
 from typing import Optional
 from app.domain.entities import Attack, AttackRoll, AttackResult, Critical
 from app.domain.ports import AttackRepository, AttackNotificationPort
+from app.domain.entities.enums import AttackStatus
+from app.domain.exceptions import (
+    AttackInvalidStateException,
+    AttackNotFoundException,
+    AttackValidationException,
+)
 
 
 class AttackDomainService:
@@ -53,32 +59,33 @@ class AttackDomainService:
     async def apply_attack_results(
         self,
         attack_id: str,
-        label: str,
-        hit_points: int,
-        criticals: list[Critical] = None,
     ) -> Optional[Attack]:
         """Apply results to an attack"""
+
         attack = await self._attack_repository.find_by_id(attack_id)
         if not attack:
+            raise AttackNotFoundException(attack_id=attack_id)
             return None
-
-        # Business rule: Must have a roll before applying results
+        if attack.status != AttackStatus.CALCULATED:
+            raise AttackInvalidStateException(
+                attack_id=attack.id,
+                current_state=attack.status.value,
+                expected_state=AttackStatus.CALCULATED.value,
+                operation="apply_results",
+            )
         if not attack.roll:
-            raise ValueError(
-                f"Cannot apply results to attack {attack_id}: no roll executed"
+            raise AttackValidationException(
+                attack_id=attack.id,
+                message="Cannot apply results: attack roll is not executed",
             )
 
-        # Apply results
-        attack.apply_results(label, hit_points, criticals or [])
-
-        # Update the attack
-        updated_attack = await self._attack_repository.update(attack)
-
-        # Notify about execution
-        if self._notification_port and updated_attack:
-            await self._notification_port.notify_attack_executed(updated_attack)
-
-        return updated_attack
+        # TODO send message to notification port
+        if self._notification_port:
+            await self._notification_port.notify_attack_results_applied(attack)
+            attack.status = AttackStatus.APPLIED
+            updated_attack = await self._attack_repository.update(attack)
+            return updated_attack
+        pass
 
     def calculate_attack_result(
         self, roll_value: int, attack_bonus: int = 0

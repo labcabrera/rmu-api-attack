@@ -12,6 +12,12 @@ from .enums import (
     DodgeType,
     RestrictedQuarters,
 )
+from ..exceptions import (
+    AttackInvalidStateException,
+    AttackInvalidStateTransitionException,
+    AttackAlreadyExecutedException,
+    AttackNotExecutedException,
+)
 
 
 @dataclass
@@ -113,26 +119,3 @@ class Attack:
     modifiers: AttackModifiers
     roll: Optional[AttackRoll] = None
     results: Optional[AttackResult] = None
-
-    def execute_roll(self, roll_value: int) -> None:
-        """Execute attack roll"""
-        self.roll = AttackRoll(roll=roll_value)
-
-    def apply_results(
-        self, label: str, hit_points: int, criticals: list[Critical] = None
-    ) -> None:
-        """Apply attack results"""
-        if criticals is None:
-            criticals = []
-        self.results = AttackResult(
-            label_result=label, hit_points=hit_points, criticals=criticals
-        )
-        self.status = "executed"
-
-    def is_pending(self) -> bool:
-        """Check if attack is pending execution"""
-        return self.status == "pending"
-
-    def is_executed(self) -> bool:
-        """Check if attack is executed"""
-        return self.status == "executed"

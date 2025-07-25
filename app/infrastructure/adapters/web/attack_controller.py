@@ -38,8 +38,8 @@ async def list_attacks(
 
     logger.info(f"Search attacks << search: {search}, page: {page}, size: {size}")
     try:
-        list_use_case = container.get_list_attacks_use_case()
-        result_page = await list_use_case.execute(
+        use_case = container.get_search_attack_by_rsql_use_case()
+        result_page = await use_case.execute(
             rsql_query=search,
             page=page,
             size=size,
@@ -62,8 +62,8 @@ async def get_attack(attack_id: str):
     logger.info(f"Retrieving attack with ID: {attack_id}")
 
     try:
-        get_use_case = container.get_get_attack_use_case()
-        attack = await get_use_case.execute(attack_id)
+        use_case = container.get_search_attack_by_id_use_case()
+        attack = await use_case.execute(attack_id)
 
         if not attack:
             logger.warning(f"Attack not found: {attack_id}")
@@ -90,9 +90,9 @@ async def create_attack(request: CreateAttackRequestDTO):
     logger.info(f"Creating new attack << actionId: {request.actionId}")
 
     try:
-        create_use_case = container.get_create_attack_use_case()
         command = create_request_to_command(request)
-        created_attack = await create_use_case.execute(command)
+        use_case = container.get_create_attack_use_case()
+        created_attack = await use_case.execute(command)
         logger.info(f"Successfully created attack: {created_attack.id}")
         return attack_to_dto(created_attack)
 
@@ -116,13 +116,11 @@ async def update_attack(attack_id: str, update_data: dict):
     logger.info(f"Updating attack {attack_id} with data: {update_data}")
 
     try:
-        update_use_case = container.get_update_attack_use_case()
-
         if not update_data:
             logger.warning(f"No update data provided for attack: {attack_id}")
             raise HTTPException(status_code=400, detail="No fields to update")
-
-        attack = await update_use_case.execute(attack_id, update_data)
+        use_case = container.get_update_attack_modifiers_use_case()
+        attack = await use_case.execute(attack_id, update_data)
 
         if not attack:
             logger.warning(f"Attack not found for update: {attack_id}")
@@ -152,9 +150,8 @@ async def delete_attack(attack_id: str):
     logger.info(f"Deleting attack: {attack_id}")
 
     try:
-        delete_use_case = container.get_delete_attack_use_case()
-        deleted = await delete_use_case.execute(attack_id)
-
+        use_case = container.get_delete_attack_use_case()
+        deleted = await use_case.execute(attack_id)
         if not deleted:
             logger.warning(f"Attack not found for deletion: {attack_id}")
             raise HTTPException(
@@ -183,22 +180,18 @@ async def execute_attack_roll(attack_id: str, roll_data: dict):
     logger.info(f"Executing roll for attack {attack_id}: {roll_data}")
 
     try:
-        roll_use_case = container.get_execute_attack_roll_use_case()
         roll_value = roll_data.get("roll")
-
         if roll_value is None:
             logger.warning(f"No roll value provided for attack: {attack_id}")
             raise HTTPException(status_code=400, detail="Roll value is required")
-
-        attack = await roll_use_case.execute(attack_id, roll_value)
-
+        use_case = container.get_update_attack_roll_use_case()
+        attack = await use_case.execute(attack_id, roll_value)
         if not attack:
             logger.warning(f"Attack not found for roll execution: {attack_id}")
             raise HTTPException(
                 status_code=404,
                 detail={"detail": "Attack not found", "attack_id": attack_id},
             )
-
         logger.info(f"Successfully executed roll for attack {attack_id}: {roll_value}")
         return attack_to_dto(attack)
 
@@ -226,23 +219,14 @@ async def apply_attack_results(attack_id: str, results_data: dict):
     logger.info(f"Applying results for attack {attack_id}: {results_data}")
 
     try:
-        results_use_case = container.get_apply_attack_results_use_case()
-        label = results_data.get("label")
-        hit_points = results_data.get("hit_points", 0)
-        criticals = results_data.get("criticals", [])
-        if not label:
-            logger.warning(f"No result label provided for attack: {attack_id}")
-            raise HTTPException(status_code=400, detail="Result label is required")
-
-        attack = await results_use_case.execute(attack_id, label, hit_points, criticals)
-
+        use_case = container.get_apply_attack_use_case()
+        attack = await use_case.execute(attack_id, results_data)
         if not attack:
             logger.warning(f"Attack not found for results application: {attack_id}")
             raise HTTPException(
                 status_code=404,
                 detail={"detail": "Attack not found", "attack_id": attack_id},
             )
-
         logger.info(f"Successfully applied results for attack {attack_id}")
         return attack_to_dto(attack)
 

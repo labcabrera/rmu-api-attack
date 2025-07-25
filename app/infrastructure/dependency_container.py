@@ -4,23 +4,28 @@ This assembles all the components and their dependencies.
 """
 
 from typing import Optional
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from motor.motor_asyncio import AsyncIOMotorClient
 from app.config import settings
 
 from app.domain.services.attack_domain_service import AttackDomainService
 from app.domain.ports.attack_ports import AttackRepository
 from app.domain.ports.critical_ports import CriticalRepository
 
+
+from app.application.use_cases.attack.apply_attack_use_case import ApplyAttackUseCase
 from app.application.use_cases.attack.create_attack_use_case import CreateAttackUseCase
-from app.application.use_cases.attack.search_attacks_use_case import (
-    SearchAttacksUseCase,
+from app.application.use_cases.attack.delete_attack_use_case import DeleteAttackUseCase
+from app.application.use_cases.attack.search_attack_by_id_use_case import (
+    SearchAttackByIdUseCase,
 )
-from app.application.use_cases.attack_use_cases import (
-    GetAttackUseCase,
-    UpdateAttackUseCase,
-    DeleteAttackUseCase,
-    ExecuteAttackRollUseCase,
-    ApplyAttackResultsUseCase,
+from app.application.use_cases.attack.search_attacks_by_rsql_use_case import (
+    SearchAttacksByRsqlUseCase,
+)
+from app.application.use_cases.attack.update_attack_modifiers_use_case import (
+    UpdateAttackModifiersUseCase,
+)
+from app.application.use_cases.attack.update_attack_roll_use_case import (
+    UpdateAttackRollUseCase,
 )
 
 from app.application.use_cases.critical_use_cases import (
@@ -54,13 +59,17 @@ class DependencyContainer:
         self._attack_domain_service: Optional[AttackDomainService] = None
 
         # Attack Use Cases
+        self._apply_attack_use_case: Optional[ApplyAttackUseCase] = None
         self._create_attack_use_case: Optional[CreateAttackUseCase] = None
-        self._get_attack_use_case: Optional[GetAttackUseCase] = None
-        self._update_attack_use_case: Optional[UpdateAttackUseCase] = None
-        self._list_attacks_use_case: Optional[SearchAttacksUseCase] = None
         self._delete_attack_use_case: Optional[DeleteAttackUseCase] = None
-        self._execute_attack_roll_use_case: Optional[ExecuteAttackRollUseCase] = None
-        self._apply_attack_results_use_case: Optional[ApplyAttackResultsUseCase] = None
+        self._search_attack_by_id_use_case: Optional[SearchAttackByIdUseCase] = None
+        self._search_attack_by_rsql_use_case: Optional[SearchAttacksByRsqlUseCase] = (
+            None
+        )
+        self._update_attack_modifiers_use_case: Optional[
+            UpdateAttackModifiersUseCase
+        ] = None
+        self._update_attack_roll_use_case: Optional[UpdateAttackRollUseCase] = None
 
         # Critical Use Cases
         self._create_critical_use_case: Optional[CreateCriticalUseCase] = None
@@ -89,15 +98,22 @@ class DependencyContainer:
         self._attack_domain_service = AttackDomainService(self._attack_repository)
 
         # Initialize Attack use cases
-        self._create_attack_use_case = CreateAttackUseCase(self._attack_domain_service)
-        self._get_attack_use_case = GetAttackUseCase(self._attack_repository)
-        self._update_attack_use_case = UpdateAttackUseCase(self._attack_repository)
-        self._list_attacks_use_case = SearchAttacksUseCase(self._attack_repository)
-        self._delete_attack_use_case = DeleteAttackUseCase(self._attack_repository)
-        self._execute_attack_roll_use_case = ExecuteAttackRollUseCase(
+        self._apply_attack_results_use_case = ApplyAttackUseCase(
             self._attack_domain_service
         )
-        self._apply_attack_results_use_case = ApplyAttackResultsUseCase(
+        self._create_attack_use_case = CreateAttackUseCase(self._attack_domain_service)
+        # TODO change to domain service
+        self._delete_attack_use_case = DeleteAttackUseCase(self._attack_repository)
+        self._search_attack_by_id_use_case = SearchAttackByIdUseCase(
+            self._attack_repository
+        )
+        self._search_attack_by_rsql_use_case = SearchAttacksByRsqlUseCase(
+            self._attack_repository
+        )
+        self._update_attack_modifiers_use_case = UpdateAttackModifiersUseCase(
+            self._attack_repository, self._attack_domain_service
+        )
+        self._update_attack_roll_use_case = UpdateAttackRollUseCase(
             self._attack_domain_service
         )
 
@@ -124,33 +140,33 @@ class DependencyContainer:
         """Get attack repository instance"""
         return self._attack_repository
 
+    def get_apply_attack_use_case(self) -> ApplyAttackUseCase:
+        """Get apply attack use case instance"""
+        return self._apply_attack_use_case
+
     def get_create_attack_use_case(self) -> CreateAttackUseCase:
         """Get create attack use case instance"""
         return self._create_attack_use_case
-
-    def get_get_attack_use_case(self) -> GetAttackUseCase:
-        """Get get attack use case instance"""
-        return self._get_attack_use_case
-
-    def get_update_attack_use_case(self) -> UpdateAttackUseCase:
-        """Get update attack use case instance"""
-        return self._update_attack_use_case
-
-    def get_list_attacks_use_case(self) -> SearchAttacksUseCase:
-        """Get list attacks use case instance"""
-        return self._list_attacks_use_case
 
     def get_delete_attack_use_case(self) -> DeleteAttackUseCase:
         """Get delete attack use case instance"""
         return self._delete_attack_use_case
 
-    def get_execute_attack_roll_use_case(self) -> ExecuteAttackRollUseCase:
+    def get_search_attack_by_id_use_case(self) -> SearchAttackByIdUseCase:
+        """Get search attack by ID use case instance"""
+        return self._search_attack_by_id_use_case
+
+    def get_search_attack_by_rsql_use_case(self) -> SearchAttacksByRsqlUseCase:
+        """Get search attack by RSQL use case instance"""
+        return self._search_attack_by_rsql_use_case
+
+    def get_update_attack_modifiers_use_case(self) -> UpdateAttackModifiersUseCase:
+        """Get update attack modifiers use case instance"""
+        return self._update_attack_modifiers_use_case
+
+    def get_update_attack_roll_use_case(self) -> UpdateAttackRollUseCase:
         """Get execute attack roll use case instance"""
         return self._execute_attack_roll_use_case
-
-    def get_apply_attack_results_use_case(self) -> ApplyAttackResultsUseCase:
-        """Get apply attack results use case instance"""
-        return self._apply_attack_results_use_case
 
     # Critical repository and use cases
     def get_critical_repository(self) -> CriticalRepository:
