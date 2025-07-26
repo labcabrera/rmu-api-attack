@@ -11,6 +11,8 @@ from .enums import (
     AttackType,
     Cover,
     DodgeType,
+    PositionalSource,
+    PositionalTarget,
     RestrictedQuarters,
 )
 
@@ -27,36 +29,43 @@ class AttackBonusEntry:
 class AttackRollModifiers:
     """Modifiers for attack roll calculated by tactical domain model"""
 
-    bo: int
-    bo_injury_penalty: int
-    bo_actions_points_penalty: int
-    bo_pace_penalty: int
-    bo_fatigue_penalty: int
-    bd: int
-    range_penalty: int
-    parry: int
-    custom_bonus: int
+    bo: int = 0
+    bo_injury_penalty: int = 0
+    bo_actions_points_penalty: int = 0
+    bo_pace_penalty: int = 0
+    bo_fatigue_penalty: int = 0
+    bd: int = 0
+    bd_shield: int = 0
+    range_penalty: int = 0
+    parry: int = 0
+    custom_bonus: int = 0
 
 
+@dataclass
 class AttackSituationalModifiers:
     """Modifiers for attack situation calculated by tactical domain model"""
 
-    off_hand: bool
-    stunned_target: bool
-    size_difference: int
-    disabled_db: bool
-    disabled_shield: bool
-    higher_ground: bool
-    surprised: bool
-    prone_attacker: bool
-    prone_defender: bool
-    restricted_quarters: RestrictedQuarters
-    positional_attacker: bool
-    positional_defender: bool
-    cover: Cover
-    dodge: DodgeType
-    ranged_attack_in_melee: bool
-    range: int
+    cover: Cover = Cover.NONE
+    restricted_quarters: RestrictedQuarters = RestrictedQuarters.NONE
+    positional_source: PositionalSource = PositionalSource.NONE
+    positional_target: PositionalTarget = PositionalTarget.NONE
+    dodge: DodgeType = DodgeType.NONE
+
+    stunned_target: bool = False
+
+    disabled_db: bool = False
+    disabled_shield: bool = False
+
+    surprised: bool = False
+    prone_attacker: bool = False
+    prone_defender: bool = False
+
+    size_difference: int = 0
+    off_hand: bool = False
+    higher_ground: bool = False
+
+    range: int = 0
+    ranged_attack_in_melee: bool = False
 
 
 @dataclass
@@ -64,11 +73,11 @@ class AttackModifiers:
     """Attack modifiers data"""
 
     attack_type: AttackType
-    roll_modifiers: AttackRollModifiers
     attack_table: str
-    # TODO convert to enum
-    attack_size: str
-    at: int
+    attack_size: str = "medium"
+    at: int = 1
+    roll_modifiers: AttackRollModifiers = None
+    situational_modifiers: AttackSituationalModifiers = None
 
     def __post_init__(self):
         """Validate input data after initialization"""
@@ -110,8 +119,10 @@ class AttackRoll:
 class AttackResult:
     """Attack result data"""
 
+    label_result: str
+    hit_points: int
+    criticals: list[Critical]
     attack_table_entry: Optional[AttackTableEntry] = None
-    criticals: list[Critical] = None
 
 
 @dataclass

@@ -2,7 +2,7 @@
 // This script creates the necessary database and collections
 
 // Switch to the application database
-db = db.getSiblingDB('rmu_attacks');
+db = db.getSiblingDB('rmu-attacks');
 
 // Create collections with validation
 db.createCollection('attacks', {

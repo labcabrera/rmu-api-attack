@@ -63,9 +63,6 @@ class MongoAttackConverter:
                     "parry": attack.modifiers.roll_modifiers.parry,
                     "customBonus": attack.modifiers.roll_modifiers.custom_bonus,
                 },
-                "attackTable": attack.modifiers.attack_table,
-                "attackSize": attack.modifiers.attack_size,
-                "at": attack.modifiers.at,
             },
         }
 
@@ -129,6 +126,7 @@ class MongoAttackConverter:
                 attack_type = AttackType.MELEE  # fallback to default
 
         roll_modifiers_data = modifiers_data.get("rollModifiers", {})
+
         roll_modifiers = AttackRollModifiers(
             bo=roll_modifiers_data.get("bo", 0),
             bo_injury_penalty=roll_modifiers_data.get("boInjuryPenalty", 0),

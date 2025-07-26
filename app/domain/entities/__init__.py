@@ -4,8 +4,10 @@ from .attack import (
     AttackRoll,
     AttackResult,
     AttackRollModifiers,
+    AttackSituationalModifiers,
     AttackCalculations,
     AttackBonusEntry,
+    AttackTableEntry,
 )
 from .critical import Critical
 from .enums import AttackMode, AttackStatus, AttackType
@@ -16,6 +18,7 @@ __all__ = [
     "AttackModifiers",
     "AttackRoll",
     "AttackRollModifiers",
+    "AttackSituationalModifiers",
     "AttackResult",
     "AttackMode",
     "AttackStatus",
@@ -25,4 +28,5 @@ __all__ = [
     "Critical",
     "Page",
     "Pagination",
+    "AttackTableEntry",
 ]

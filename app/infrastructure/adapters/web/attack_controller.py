@@ -5,27 +5,23 @@ Attack web controller.
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 
-from app.application.commands.update_attack_roll_command import UpdateAttackRollCommand
-from app.application.commands.update_attack_modifiers_command import (
+from app.application.commands import (
+    UpdateAttackRollCommand,
     UpdateAttackModifiersCommand,
 )
 
 from app.infrastructure.dependency_container import container
 from app.infrastructure.logging import log_endpoint, log_errors, get_logger
-from app.infrastructure.adapters.web.attack_dtos import (
+
+from app.infrastructure.adapters.web.dto import (
     AttackDTO,
-    CreateAttackRequestDTO,
-    AttackNotFoundDTO,
     PagedAttacksDTO,
+    AttackNotFoundDTO,
+    CreateAttackRequestDTO,
     UpdateAttackModifiersRequestDTO,
     UpdateAttackRollRequestDTO,
 )
-from app.infrastructure.adapters.web.attack_dto_converter import (
-    attack_to_dto,
-    create_request_to_command,
-    page_to_dto,
-    modifiers_dto_to_domain,
-)
+
 
 logger = get_logger(__name__)
 
@@ -57,7 +53,7 @@ async def search_attacks_by_rsql(
             page=page,
             size=size,
         )
-        return page_to_dto(result_page)
+        return PagedAttacksDTO.from_entity(result_page)
     except Exception as e:
         logger.error(f"Error listing attacks: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
@@ -79,16 +75,7 @@ async def search_attack_by_id(attack_id: str):
     try:
         use_case = container.get_search_attack_by_id_use_case()
         attack = await use_case.execute(attack_id)
-
-        if not attack:
-            logger.warning(f"Attack not found: {attack_id}")
-            raise HTTPException(
-                status_code=404,
-                detail={"detail": "Attack not found", "attack_id": attack_id},
-            )
-
-        logger.info(f"Successfully retrieved attack: {attack_id}")
-        return attack_to_dto(attack)
+        return AttackDTO.from_entity(attack)
 
     except HTTPException:
         raise
@@ -111,11 +98,11 @@ async def create_attack(request: CreateAttackRequestDTO):
     logger.info(f"Creating new attack << actionId: {request.actionId}")
 
     try:
-        command = create_request_to_command(request)
+        command = request.to_command()
         use_case = container.get_create_attack_use_case()
         created_attack = await use_case.execute(command)
         logger.info(f"Successfully created attack: {created_attack.id}")
-        return attack_to_dto(created_attack)
+        return AttackDTO.from_entity(created_attack)
 
     except ValueError as e:
         logger.warning(f"Validation error creating attack: {str(e)}")
@@ -134,23 +121,19 @@ async def create_attack(request: CreateAttackRequestDTO):
 )
 @log_endpoint
 @log_errors
-async def update_attack(attack_id: str, request: UpdateAttackModifiersRequestDTO):
+async def update_attack_modifiers(
+    attack_id: str, request: UpdateAttackModifiersRequestDTO
+):
     """Update attack (partial update)"""
+
     logger.info(f"Update attack << attack_id:{attack_id}")
 
     try:
-        # Convert DTO modifiers to domain modifiers
-        domain_modifiers = modifiers_dto_to_domain(request.modifiers)
-
-        command = UpdateAttackModifiersCommand(
-            attack_id=attack_id,
-            modifiers=domain_modifiers,
-        )
+        command = request.to_command(attack_id=attack_id)
         use_case = container.get_update_attack_modifiers_use_case()
         attack = await use_case.execute(command)
-        # TODO if roll is present recalculate
         logger.info(f"Attack {attack_id} updated successfully")
-        return attack_to_dto(attack)
+        return AttackDTO.from_entity(attack)
 
     except HTTPException:
         raise
@@ -212,7 +195,7 @@ async def execute_attack_roll(attack_id: str, request: UpdateAttackRollRequestDT
         use_case = container.get_update_attack_roll_use_case()
         attack = await use_case.execute(command=command)
         logger.info(f"Successfully executed roll for attack {attack_id}: {attack_id}")
-        return attack_to_dto(attack)
+        return AttackDTO.from_entity(attack)
 
     except HTTPException:
         raise
@@ -249,7 +232,7 @@ async def apply_attack_results(attack_id: str, results_data: dict):
                 detail={"detail": "Attack not found", "attack_id": attack_id},
             )
         logger.info(f"Successfully applied results for attack {attack_id}")
-        return attack_to_dto(attack)
+        return AttackDTO.from_entity(attack)
 
     except HTTPException:
         raise
