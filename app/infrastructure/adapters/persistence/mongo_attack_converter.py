@@ -152,7 +152,7 @@ class MongoAttackConverter:
             custom_bonus=roll_modifiers_data.get("customBonus", 0),
         )
 
-        situational_modifiers_data = attack_dict.get("situationalModifiers", {})
+        situational_modifiers_data = modifiers_data.get("situationalModifiers", {})
         situational_modifiers = AttackSituationalModifiers(
             cover=Cover.from_value(situational_modifiers_data.get("cover", "none")),
             restricted_quarters=RestrictedQuarters.from_value(

@@ -5,11 +5,6 @@ Attack web controller.
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 
-from app.application.commands import (
-    UpdateAttackRollCommand,
-    UpdateAttackModifiersCommand,
-)
-
 from app.infrastructure.dependency_container import container
 from app.infrastructure.logging import log_endpoint, log_errors, get_logger
 
@@ -190,7 +185,7 @@ async def execute_attack_roll(attack_id: str, request: UpdateAttackRollRequestDT
     logger.info(f"Executing roll for attack {attack_id}: {request}")
 
     try:
-        command = UpdateAttackRollCommand(attack_id=attack_id, roll=request.roll)
+        command = request.to_command(attack_id=attack_id)
         command.validate()
         use_case = container.get_update_attack_roll_use_case()
         attack = await use_case.execute(command=command)
