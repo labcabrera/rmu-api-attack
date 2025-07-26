@@ -1,11 +1,12 @@
-from dataclasses import Field
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
-from domain.entities import AttackBonusEntry
+from app.domain.entities import AttackBonusEntry
 
 
 class AttackBonusEntryDTO(BaseModel):
     """DTO for attack bonus entry"""
+
+    model_config = ConfigDict(use_enum_values=True)
 
     key: str = Field(..., description="Bonus key")
     value: int = Field(..., description="Bonus value")

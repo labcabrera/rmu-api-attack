@@ -1,5 +1,4 @@
-from dataclasses import Field
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.domain.entities import AttackSituationalModifiers
 from app.domain.entities.enums import (
@@ -18,15 +17,15 @@ class AttackSituationalModifiersDTO(BaseModel):
 
     cover: Cover = Field(None, description="Cover status")
     restrictedQuarters: RestrictedQuarters = Field(
-        None, description="Restricted quarters status"
+        "none", description="Restricted quarters status"
     )
     positionalSource: PositionalSource = Field(
-        None, description="Positional source status"
+        "none", description="Positional source status"
     )
     positionalTarget: PositionalTarget = Field(
-        None, description="Positional target status"
+        "none", description="Positional target status"
     )
-    dodge: DodgeType = Field(None, description="Dodge status")
+    dodge: DodgeType = Field("none", description="Dodge status")
     stunnedTarget: bool = Field(False, description="Stunned target status")
     disabledDB: bool = Field(False, description="Disabled DB status")
     disabledShield: bool = Field(False, description="Disabled shield status")
@@ -43,11 +42,11 @@ class AttackSituationalModifiersDTO(BaseModel):
 
     def to_entity(self):
         return AttackSituationalModifiers(
-            cover=self.cover,
-            restricted_quarters=self.restrictedQuarters,
-            positional_source=self.positionalSource,
-            positional_target=self.positionalTarget,
-            dodge=self.dodge,
+            cover=Cover.from_value(self.cover),
+            restricted_quarters=RestrictedQuarters.from_value(self.restrictedQuarters),
+            positional_source=PositionalSource.from_value(self.positionalSource),
+            positional_target=PositionalTarget.from_value(self.positionalTarget),
+            dodge=DodgeType.from_value(self.dodge),
             stunned_target=self.stunnedTarget,
             disabled_db=self.disabledDB,
             disabled_shield=self.disabledShield,
@@ -65,8 +64,10 @@ class AttackSituationalModifiersDTO(BaseModel):
     def from_entity(
         cls, entity: AttackSituationalModifiers
     ) -> "AttackSituationalModifiersDTO":
+        if not entity:
+            return None
         return cls(
-            cover=entity.cover,
+            cover=entity.cover.value,
             restrictedQuarters=entity.restricted_quarters,
             positionalSource=entity.positional_source,
             positionalTarget=entity.positional_target,

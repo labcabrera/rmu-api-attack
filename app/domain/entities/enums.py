@@ -3,28 +3,7 @@ Domain enumerations for the RMU Attack system.
 """
 
 from enum import Enum
-
-
-class AttackSize(Enum):
-    """Attack size enumeration"""
-
-    SMALL = "small"
-    MEDIUM = "medium"
-    BIG = "big"
-
-
-class AttackMode(Enum):
-    """Attack mode enumeration"""
-
-    MAIN_HAND = "mainHand"
-    OFF_HAND = "offHand"
-
-
-class AttackType(Enum):
-    """Attack type enumeration"""
-
-    MELEE = "melee"
-    RANGED = "ranged"
+from typing import Union
 
 
 class AttackStatus(Enum):
@@ -38,12 +17,51 @@ class AttackStatus(Enum):
     FAILED = "failed"
 
 
+class AttackSize(Enum):
+    """Attack size enumeration"""
+
+    SMALL = "small"
+    MEDIUM = "medium"
+    BIG = "big"
+
+
+class AttackType(Enum):
+    """Attack type enumeration"""
+
+    MELEE = "melee"
+    RANGED = "ranged"
+
+    @classmethod
+    def from_value(cls, value: Union[str, "AttackType"]) -> "AttackType":
+        if not value:
+            return None
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            for i in cls:
+                if i.value == value:
+                    return i
+        raise TypeError(f"Invalid Cover value: {value}")
+
+
 class PositionalSource(Enum):
     """Positional attacker enumeration"""
 
     NONE = "none"
     TO_FLANK = "to_flank"
     TO_REAR = "to_rear"
+
+    @classmethod
+    def from_value(cls, value: Union[str, "PositionalSource"]) -> "PositionalSource":
+        if not value:
+            return None
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            for i in cls:
+                if i.value == value:
+                    return i
+        raise TypeError(f"Invalid PositionalSource value: {value}")
 
 
 class PositionalTarget(Enum):
@@ -53,12 +71,36 @@ class PositionalTarget(Enum):
     FLANK = "flank"
     REAR = "rear"
 
+    @classmethod
+    def from_value(cls, value: Union[str, "PositionalTarget"]) -> "PositionalTarget":
+        if not value:
+            return None
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            for i in cls:
+                if i.value == value:
+                    return i
+        raise TypeError(f"Invalid PositionalTarget value: {value}")
+
 
 class ProneStatus(Enum):
     """Prone status enumeration"""
 
     NONE = "none"
     PRONE = "prone"
+
+    @classmethod
+    def from_value(cls, value: Union[str, "ProneStatus"]) -> "ProneStatus":
+        if not value:
+            return None
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            for i in cls:
+                if i.value == value:
+                    return i
+        raise TypeError(f"Invalid ProneStatus value: {value}")
 
 
 class Cover(Enum):
@@ -69,6 +111,18 @@ class Cover(Enum):
     HALF = "half"
     FULL = "full"
 
+    @classmethod
+    def from_value(cls, value: Union[str, "Cover"]) -> "Cover":
+        if not value:
+            return None
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            for i in cls:
+                if i.value == value:
+                    return i
+        raise TypeError(f"Invalid Cover value: {value}")
+
 
 class DodgeType(Enum):
     """Dodge type enumeration"""
@@ -77,6 +131,18 @@ class DodgeType(Enum):
     PASSIVE = "passive"
     PARTIAL = "partial"
     FULL = "full"
+
+    @classmethod
+    def from_value(cls, value: Union[str, "DodgeType"]) -> "DodgeType":
+        if not value:
+            return None
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            for i in cls:
+                if i.value == value:
+                    return i
+        raise TypeError(f"Invalid DodgeType value: {value}")
 
 
 class RestrictedQuarters(Enum):
@@ -87,3 +153,17 @@ class RestrictedQuarters(Enum):
     CRAMPED = "cramped"
     TIGHT = "tight"
     CONFINED = "confined"
+
+    @classmethod
+    def from_value(
+        cls, value: Union[str, "RestrictedQuarters"]
+    ) -> "RestrictedQuarters":
+        if not value:
+            return None
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            for i in cls:
+                if i.value == value:
+                    return i
+        raise TypeError(f"Invalid RestrictedQuarters value: {value}")

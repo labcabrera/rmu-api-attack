@@ -9,6 +9,10 @@ from pydantic import BaseModel, Field, ConfigDict
 from app.domain.entities import (
     Attack,
 )
+from .attack_modifiers_dto import AttackModifiersDTO
+from .attack_roll_dto import AttackRollDTO
+from .attack_result_dto import AttackResultDTO
+from .attack_calculations_dto import AttackCalculationsDTO
 
 
 class AttackDTO(BaseModel):

@@ -10,7 +10,7 @@ from .attack import (
     AttackTableEntry,
 )
 from .critical import Critical
-from .enums import AttackMode, AttackStatus, AttackType
+from .enums import AttackStatus, AttackType
 from .page import Page, Pagination
 
 __all__ = [

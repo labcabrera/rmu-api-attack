@@ -4,9 +4,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from app.domain.entities import (
     AttackResult,
 )
-from app.infrastructure.adapters.web.dto import (
-    AttackTableEntryDTO,
-)
+from .attack_table_entry_dto import AttackTableEntryDTO
 
 
 class AttackResultDTO(BaseModel):

@@ -15,9 +15,18 @@ from app.domain.entities import (
     AttackRollModifiers,
     AttackCalculations,
     AttackBonusEntry,
+    AttackSituationalModifiers,
+    AttackTableEntry,
 )
-from app.domain.entities.attack_table import AttackTableEntry
-from app.domain.entities.enums import AttackStatus, AttackType
+from app.domain.entities.enums import (
+    AttackStatus,
+    AttackType,
+    Cover,
+    PositionalSource,
+    PositionalTarget,
+    RestrictedQuarters,
+    DodgeType,
+)
 
 
 class MongoAttackConverter:
@@ -27,28 +36,13 @@ class MongoAttackConverter:
     def attack_to_dict(attack: Attack, include_id: bool = True) -> Dict[str, Any]:
         """Convert Attack domain entity to dictionary for MongoDB"""
 
-        # Handle status conversion (enum to string)
-        status_str = (
-            attack.status.value
-            if isinstance(attack.status, AttackStatus)
-            else attack.status
-        )
-
-        # Handle attack_type conversion (enum to string)
-        attack_type_str = (
-            attack.modifiers.attack_type.value
-            if hasattr(attack.modifiers, "attack_type")
-            and isinstance(attack.modifiers.attack_type, AttackType)
-            else "melee"  # default value
-        )
-
         attack_dict = {
             "actionId": attack.action_id,
             "sourceId": attack.source_id,
             "targetId": attack.target_id,
-            "status": status_str,
+            "status": attack.status.value,
             "modifiers": {
-                "attackType": attack_type_str,
+                "attackType": attack.modifiers.attack_type.value,
                 "attackTable": attack.modifiers.attack_table,
                 "attackSize": attack.modifiers.attack_size,
                 "at": attack.modifiers.at,
@@ -62,6 +56,24 @@ class MongoAttackConverter:
                     "rangePenalty": attack.modifiers.roll_modifiers.range_penalty,
                     "parry": attack.modifiers.roll_modifiers.parry,
                     "customBonus": attack.modifiers.roll_modifiers.custom_bonus,
+                },
+                "situationalModifiers": {
+                    "cover": attack.modifiers.situational_modifiers.cover.value,
+                    "restrictedQuarters": attack.modifiers.situational_modifiers.restricted_quarters.value,
+                    "positionalSource": attack.modifiers.situational_modifiers.positional_source.value,
+                    "positionalTarget": attack.modifiers.situational_modifiers.positional_target.value,
+                    "dodge": attack.modifiers.situational_modifiers.dodge.value,
+                    "stunnedTarget": attack.modifiers.situational_modifiers.stunned_target,
+                    "disabledDb": attack.modifiers.situational_modifiers.disabled_db,
+                    "disabledShield": attack.modifiers.situational_modifiers.disabled_shield,
+                    "surprised": attack.modifiers.situational_modifiers.surprised,
+                    "proneAttacker": attack.modifiers.situational_modifiers.prone_attacker,
+                    "proneDefender": attack.modifiers.situational_modifiers.prone_defender,
+                    "sizeDifference": attack.modifiers.situational_modifiers.size_difference,
+                    "offHand": attack.modifiers.situational_modifiers.off_hand,
+                    "higherGround": attack.modifiers.situational_modifiers.higher_ground,
+                    "range": attack.modifiers.situational_modifiers.range,
+                    "rangedAttackInMelee": attack.modifiers.situational_modifiers.ranged_attack_in_melee,
                 },
             },
         }
@@ -126,7 +138,6 @@ class MongoAttackConverter:
                 attack_type = AttackType.MELEE  # fallback to default
 
         roll_modifiers_data = modifiers_data.get("rollModifiers", {})
-
         roll_modifiers = AttackRollModifiers(
             bo=roll_modifiers_data.get("bo", 0),
             bo_injury_penalty=roll_modifiers_data.get("boInjuryPenalty", 0),
@@ -141,12 +152,41 @@ class MongoAttackConverter:
             custom_bonus=roll_modifiers_data.get("customBonus", 0),
         )
 
+        situational_modifiers_data = attack_dict.get("situationalModifiers", {})
+        situational_modifiers = AttackSituationalModifiers(
+            cover=Cover.from_value(situational_modifiers_data.get("cover", "none")),
+            restricted_quarters=RestrictedQuarters.from_value(
+                situational_modifiers_data.get("restrictedQuarters", "none")
+            ),
+            positional_source=PositionalSource.from_value(
+                situational_modifiers_data.get("positionalSource", "none")
+            ),
+            positional_target=PositionalTarget.from_value(
+                situational_modifiers_data.get("positionalTarget", "none")
+            ),
+            dodge=DodgeType.from_value(situational_modifiers_data.get("dodge", "none")),
+            stunned_target=situational_modifiers_data.get("stunnedTarget", False),
+            disabled_db=situational_modifiers_data.get("disabledDb", False),
+            disabled_shield=situational_modifiers_data.get("disabledShield", False),
+            surprised=situational_modifiers_data.get("surprised", False),
+            prone_attacker=situational_modifiers_data.get("proneAttacker", False),
+            prone_defender=situational_modifiers_data.get("proneDefender", False),
+            size_difference=situational_modifiers_data.get("sizeDifference", 0),
+            off_hand=situational_modifiers_data.get("offHand", False),
+            higher_ground=situational_modifiers_data.get("higherGround", False),
+            range=situational_modifiers_data.get("range", 0),
+            ranged_attack_in_melee=situational_modifiers_data.get(
+                "rangedAttackInMelee", False
+            ),
+        )
+
         modifiers = AttackModifiers(
             attack_type=attack_type,
-            roll_modifiers=roll_modifiers,
             attack_table=attack_dict.get("modifiers", {}).get("attackTable", ""),
             attack_size=attack_dict.get("modifiers", {}).get("attackSize", ""),
             at=attack_dict.get("modifiers", {}).get("at", 0),
+            roll_modifiers=roll_modifiers,
+            situational_modifiers=situational_modifiers,
         )
 
         roll = None

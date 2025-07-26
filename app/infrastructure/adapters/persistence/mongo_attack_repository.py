@@ -100,9 +100,8 @@ class MongoAttackRepository(AttackRepository):
         attack_dict = self._converter.attack_to_dict(attack, include_id=False)
         try:
             result = await self._collection.insert_one(attack_dict)
-            return self._converter.dict_to_attack(
-                {**attack_dict, "_id": result.inserted_id}
-            )
+            attack.id = str(result.inserted_id)
+            return attack
         except Exception as e:
             logger.error(f"Error saving attack: {e}")
             raise ValueError(f"Failed to save attack: {str(e)}")

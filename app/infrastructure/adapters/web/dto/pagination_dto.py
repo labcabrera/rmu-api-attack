@@ -1,5 +1,4 @@
-from dataclasses import Field
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.domain.entities import Page, Pagination
 from app.infrastructure.adapters.web.dto import AttackDTO

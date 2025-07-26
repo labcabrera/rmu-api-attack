@@ -1,13 +1,10 @@
-from dataclasses import Field
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.domain.entities import AttackModifiers
 from app.domain.entities.enums import AttackType
 
-from app.infrastructure.adapters.web.dto import (
-    AttackRollModifiersDTO,
-    AttackSituationalModifiersDTO,
-)
+from .attack_roll_modifiers_dto import AttackRollModifiersDTO
+from .attack_situational_modifiers_dto import AttackSituationalModifiersDTO
 
 
 class AttackModifiersDTO(BaseModel):

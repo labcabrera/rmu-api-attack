@@ -1,7 +1,8 @@
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.application.commands import CreateAttackCommand
-from app.infrastructure.adapters.web.dto import AttackModifiersDTO
+
+from .attack_modifiers_dto import AttackModifiersDTO
 
 
 class CreateAttackRequestDTO(BaseModel):
@@ -45,5 +46,5 @@ class CreateAttackRequestDTO(BaseModel):
             action_id=self.actionId,
             source_id=self.sourceId,
             target_id=self.targetId,
-            modifiers=self.modifiers.to_domain(),
+            modifiers=self.modifiers.to_entity(),
         )

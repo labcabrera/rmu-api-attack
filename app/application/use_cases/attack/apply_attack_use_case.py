@@ -1,7 +1,5 @@
 from app.domain.entities import Attack
-from app.domain.entities.enums import AttackStatus
 from app.domain.services import AttackDomainService
-from app.application.commands import CreateAttackCommand
 
 
 class ApplyAttackUseCase:

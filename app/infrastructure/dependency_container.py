@@ -13,22 +13,15 @@ from app.domain.ports.critical_ports import CriticalRepository
 from app.domain.ports.attack_table_port import AttackTableClient
 
 
-from app.application.use_cases.attack.apply_attack_use_case import ApplyAttackUseCase
-from app.application.use_cases.attack.create_attack_use_case import CreateAttackUseCase
-from app.application.use_cases.attack.delete_attack_use_case import DeleteAttackUseCase
-from app.application.use_cases.attack.search_attack_by_id_use_case import (
+from app.application.use_cases import (
+    ApplyAttackUseCase,
+    CreateAttackUseCase,
+    DeleteAttackUseCase,
     SearchAttackByIdUseCase,
-)
-from app.application.use_cases.attack.search_attacks_by_rsql_use_case import (
     SearchAttacksByRsqlUseCase,
-)
-from app.application.use_cases.attack.update_attack_modifiers_use_case import (
     UpdateAttackModifiersUseCase,
-)
-from app.application.use_cases.attack.update_attack_roll_use_case import (
     UpdateAttackRollUseCase,
 )
-
 from app.application.use_cases.critical_use_cases import (
     CreateCriticalUseCase,
     GetCriticalUseCase,

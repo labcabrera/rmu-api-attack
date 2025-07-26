@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-from app.domain.entities import AttackMode
-from app.domain.entities.attack import AttackModifiers
 
 
 @dataclass

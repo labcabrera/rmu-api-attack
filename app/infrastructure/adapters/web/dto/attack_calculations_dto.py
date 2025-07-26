@@ -1,8 +1,7 @@
-from dataclasses import Field
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-from domain.entities import AttackCalculations
-from infrastructure.adapters.web.dto import AttackBonusEntryDTO
+from app.domain.entities import AttackCalculations
+from .attack_bonus_entry_dto import AttackBonusEntryDTO
 
 
 class AttackCalculationsDTO(BaseModel):
