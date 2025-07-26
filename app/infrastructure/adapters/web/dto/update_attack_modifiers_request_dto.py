@@ -14,7 +14,7 @@ class UpdateAttackModifiersRequestDTO(BaseModel):
         json_schema_extra={
             "example": {
                 "modifiers": {
-                    "attackType": "ranged",
+                    "attackType": "melee",
                     "rollModifiers": {"bo": 90, "bd": -10},
                 }
             }

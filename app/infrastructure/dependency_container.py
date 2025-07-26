@@ -9,7 +9,6 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from app.domain.services.attack_calculator import AttackCalculator
 from app.domain.services.attack_domain_service import AttackDomainService
 from app.domain.ports.attack_ports import AttackRepository
-from app.domain.ports.critical_ports import CriticalRepository
 from app.domain.ports.attack_table_port import AttackTableClient
 
 
@@ -22,20 +21,10 @@ from app.application.use_cases import (
     UpdateAttackModifiersUseCase,
     UpdateAttackRollUseCase,
 )
-from app.application.use_cases.critical_use_cases import (
-    CreateCriticalUseCase,
-    GetCriticalUseCase,
-    UpdateCriticalUseCase,
-    ListCriticalsUseCase,
-    ApplyCriticalUseCase,
-)
 
 from app.infrastructure.config.config import settings
 from app.infrastructure.adapters.persistence.mongo_attack_repository import (
     MongoAttackRepository,
-)
-from app.infrastructure.adapters.persistence.mongo_critical_repository import (
-    MongoCriticalRepository,
 )
 from app.infrastructure.adapters.external.attack_table_rest_adapter import (
     AttackTableRestAdapter,
@@ -53,7 +42,6 @@ class DependencyContainer:
 
         # Repositories
         self._attack_repository: Optional[AttackRepository] = None
-        self._critical_repository: Optional[CriticalRepository] = None
 
         # External services
         self._attack_table_service: Optional[AttackTableClient] = None
@@ -75,13 +63,6 @@ class DependencyContainer:
         ] = None
         self._update_attack_roll_use_case: Optional[UpdateAttackRollUseCase] = None
 
-        # Critical Use Cases
-        self._create_critical_use_case: Optional[CreateCriticalUseCase] = None
-        self._get_critical_use_case: Optional[GetCriticalUseCase] = None
-        self._update_critical_use_case: Optional[UpdateCriticalUseCase] = None
-        self._list_criticals_use_case: Optional[ListCriticalsUseCase] = None
-        self._apply_critical_use_case: Optional[ApplyCriticalUseCase] = None
-
     async def initialize(self):
         """Initialize all dependencies"""
 
@@ -94,7 +75,6 @@ class DependencyContainer:
 
         # Initialize repositories
         self._attack_repository = MongoAttackRepository(self._database)
-        self._critical_repository = MongoCriticalRepository(self._database)
 
         # Initialize external services
         attack_table_config = AttackTableApiConfig.from_env()
@@ -112,9 +92,6 @@ class DependencyContainer:
                 timeout=attack_table_config.timeout,
                 api_key=attack_table_config.api_key,
             )
-
-        # Initialize indexes
-        await self._critical_repository.initialize()
 
         # Initialize domain services
         self._attack_calculator = AttackCalculator(
@@ -144,17 +121,6 @@ class DependencyContainer:
         self._update_attack_roll_use_case = UpdateAttackRollUseCase(
             self._attack_domain_service
         )
-
-        # Initialize Critical use cases
-        self._create_critical_use_case = CreateCriticalUseCase(
-            self._critical_repository
-        )
-        self._get_critical_use_case = GetCriticalUseCase(self._critical_repository)
-        self._update_critical_use_case = UpdateCriticalUseCase(
-            self._critical_repository
-        )
-        self._list_criticals_use_case = ListCriticalsUseCase(self._critical_repository)
-        self._apply_critical_use_case = ApplyCriticalUseCase(self._critical_repository)
 
     async def cleanup(self):
         """Clean up dependencies"""
@@ -200,31 +166,6 @@ class DependencyContainer:
     def get_attack_table_service(self) -> AttackTableClient:
         """Get attack table service instance"""
         return self._attack_table_service
-
-    # Critical repository and use cases
-    def get_critical_repository(self) -> CriticalRepository:
-        """Get critical repository instance"""
-        return self._critical_repository
-
-    def get_create_critical_use_case(self) -> CreateCriticalUseCase:
-        """Get create critical use case instance"""
-        return self._create_critical_use_case
-
-    def get_get_critical_use_case(self) -> GetCriticalUseCase:
-        """Get get critical use case instance"""
-        return self._get_critical_use_case
-
-    def get_update_critical_use_case(self) -> UpdateCriticalUseCase:
-        """Get update critical use case instance"""
-        return self._update_critical_use_case
-
-    def get_list_criticals_use_case(self) -> ListCriticalsUseCase:
-        """Get list criticals use case instance"""
-        return self._list_criticals_use_case
-
-    def get_apply_critical_use_case(self) -> ApplyCriticalUseCase:
-        """Get apply critical use case instance"""
-        return self._apply_critical_use_case
 
 
 # Global container instance

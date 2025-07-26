@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.application.commands import CreateAttackCommand
+from app.application.commands import UpdateAttackRollCommand
 
 
 class UpdateAttackRollRequestDTO(BaseModel):
@@ -17,9 +17,9 @@ class UpdateAttackRollRequestDTO(BaseModel):
 
     roll: int = Field(..., description="Roll value to apply to the attack")
 
-    def to_command(self, attack_id: str) -> CreateAttackCommand:
+    def to_command(self, attack_id: str) -> UpdateAttackRollCommand:
         """Convert to command for use in application layer."""
-        return CreateAttackCommand(
+        return UpdateAttackRollCommand(
             attack_id=attack_id,
             roll=self.roll,
         )

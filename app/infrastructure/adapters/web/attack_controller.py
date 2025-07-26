@@ -150,8 +150,8 @@ async def update_attack_modifiers(
 @log_errors
 async def delete_attack(attack_id: str):
     """Delete attack by ID"""
-    logger.info(f"Deleting attack: {attack_id}")
 
+    logger.info(f"Deleting attack: {attack_id}")
     try:
         use_case = container.get_delete_attack_use_case()
         deleted = await use_case.execute(attack_id)
@@ -182,8 +182,8 @@ async def delete_attack(attack_id: str):
 @log_errors
 async def execute_attack_roll(attack_id: str, request: UpdateAttackRollRequestDTO):
     """Applies the result of the damage roll to an attack."""
-    logger.info(f"Executing roll for attack {attack_id}: {request}")
 
+    logger.info(f"Executing roll for attack {attack_id}: {request}")
     try:
         command = request.to_command(attack_id=attack_id)
         command.validate()

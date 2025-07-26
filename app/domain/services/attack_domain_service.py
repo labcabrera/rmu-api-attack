@@ -4,7 +4,7 @@ These contain business logic that doesn't naturally fit into entities.
 """
 
 from typing import Optional
-from app.domain.entities import Attack, AttackRoll, AttackResult, Critical
+from app.domain.entities import Attack, AttackRoll
 from app.domain.ports import AttackRepository, AttackNotificationPort
 from app.domain.entities.enums import AttackStatus
 from app.domain.exceptions import (

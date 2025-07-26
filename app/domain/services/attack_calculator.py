@@ -38,7 +38,6 @@ class AttackCalculator:
             raise ValueError("Attack must have modifiers to calculate results")
 
     async def calculate_attack_results(self, attack: Attack) -> Attack:
-
         attack.calculated = AttackCalculations(total=0, modifiers=[])
 
         attack.calculated.modifiers.append(
@@ -68,14 +67,14 @@ class AttackCalculator:
 
         attack.calculated.total = sum(p.value for p in attack.calculated.modifiers)
 
-        attack.results = AttackResult()
-
         if self._attack_table_client:
-            attack.results.attack_table_entry = (
-                await self._attack_table_client.get_attack_table_entry(
-                    attack_table=attack.modifiers.attack_table,
-                    size=attack.modifiers.attack_size,
-                    roll=attack.calculated.total,
-                    at=5,
-                )
+            attack_table_entry = await self._attack_table_client.get_attack_table_entry(
+                attack_table=attack.modifiers.attack_table,
+                size=attack.modifiers.attack_size,
+                roll=attack.calculated.total,
+                at=5,
+            )
+            attack.results = AttackResult(
+                attack_table_entry=attack_table_entry,
+                criticals=[],
             )
