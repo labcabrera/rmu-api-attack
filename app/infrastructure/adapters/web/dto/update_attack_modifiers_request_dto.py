@@ -3,6 +3,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.application.commands import CreateAttackCommand
 
 from app.infrastructure.adapters.web.dto import AttackModifiersDTO
+from app.application.commands import UpdateAttackModifiersCommand
 
 
 class UpdateAttackModifiersRequestDTO(BaseModel):
@@ -24,9 +25,9 @@ class UpdateAttackModifiersRequestDTO(BaseModel):
         ..., description="Updated attack modifiers including type and bonuses"
     )
 
-    def to_command(self, attack_id: str) -> CreateAttackCommand:
+    def to_command(self, attack_id: str) -> UpdateAttackModifiersCommand:
         """Convert to command for use in application layer."""
-        return CreateAttackCommand(
+        return UpdateAttackModifiersCommand(
             attack_id=attack_id,
             modifiers=self.modifiers.to_entity(),
         )
