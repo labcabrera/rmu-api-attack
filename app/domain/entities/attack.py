@@ -87,6 +87,7 @@ class AttackModifiers:
     attack_size: str = "medium"
     at: int = 1
     action_points: int = 4
+    fumble: int = 1
     roll_modifiers: AttackRollModifiers = None
     situational_modifiers: AttackSituationalModifiers = None
     features: list[AttackFeature] = None
@@ -117,8 +118,11 @@ class AttackModifiers:
 class AttackCalculations:
     """Calculated data for attack processing"""
 
-    modifiers: list[AttackBonusEntry]
-    total: int
+    modifiers: list[AttackBonusEntry] = None
+    total: int = 0
+
+    critical_modifiers: list[AttackBonusEntry] = None
+    critical_total: int = 0
 
 
 @dataclass

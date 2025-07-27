@@ -19,6 +19,7 @@ class AttackModifiersDTO(BaseModel):
     actionPoints: int = Field(
         ..., description="Action points available for the attack", ge=1
     )
+    fumble: int = Field(1, description="Fumble threshold for the attack", ge=0)
     rollModifiers: AttackRollModifiersDTO = Field(
         ..., description="Modifiers for the attack roll"
     )
@@ -49,6 +50,7 @@ class AttackModifiersDTO(BaseModel):
             attack_size=self.attackSize,
             at=self.at,
             action_points=self.actionPoints,
+            fumble=self.fumble,
             roll_modifiers=self.rollModifiers.to_entity(),
             situational_modifiers=self.situationalModifiers.to_entity(),
             features=[feature.to_entity() for feature in self.features],
@@ -63,6 +65,7 @@ class AttackModifiersDTO(BaseModel):
             attackSize=entity.attack_size,
             at=entity.at,
             actionPoints=entity.action_points,
+            fumble=entity.fumble,
             rollModifiers=AttackRollModifiersDTO.from_entity(entity.roll_modifiers),
             situationalModifiers=AttackSituationalModifiersDTO.from_entity(
                 entity.situational_modifiers

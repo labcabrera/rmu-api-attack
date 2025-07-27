@@ -11,6 +11,12 @@ class AttackCalculationsDTO(BaseModel):
         ..., description="Attack modifiers in key-value pairs"
     )
     total: int = Field(..., description="Total calculated value")
+    critical_modifiers: list[AttackBonusEntryDTO] = Field(
+        default_factory=list, description="Critical modifiers in key-value pairs"
+    )
+    critical_total: int = Field(
+        0, description="Total calculated value for critical hits"
+    )
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -25,6 +31,8 @@ class AttackCalculationsDTO(BaseModel):
         return AttackCalculations(
             modifiers=[m.to_entity() for m in self.modifiers],
             total=self.total,
+            critical_modifiers=[m.to_entity() for m in self.critical_modifiers],
+            critical_total=self.critical_total,
         )
 
     @classmethod
@@ -32,4 +40,8 @@ class AttackCalculationsDTO(BaseModel):
         return cls(
             modifiers=[AttackBonusEntryDTO.from_entity(m) for m in entity.modifiers],
             total=entity.total,
+            critical_modifiers=[
+                AttackBonusEntryDTO.from_entity(m) for m in entity.critical_modifiers
+            ],
+            critical_total=entity.critical_total,
         )

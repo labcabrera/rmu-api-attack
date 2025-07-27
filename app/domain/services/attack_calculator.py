@@ -1,3 +1,4 @@
+import math
 from typing import Optional
 
 from app.domain.entities.attack import (
@@ -27,7 +28,9 @@ class AttackCalculator:
 
     async def calculate_attack(self, attack: Attack) -> None:
         self.validate_attack(attack)
-        self.update_attack_calculated_modifiers(attack)
+        self.initialize_attack_calculations(attack)
+        self.calculate_attack_roll_modifiers(attack)
+        self.calculate_critical_modifiers(attack)
         await self.calculate_attack_results(attack)
 
     def validate_attack(self, attack: Attack) -> None:
@@ -37,9 +40,20 @@ class AttackCalculator:
             raise ValueError("Attack must have a roll to calculate results")
         if not attack.modifiers:
             raise ValueError("Attack must have modifiers to calculate results")
+        
+    def initialize_attack_calculations(self, attack: Attack) -> None:
+        attack.calculated = AttackCalculations(
+            total=0,
+            modifiers=[],
+            critical_modifiers=[],
+            critical_total=0,
+        )
+        attack.results = AttackResult(
+            attack_table_entry=None,
+            criticals=[],
+        )
 
     async def calculate_attack_results(self, attack: Attack) -> None:
-        self.update_attack_calculated_modifiers(attack)
         if self._attack_table_client:
             try:
                 attack_table_entry = (
@@ -59,8 +73,7 @@ class AttackCalculator:
                 # TODO update attack message
                 attack.status = AttackStatus.FAILED
 
-    def update_attack_calculated_modifiers(self, attack: Attack) -> None:
-        attack.calculated = AttackCalculations(total=0, modifiers=[])
+    def calculate_attack_roll_modifiers(self, attack: Attack) -> None:
         roll_modifiers = attack.modifiers.roll_modifiers
 
         self.append_bonus(attack, "roll", attack.roll.roll)
@@ -82,6 +95,7 @@ class AttackCalculator:
         self.append_positional_target(attack)
         self.append_cover(attack)
         self.append_range_in_melee_bonus(attack)
+        self.append_size_bonus(attack)
         
         # TODO called shot
 
@@ -90,6 +104,8 @@ class AttackCalculator:
         ]
 
         attack.calculated.total = sum(p.value for p in attack.calculated.modifiers)
+
+
 
     def append_bonus(self, attack: Attack, key: str, value: int) -> None:
         attack.calculated.modifiers.append(AttackBonusEntry(key=key, value=value))
@@ -234,3 +250,17 @@ class AttackCalculator:
             case Cover.HARD_FULL:
                 bonus = -100 or not attack.is_melee() -200
         self.append_bonus(attack, "cover", bonus)
+
+    def append_size_bonus(self, attack: Attack) -> None:
+        if attack.modifiers.situational_modifiers.size_difference and attack.modifiers.situational_modifiers.size_difference < 0:
+            self.append_bonus(attack, "size-bonus", attack.modifiers.situational_modifiers.size_difference * 5)
+
+    def calculate_critical_modifiers(self, attack: Attack) -> None:
+        if attack.calculated.total > 175:
+            diff = attack.calculated.total - 175
+            absolute_hit_bonus = math.ceil(diff / 5)
+            attack.calculated.critical_modifiers.append(AttackBonusEntry("absolute-hit", absolute_hit_bonus))
+
+        attack.calculated.critical_total = sum(
+            p.value for p in attack.calculated.critical_modifiers
+        )
