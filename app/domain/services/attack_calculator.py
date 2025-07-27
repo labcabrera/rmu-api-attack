@@ -27,6 +27,7 @@ class AttackCalculator:
 
     async def calculate_attack(self, attack: Attack) -> None:
         self.validate_attack(attack)
+        self.update_attack_calculated_modifiers(attack)
         await self.calculate_attack_results(attack)
 
     def validate_attack(self, attack: Attack) -> None:
@@ -38,7 +39,7 @@ class AttackCalculator:
             raise ValueError("Attack must have modifiers to calculate results")
 
     async def calculate_attack_results(self, attack: Attack) -> None:
-
+        self.update_attack_calculated_modifiers(attack)
         if self._attack_table_client:
             attack_table_entry = await self._attack_table_client.get_attack_table_entry(
                 attack_table=attack.modifiers.attack_table,
@@ -54,29 +55,63 @@ class AttackCalculator:
     def update_attack_calculated_modifiers(self, attack: Attack) -> None:
         attack.calculated = AttackCalculations(total=0, modifiers=[])
 
-        attack.calculated.modifiers.append(
-            AttackBonusEntry(key="roll", value=attack.roll.roll)
-        )
-        attack.calculated.modifiers.append(
-            AttackBonusEntry(key="bo", value=attack.modifiers.roll_modifiers.bo)
-        )
-        attack.calculated.modifiers.append(
-            AttackBonusEntry(
-                key="bo_injury_penalty",
-                value=attack.modifiers.roll_modifiers.bo_injury_penalty,
-            )
-        )
-        attack.calculated.modifiers.append(
-            AttackBonusEntry(
-                key="bo_action_points_penalty",
-                value=attack.modifiers.roll_modifiers.bo_actions_points_penalty,
-            )
-        )
-        attack.calculated.modifiers.append(
-            AttackBonusEntry(key="bd", value=attack.modifiers.roll_modifiers.bd)
-        )
+        roll_modifiers = attack.modifiers.roll_modifiers
+
+        self.append_bonus(attack, "roll", attack.roll.roll)
+        self.append_bonus(attack, "bo", roll_modifiers.bo)
+        self.append_injury_penalty(attack)
+        self.append_bonus_bd(attack)
+        self.append_pace_penalty(attack)
+
         attack.calculated.modifiers = [
             p for p in attack.calculated.modifiers if p.value != 0
         ]
 
         attack.calculated.total = sum(p.value for p in attack.calculated.modifiers)
+
+    def append_bonus(self, attack: Attack, key: str, value: int) -> None:
+        attack.calculated.modifiers.append(AttackBonusEntry(key=key, value=value))
+
+    def append_with_skill(
+        self, attack: Attack, key: str, value: int, skill_id: str
+    ) -> None:
+        if not value or value == 0:
+            return
+        skill_bonus = self.get_skill_bonus(attack, skill_id)
+        skill_bonus_adjusted = min(abs(value), skill_bonus)
+        self.append_bonus(attack, key, value)
+        self.append_bonus(attack, f"{key}-skill-{skill_id}", skill_bonus_adjusted)
+
+    def get_skill_bonus(self, attack: Attack, skill_id: str) -> int:
+        for skill in attack.modifiers.source_skills:
+            if skill.skill_id == skill_id:
+                return skill.bonus
+        return 0
+
+    def append_bonus_bd(self, attack: Attack) -> None:
+        if attack.modifiers.situational_modifiers.disabled_db:
+            return
+        self.append_bonus(attack, "bd", attack.modifiers.roll_modifiers.bd)
+
+    def append_injury_penalty(self, attack: Attack) -> None:
+        self.append_bonus(
+            attack,
+            "bo-injury-penalty",
+            attack.modifiers.roll_modifiers.bo_injury_penalty,
+        )
+
+    def append_pace_penalty(self, attack: Attack) -> None:
+        # Only use footwork skill for melee attacks
+        if attack.is_melee():
+            self.append_with_skill(
+                attack,
+                "bo-pace-penalty",
+                attack.modifiers.roll_modifiers.bo_pace_penalty,
+                "footwork",
+            )
+        else:
+            self.append_bonus(
+                attack,
+                "bo-pace-penalty",
+                attack.modifiers.roll_modifiers.bo_pace_penalty,
+            )

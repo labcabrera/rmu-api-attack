@@ -9,8 +9,8 @@ class AttackSkillDTO(BaseModel):
     bonus: int = Field(..., description="Bonus for the skill")
 
     def to_entity(self):
-        return AttackSkill(skillId=self.skillId, bonus=self.bonus)
+        return AttackSkill(skill_id=self.skillId, bonus=self.bonus)
 
     @classmethod
     def from_entity(cls, entity: AttackSkill) -> "AttackSkillDTO":
-        return cls(skillId=entity.skillId, bonus=entity.bonus)
+        return cls(skillId=entity.skill_id, bonus=entity.bonus)

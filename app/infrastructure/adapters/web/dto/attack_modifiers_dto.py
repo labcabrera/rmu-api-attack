@@ -15,7 +15,10 @@ class AttackModifiersDTO(BaseModel):
     attackType: AttackType = Field(..., description="Type of attack (melee, ranged)")
     attackTable: str = Field(..., description="Attack table identifier")
     attackSize: str = Field(..., description="Attack size identifier")
-    at: int = Field(..., description="Attack table type", ge=0)
+    at: int = Field(..., description="Attack table type", ge=1)
+    actionPoints: int = Field(
+        ..., description="Action points available for the attack", ge=1
+    )
     rollModifiers: AttackRollModifiersDTO = Field(
         ..., description="Modifiers for the attack roll"
     )
@@ -45,6 +48,7 @@ class AttackModifiersDTO(BaseModel):
             attack_table=self.attackTable,
             attack_size=self.attackSize,
             at=self.at,
+            action_points=self.actionPoints,
             roll_modifiers=self.rollModifiers.to_entity(),
             situational_modifiers=self.situationalModifiers.to_entity(),
             features=[feature.to_entity() for feature in self.features],
@@ -58,6 +62,7 @@ class AttackModifiersDTO(BaseModel):
             attackTable=entity.attack_table,
             attackSize=entity.attack_size,
             at=entity.at,
+            actionPoints=entity.action_points,
             rollModifiers=AttackRollModifiersDTO.from_entity(entity.roll_modifiers),
             situationalModifiers=AttackSituationalModifiersDTO.from_entity(
                 entity.situational_modifiers

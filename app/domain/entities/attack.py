@@ -30,7 +30,6 @@ class AttackRollModifiers:
 
     bo: int = 0
     bo_injury_penalty: int = 0
-    bo_actions_points_penalty: int = 0
     bo_pace_penalty: int = 0
     bo_fatigue_penalty: int = 0
     bd: int = 0
@@ -73,7 +72,7 @@ class AttackFeature:
 class AttackSkill:
     """Attack skill data"""
 
-    skillId: str = None
+    skill_id: str = None
     bonus: int = 0
 
 
@@ -85,6 +84,7 @@ class AttackModifiers:
     attack_table: str
     attack_size: str = "medium"
     at: int = 1
+    action_points: int = 4
     roll_modifiers: AttackRollModifiers = None
     situational_modifiers: AttackSituationalModifiers = None
     features: list[AttackFeature] = None
@@ -159,3 +159,6 @@ class Attack:
     roll: Optional[AttackRoll] = None
     calculated: Optional[AttackCalculations] = None
     results: Optional[AttackResult] = None
+
+    def is_melee(self) -> bool:
+        return self.modifiers.attack_type == AttackType.MELEE

@@ -167,6 +167,10 @@ It is divided into the following blocks:
 * *roll*: information on dice rolls applicable to attack or critical rolls.
 * *results*: result of the attack, whether it is an attack with no effect, a damage, a set of critical hits, or a failure.
 
+== Source target skills allowed
+
+* _footwork_: reduces melee pace modifier.
+
 == Technology Stack
 
 * **FastAPI**: Modern Python web framework

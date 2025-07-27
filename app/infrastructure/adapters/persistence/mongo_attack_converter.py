@@ -48,10 +48,10 @@ class MongoAttackConverter:
                 "attackTable": attack.modifiers.attack_table,
                 "attackSize": attack.modifiers.attack_size,
                 "at": attack.modifiers.at,
+                "actionPoints": attack.modifiers.action_points,
                 "rollModifiers": {
                     "bo": attack.modifiers.roll_modifiers.bo,
                     "boInjuryPenalty": attack.modifiers.roll_modifiers.bo_injury_penalty,
-                    "boActionsPointsPenalty": attack.modifiers.roll_modifiers.bo_actions_points_penalty,
                     "boPacePenalty": attack.modifiers.roll_modifiers.bo_pace_penalty,
                     "boFatiguePenalty": attack.modifiers.roll_modifiers.bo_fatigue_penalty,
                     "bd": attack.modifiers.roll_modifiers.bd,
@@ -80,7 +80,7 @@ class MongoAttackConverter:
                     for feature in attack.modifiers.features or []
                 ],
                 "sourceSkills": [
-                    {"skillId": skill.skillId, "bonus": skill.bonus}
+                    {"skillId": skill.skill_id, "bonus": skill.bonus}
                     for skill in attack.modifiers.source_skills or []
                 ],
             },
@@ -136,20 +136,10 @@ class MongoAttackConverter:
         attack_id = str(attack_dict["_id"])
         modifiers_data = attack_dict.get("modifiers", {})
 
-        attack_type = AttackType.MELEE
-        if "attack_type" in modifiers_data:
-            try:
-                attack_type = AttackType(modifiers_data["attackType"])
-            except ValueError:
-                attack_type = AttackType.MELEE  # fallback to default
-
         roll_modifiers_data = modifiers_data.get("rollModifiers", {})
         roll_modifiers = AttackRollModifiers(
             bo=roll_modifiers_data.get("bo", 0),
             bo_injury_penalty=roll_modifiers_data.get("boInjuryPenalty", 0),
-            bo_actions_points_penalty=roll_modifiers_data.get(
-                "boActionsPointsPenalty", 0
-            ),
             bo_pace_penalty=roll_modifiers_data.get("boPacePenalty", 0),
             bo_fatigue_penalty=roll_modifiers_data.get("boFatiguePenalty", 0),
             bd=roll_modifiers_data.get("bd", 0),
@@ -181,10 +171,11 @@ class MongoAttackConverter:
         )
 
         modifiers = AttackModifiers(
-            attack_type=attack_type,
+            attack_type=AttackType.from_value(modifiers_data["attackType"]),
             attack_table=attack_dict.get("modifiers", {}).get("attackTable", ""),
             attack_size=attack_dict.get("modifiers", {}).get("attackSize", ""),
             at=attack_dict.get("modifiers", {}).get("at", 0),
+            action_points=attack_dict.get("modifiers", {}).get("actionPoints", 4),
             roll_modifiers=roll_modifiers,
             situational_modifiers=situational_modifiers,
             features=[
@@ -192,7 +183,7 @@ class MongoAttackConverter:
                 for feature in modifiers_data.get("features", [])
             ],
             source_skills=[
-                AttackSkill(skillId=skill["skillId"], bonus=skill["bonus"])
+                AttackSkill(skill_id=skill["skillId"], bonus=skill["bonus"])
                 for skill in modifiers_data.get("sourceSkills", [])
             ],
         )
