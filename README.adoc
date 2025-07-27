@@ -173,6 +173,7 @@ It is divided into the following blocks:
 
 * _footwork_: reduces melee pace modifier.
 * _reverse-strike_*: reduces positional target bonus when attacking from the rear.
+* _restricted-quarters_: reduces positional target bonus when attacking in restricted quarters.
 
 === Source statuses allowed
 

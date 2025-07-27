@@ -190,7 +190,7 @@ class AttackCalculator:
                     bonus = -75
                 case RestrictedQuarters.CONFINED:
                     bonus = -100
-            self.append_bonus(attack, "restricted-quarters", bonus)
+            self.append_with_skill(attack, "restricted-quarters", bonus, "restricted-quarters")
 
     def append_positional_source(self, attack: Attack) -> None:
         if attack.modifiers.situational_modifiers.positional_source and attack.is_melee():
@@ -273,4 +273,8 @@ class AttackCalculator:
         )
 
     def calculate_critical_severity_modifiers(self, attack: Attack) -> None:
-        pass
+        if attack.modifiers.situational_modifiers.size_difference != 0:
+            attack.calculated.critical_severity_modifiers.append(AttackBonusEntry("size-difference", attack.modifiers.situational_modifiers.size_difference))
+        attack.calculated.critical_severity_total = sum(
+            p.value for p in attack.calculated.critical_severity_modifiers
+        )
