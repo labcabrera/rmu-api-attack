@@ -11,8 +11,6 @@ class AttackTableEntryDTO(BaseModel):
 
     model_config = ConfigDict(use_enum_values=True)
 
-    roll: int = Field(..., description="Roll value")
-    at: int = Field(..., description="AT value")
     literal: str = Field(..., description="Literal result description")
     damage: int = Field(..., description="Damage points")
     criticalType: Optional[str] = Field(None, description="Critical type")
@@ -20,8 +18,6 @@ class AttackTableEntryDTO(BaseModel):
 
     def to_entity(self):
         return AttackTableEntry(
-            roll=self.roll,
-            at=self.at,
             literal=self.literal,
             damage=self.damage,
             criticalType=self.criticalType,
@@ -31,8 +27,6 @@ class AttackTableEntryDTO(BaseModel):
     @classmethod
     def from_entity(cls, entity: AttackTableEntry) -> "AttackTableEntryDTO":
         return cls(
-            roll=entity.roll,
-            at=entity.at,
             literal=entity.literal,
             damage=entity.damage,
             criticalType=entity.criticalType,

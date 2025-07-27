@@ -20,26 +20,16 @@ class AttackTableRestAdapter(AttackTableClient):
     def __init__(
         self, base_url: str, timeout: float = 30.0, api_key: Optional[str] = None
     ):
-        """
-        Initialize the REST adapter
-
-        Args:
-            base_url: Base URL of the attack table API
-            timeout: Request timeout in seconds
-            api_key: Optional API key for authentication
-        """
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.api_key = api_key
         self._client: Optional[httpx.AsyncClient] = None
 
     async def _get_client(self) -> httpx.AsyncClient:
-        """Get or create HTTP client"""
         if self._client is None:
             headers = {}
             if self.api_key:
                 headers["Authorization"] = f"Bearer {self.api_key}"
-
             self._client = httpx.AsyncClient(
                 timeout=httpx.Timeout(self.timeout), headers=headers
             )
@@ -48,64 +38,23 @@ class AttackTableRestAdapter(AttackTableClient):
     async def get_attack_table_entry(
         self, attack_table: str, size: str, roll: int, at: int
     ) -> Optional[AttackTableEntry]:
-        """
-        Get attack table entry from external API
 
-        Args:
-            roll: Attack roll result
-            at: Attack table type/identifier
-
-        Returns:
-            AttackTableEntry if found, None otherwise
-
-        Raises:
-            Exception: If API call fails after retries
-        """
         logger.info(f"Fetching attack table entry for roll={roll}, at={at}")
 
         try:
             client = await self._get_client()
-
-            # Construct API endpoint
             url = f"{self.base_url}/attack-tables/{attack_table}/{size}/{at}/{roll}"
-
             logger.debug(f"Making request to {url}")
-
             response = await client.get(url)
-
-            if response.status_code == 404:
-                logger.warning(f"Attack table entry not found for roll={roll}, at={at}")
-                return None
-
             response.raise_for_status()
-
+            logger.debug(f"Received response: {response}")
             json = response.json()
-            logger.debug(f"Received response: {json}")
-
-            # Parse response and create AttackTableEntry
-
-            # TODO parse
-            literal = json.get("data", {})
-            damage = 0
-            criticalType = None
-            criticalSeverity = None
-
-            if literal.isdigit():
-                damage = int(literal)
-            else:
-                damage = int(literal[:-2])
-                criticalType = literal[-2]
-                criticalSeverity = literal[-1]
-
             entry = AttackTableEntry(
-                roll=json.get("roll", roll),
-                at=json.get("at", at),
-                literal=literal,
-                damage=damage,
-                criticalType=criticalType,
-                criticalSeverity=criticalSeverity,
+                literal=json.get("literal", ""),
+                damage=json.get("damage", 0),
+                criticalType=json.get("criticalType", None),
+                criticalSeverity=json.get("criticalSeverity", None),
             )
-
             logger.info(f"Successfully retrieved attack table entry: {entry}")
             return entry
 
@@ -149,16 +98,6 @@ class AttackTableRestAdapterWithRetry(AttackTableRestAdapter):
         max_retries: int = 3,
         retry_delay: float = 1.0,
     ):
-        """
-        Initialize the REST adapter with retry
-
-        Args:
-            base_url: Base URL of the attack table API
-            timeout: Request timeout in seconds
-            api_key: Optional API key for authentication
-            max_retries: Maximum number of retry attempts
-            retry_delay: Delay between retries in seconds
-        """
         super().__init__(base_url, timeout, api_key)
         self.max_retries = max_retries
         self.retry_delay = retry_delay

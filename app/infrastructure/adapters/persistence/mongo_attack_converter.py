@@ -16,6 +16,7 @@ from app.domain.entities import (
     AttackBonusEntry,
     AttackSituationalModifiers,
     AttackTableEntry,
+    AttackCriticalResult,
 )
 from app.domain.entities.enums import (
     AttackStatus,
@@ -105,8 +106,6 @@ class MongoAttackConverter:
 
             if attack.results.attack_table_entry:
                 results_dict["attackTableEntry"] = {
-                    "roll": attack.results.attack_table_entry.roll,
-                    "at": attack.results.attack_table_entry.at,
                     "literal": attack.results.attack_table_entry.literal,
                     "damage": attack.results.attack_table_entry.damage,
                     "criticalType": attack.results.attack_table_entry.criticalType,
@@ -212,7 +211,7 @@ class MongoAttackConverter:
             results_data = attack_dict["results"]
             criticals = []
             for c_data in results_data.get("criticals", []):
-                critical = Critical(
+                critical = AttackCriticalResult(
                     id=c_data["id"],
                     type=c_data.get("type", "unknown"),
                     roll=c_data.get("roll", 0),
@@ -226,8 +225,6 @@ class MongoAttackConverter:
             if results_data.get("attackTableEntry"):
                 entry_data = results_data["attackTableEntry"]
                 attack_table_entry = AttackTableEntry(
-                    roll=entry_data["roll"],
-                    at=entry_data["at"],
                     literal=entry_data["literal"],
                     damage=entry_data["damage"],
                     criticalType=entry_data.get("criticalType"),
