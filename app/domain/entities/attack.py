@@ -118,11 +118,12 @@ class AttackModifiers:
 class AttackCalculations:
     """Calculated data for attack processing"""
 
-    modifiers: list[AttackBonusEntry] = None
-    total: int = 0
-
+    roll_modifiers: list[AttackBonusEntry] = None
     critical_modifiers: list[AttackBonusEntry] = None
+    critical_severity_modifiers: list[AttackBonusEntry] = None
+    roll_total: int = 0
     critical_total: int = 0
+    critical_severity_total: int = 0
 
 
 @dataclass
@@ -168,3 +169,10 @@ class Attack:
 
     def is_melee(self) -> bool:
         return self.modifiers.attack_type == AttackType.MELEE
+
+    def is_fumble(self) -> bool:
+        return (
+            self.modifiers.fumble > 0
+            and self.roll
+            and self.roll.roll <= self.modifiers.fumble
+        )

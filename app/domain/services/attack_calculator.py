@@ -29,9 +29,14 @@ class AttackCalculator:
     async def calculate_attack(self, attack: Attack) -> None:
         self.validate_attack(attack)
         self.initialize_attack_calculations(attack)
-        self.calculate_attack_roll_modifiers(attack)
-        self.calculate_critical_modifiers(attack)
-        await self.calculate_attack_results(attack)
+        if not attack.is_fumble():
+            self.calculate_attack_roll_modifiers(attack)
+            self.calculate_critical_modifiers(attack)
+            self.calculate_critical_severity_modifiers(attack)
+            await self.calculate_attack_results(attack)
+        else:
+            # TODO
+            pass
 
     def validate_attack(self, attack: Attack) -> None:
         if not attack:
@@ -43,10 +48,12 @@ class AttackCalculator:
         
     def initialize_attack_calculations(self, attack: Attack) -> None:
         attack.calculated = AttackCalculations(
-            total=0,
-            modifiers=[],
+            roll_total=0,
+            roll_modifiers=[],
             critical_modifiers=[],
             critical_total=0,
+            critical_severity_modifiers=[],
+            critical_severity_total=0,
         )
         attack.results = AttackResult(
             attack_table_entry=None,
@@ -60,7 +67,7 @@ class AttackCalculator:
                     await self._attack_table_client.get_attack_table_entry(
                         attack_table=attack.modifiers.attack_table,
                         size=attack.modifiers.attack_size,
-                        roll=attack.calculated.total,
+                        roll=attack.calculated.roll_total,
                         at=5,
                     )
                 )
@@ -99,16 +106,16 @@ class AttackCalculator:
         
         # TODO called shot
 
-        attack.calculated.modifiers = [
-            p for p in attack.calculated.modifiers if p.value != 0
+        attack.calculated.roll_modifiers = [
+            p for p in attack.calculated.roll_modifiers if p.value != 0
         ]
 
-        attack.calculated.total = sum(p.value for p in attack.calculated.modifiers)
+        attack.calculated.roll_total = sum(p.value for p in attack.calculated.roll_modifiers)
 
 
 
     def append_bonus(self, attack: Attack, key: str, value: int) -> None:
-        attack.calculated.modifiers.append(AttackBonusEntry(key=key, value=value))
+        attack.calculated.roll_modifiers.append(AttackBonusEntry(key=key, value=value))
 
     def append_with_skill(
         self, attack: Attack, key: str, value: int, skill_id: str
@@ -256,11 +263,14 @@ class AttackCalculator:
             self.append_bonus(attack, "size-bonus", attack.modifiers.situational_modifiers.size_difference * 5)
 
     def calculate_critical_modifiers(self, attack: Attack) -> None:
-        if attack.calculated.total > 175:
-            diff = attack.calculated.total - 175
+        if attack.calculated.roll_total > 175:
+            diff = attack.calculated.roll_total - 175
             absolute_hit_bonus = math.ceil(diff / 5)
             attack.calculated.critical_modifiers.append(AttackBonusEntry("absolute-hit", absolute_hit_bonus))
 
         attack.calculated.critical_total = sum(
             p.value for p in attack.calculated.critical_modifiers
         )
+
+    def calculate_critical_severity_modifiers(self, attack: Attack) -> None:
+        pass

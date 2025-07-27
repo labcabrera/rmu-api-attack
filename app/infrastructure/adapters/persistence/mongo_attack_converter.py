@@ -103,16 +103,21 @@ class MongoAttackConverter:
         # Handle calculated conversion
         if attack.calculated:
             attack_dict["calculated"] = {
-                "modifiers": [
+                "rollModifiers": [
                     {"key": modifier.key, "value": modifier.value}
-                    for modifier in attack.calculated.modifiers
+                    for modifier in attack.calculated.roll_modifiers
                 ],
-                "total": attack.calculated.total,
-                "critical_modifiers": [
+                "criticalModifiers": [
                     {"key": modifier.key, "value": modifier.value}
                     for modifier in attack.calculated.critical_modifiers
                 ],
-                "critical_total": attack.calculated.critical_total,
+                "criticalSeverityModifiers": [
+                    {"key": modifier.key, "value": modifier.value}
+                    for modifier in attack.calculated.critical_severity_modifiers
+                ],
+                "rollTotal": attack.calculated.roll_total,
+                "criticalTotal": attack.calculated.critical_total,
+                "criticalSeverityTotal": attack.calculated.critical_severity_total,
             }
         else:
             attack_dict["calculated"] = None
@@ -209,26 +214,45 @@ class MongoAttackConverter:
         calculated = None
         if attack_dict.get("calculated"):
             calculated_data = attack_dict["calculated"]
+
             modifiers_list = []
-            for modifier_data in calculated_data.get("modifiers", []):
+            for modifier_data in calculated_data.get("rollModifiers", []):
                 modifier = AttackBonusEntry(
                     key=modifier_data["key"], value=modifier_data["value"]
                 )
                 modifiers_list.append(modifier)
+
             critical_modifiers_list = []
-            for critical_modifier_data in calculated_data.get("critical_modifiers", []):
+            for critical_modifier_data in calculated_data.get("criticalModifiers", []):
                 critical_modifier = AttackBonusEntry(
                     key=critical_modifier_data["key"],
                     value=critical_modifier_data["value"],
                 )
                 critical_modifiers_list.append(critical_modifier)
 
+            critical_severity_modifiers_list = []
+            for critical_severity_modifier_data in calculated_data.get(
+                "criticalSeverityModifiers", []
+            ):
+                critical_modifier = AttackBonusEntry(
+                    key=critical_severity_modifier_data["key"],
+                    value=critical_severity_modifier_data["value"],
+                )
+                critical_severity_modifiers_list.append(critical_modifier)
+
             calculated = AttackCalculations(
-                total=calculated_data.get("total", 0),
-                modifiers=modifiers_list,
+                roll_modifiers=modifiers_list,
                 critical_modifiers=critical_modifiers_list,
-                critical_total=calculated_data.get("critical_total", 0),
+                critical_severity_modifiers=critical_severity_modifiers_list,
+                roll_total=calculated_data.get("rollTotal", 0),
+                critical_total=calculated_data.get("criticalTotal", 0),
+                critical_severity_total=calculated_data.get("criticalSeverityTotal", 0),
             )
+
+        results = None
+        if attack_dict.get("results"):
+            results_data = attack_dict["results"]
+            criticals = []
 
         results = None
         if attack_dict.get("results"):

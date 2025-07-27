@@ -7,15 +7,21 @@ from .attack_bonus_entry_dto import AttackBonusEntryDTO
 class AttackCalculationsDTO(BaseModel):
     """DTO for attack calculations"""
 
-    modifiers: list[AttackBonusEntryDTO] = Field(
+    rollModifiers: list[AttackBonusEntryDTO] = Field(
         ..., description="Attack modifiers in key-value pairs"
     )
-    total: int = Field(..., description="Total calculated value")
-    critical_modifiers: list[AttackBonusEntryDTO] = Field(
-        default_factory=list, description="Critical modifiers in key-value pairs"
+    criticalModifiers: list[AttackBonusEntryDTO] = Field(
+        [], description="Critical modifiers in key-value pairs"
     )
-    critical_total: int = Field(
+    criticalSeverityModifiers: list[AttackBonusEntryDTO] = Field(
+        [], description="Critical severity modifiers in key-value pairs"
+    )
+    rollTotal: int = Field(..., description="Total calculated value")
+    criticalTotal: int = Field(
         0, description="Total calculated value for critical hits"
+    )
+    criticalSeverityTotal: int = Field(
+        0, description="Total calculated value for critical severity"
     )
 
     model_config = ConfigDict(
@@ -29,19 +35,30 @@ class AttackCalculationsDTO(BaseModel):
 
     def to_entity(self):
         return AttackCalculations(
-            modifiers=[m.to_entity() for m in self.modifiers],
-            total=self.total,
-            critical_modifiers=[m.to_entity() for m in self.critical_modifiers],
-            critical_total=self.critical_total,
+            roll_modifiers=[m.to_entity() for m in self.rollModifiers],
+            critical_modifiers=[m.to_entity() for m in self.criticalModifiers],
+            critical_severity_modifiers=[
+                m.to_entity() for m in self.criticalSeverityModifiers
+            ],
+            roll_total=self.rollTotal,
+            critical_total=self.criticalTotal,
+            critical_severity_total=self.criticalSeverityTotal,
         )
 
     @classmethod
     def from_entity(cls, entity: AttackCalculations) -> "AttackCalculationsDTO":
         return cls(
-            modifiers=[AttackBonusEntryDTO.from_entity(m) for m in entity.modifiers],
-            total=entity.total,
-            critical_modifiers=[
+            rollModifiers=[
+                AttackBonusEntryDTO.from_entity(m) for m in entity.roll_modifiers
+            ],
+            criticalModifiers=[
                 AttackBonusEntryDTO.from_entity(m) for m in entity.critical_modifiers
             ],
-            critical_total=entity.critical_total,
+            criticalSeverityModifiers=[
+                AttackBonusEntryDTO.from_entity(m)
+                for m in entity.critical_severity_modifiers
+            ],
+            rollTotal=entity.roll_total,
+            criticalTotal=entity.critical_total,
+            criticalSeverityTotal=entity.critical_severity_total,
         )
