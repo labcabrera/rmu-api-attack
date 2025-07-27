@@ -27,6 +27,7 @@ class AttackSituationalModifiersDTO(BaseModel):
 
     disabledDB: bool = Field(False, description="Disabled DB status")
     disabledShield: bool = Field(False, description="Disabled shield status")
+    disabledParry: bool = Field(False, description="Disabled parry status")
 
     sizeDifference: int = Field(0, description="Size difference")
     offHand: bool = Field(False, description="Off-hand status")
@@ -46,6 +47,7 @@ class AttackSituationalModifiersDTO(BaseModel):
             dodge=DodgeType.from_value(self.dodge),
             disabled_db=self.disabledDB,
             disabled_shield=self.disabledShield,
+            disabled_parry=self.disabledParry,
             size_difference=self.sizeDifference,
             off_hand=self.offHand,
             higher_ground=self.higherGround,
@@ -67,6 +69,7 @@ class AttackSituationalModifiersDTO(BaseModel):
             dodge=entity.dodge,
             disabledDB=entity.disabled_db,
             disabledShield=entity.disabled_shield,
+            disabledParry=entity.disabled_parry,
             sizeDifference=entity.size_difference,
             offHand=entity.off_hand,
             higherGround=entity.higher_ground,

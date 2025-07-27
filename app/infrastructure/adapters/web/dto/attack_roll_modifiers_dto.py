@@ -8,11 +8,11 @@ class AttackRollModifiersDTO(BaseModel):
 
     bo: int = Field(..., description="Source offensive bonus")
     bd: int = Field(..., description="Target defensive bonus")
-    boInjuryPenalty: int = Field(0, description="Injury penalty to offensive bonus")
-    boPacePenalty: int = Field(0, description="Pace penalty to offensive bonus")
-    boFatiguePenalty: int = Field(0, description="Fatigue penalty to offensive bonus")
+    injuryPenalty: int = Field(0, description="Injury penalty to offensive bonus")
+    pacePenalty: int = Field(0, description="Pace penalty to offensive bonus")
+    fatiguePenalty: int = Field(0, description="Fatigue penalty to offensive bonus")
     rangePenalty: int = Field(0, description="Range penalty")
-    bdShield: int = Field(0, description="Shield defensive bonus")
+    shield: int = Field(0, description="Shield defensive bonus")
     parry: int = Field(0, description="Parry value")
     customBonus: int = Field(0, description="Custom bonus to offensive bonus")
 
@@ -20,10 +20,11 @@ class AttackRollModifiersDTO(BaseModel):
         return AttackRollModifiers(
             bo=self.bo,
             bd=self.bd,
-            bo_injury_penalty=self.boInjuryPenalty,
-            bo_pace_penalty=self.boPacePenalty,
-            bo_fatigue_penalty=self.boFatiguePenalty,
+            injury_penalty=self.injuryPenalty,
+            pace_penalty=self.pacePenalty,
+            fatigue_penalty=self.fatiguePenalty,
             range_penalty=self.rangePenalty,
+            shield=self.shield,
             parry=self.parry,
             custom_bonus=self.customBonus,
         )
@@ -33,10 +34,11 @@ class AttackRollModifiersDTO(BaseModel):
         return cls(
             bo=entity.bo,
             bd=entity.bd,
-            boInjuryPenalty=entity.bo_injury_penalty,
-            boPacePenalty=entity.bo_pace_penalty,
-            boFatiguePenalty=entity.bo_fatigue_penalty,
+            injuryPenalty=entity.injury_penalty,
+            pacePenalty=entity.pace_penalty,
+            fatiguePenalty=entity.fatigue_penalty,
             rangePenalty=entity.range_penalty,
+            shield=entity.shield,
             parry=entity.parry,
             customBonus=entity.custom_bonus,
         )

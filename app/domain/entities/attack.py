@@ -29,11 +29,11 @@ class AttackRollModifiers:
     """Modifiers for attack roll calculated by tactical domain model"""
 
     bo: int = 0
-    bo_injury_penalty: int = 0
-    bo_pace_penalty: int = 0
-    bo_fatigue_penalty: int = 0
+    injury_penalty: int = 0
+    pace_penalty: int = 0
+    fatigue_penalty: int = 0
     bd: int = 0
-    bd_shield: int = 0
+    shield: int = 0
     range_penalty: int = 0
     parry: int = 0
     custom_bonus: int = 0
@@ -51,6 +51,7 @@ class AttackSituationalModifiers:
 
     disabled_db: bool = False
     disabled_shield: bool = False
+    disabled_parry: bool = False
 
     size_difference: int = 0
     off_hand: bool = False
