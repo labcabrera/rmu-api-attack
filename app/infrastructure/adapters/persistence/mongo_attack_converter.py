@@ -17,6 +17,8 @@ from app.domain.entities import (
     AttackSituationalModifiers,
     AttackTableEntry,
     AttackCriticalResult,
+    AttackFeature,
+    AttackSkill,
 )
 from app.domain.entities.enums import (
     AttackStatus,
@@ -63,18 +65,24 @@ class MongoAttackConverter:
                     "positionalSource": attack.modifiers.situational_modifiers.positional_source.value,
                     "positionalTarget": attack.modifiers.situational_modifiers.positional_target.value,
                     "dodge": attack.modifiers.situational_modifiers.dodge.value,
-                    "stunnedTarget": attack.modifiers.situational_modifiers.stunned_target,
                     "disabledDb": attack.modifiers.situational_modifiers.disabled_db,
                     "disabledShield": attack.modifiers.situational_modifiers.disabled_shield,
-                    "surprised": attack.modifiers.situational_modifiers.surprised,
-                    "proneAttacker": attack.modifiers.situational_modifiers.prone_attacker,
-                    "proneDefender": attack.modifiers.situational_modifiers.prone_defender,
                     "sizeDifference": attack.modifiers.situational_modifiers.size_difference,
                     "offHand": attack.modifiers.situational_modifiers.off_hand,
                     "higherGround": attack.modifiers.situational_modifiers.higher_ground,
-                    "range": attack.modifiers.situational_modifiers.range,
-                    "rangedAttackInMelee": attack.modifiers.situational_modifiers.ranged_attack_in_melee,
+                    "sourceStatus": attack.modifiers.situational_modifiers.source_status
+                    or [],
+                    "targetStatus": attack.modifiers.situational_modifiers.target_status
+                    or [],
                 },
+                "features": [
+                    {"key": feature.key, "value": feature.value}
+                    for feature in attack.modifiers.features or []
+                ],
+                "sourceSkills": [
+                    {"skillId": skill.skillId, "bonus": skill.bonus}
+                    for skill in attack.modifiers.source_skills or []
+                ],
             },
         }
 
@@ -163,19 +171,13 @@ class MongoAttackConverter:
                 situational_modifiers_data.get("positionalTarget", "none")
             ),
             dodge=DodgeType.from_value(situational_modifiers_data.get("dodge", "none")),
-            stunned_target=situational_modifiers_data.get("stunnedTarget", False),
             disabled_db=situational_modifiers_data.get("disabledDb", False),
             disabled_shield=situational_modifiers_data.get("disabledShield", False),
-            surprised=situational_modifiers_data.get("surprised", False),
-            prone_attacker=situational_modifiers_data.get("proneAttacker", False),
-            prone_defender=situational_modifiers_data.get("proneDefender", False),
             size_difference=situational_modifiers_data.get("sizeDifference", 0),
             off_hand=situational_modifiers_data.get("offHand", False),
             higher_ground=situational_modifiers_data.get("higherGround", False),
-            range=situational_modifiers_data.get("range", 0),
-            ranged_attack_in_melee=situational_modifiers_data.get(
-                "rangedAttackInMelee", False
-            ),
+            source_status=situational_modifiers_data.get("sourceStatus", []),
+            target_status=situational_modifiers_data.get("targetStatus", []),
         )
 
         modifiers = AttackModifiers(
@@ -185,6 +187,14 @@ class MongoAttackConverter:
             at=attack_dict.get("modifiers", {}).get("at", 0),
             roll_modifiers=roll_modifiers,
             situational_modifiers=situational_modifiers,
+            features=[
+                AttackFeature(key=feature["key"], value=feature["value"])
+                for feature in modifiers_data.get("features", [])
+            ],
+            source_skills=[
+                AttackSkill(skillId=skill["skillId"], bonus=skill["bonus"])
+                for skill in modifiers_data.get("sourceSkills", [])
+            ],
         )
 
         roll = None

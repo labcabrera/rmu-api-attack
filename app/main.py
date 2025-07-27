@@ -23,10 +23,9 @@ async def lifespan(app: FastAPI):
     """
     Manage application lifecycle events
     """
-    # Startup: Initialize dependencies
     logger.info("Starting RMU Attack API...")
     await container.initialize()
-    logger.info("Initialized hexagonal architecture dependencies")
+    logger.info("Initialized  dependencies")
     logger.info("Connected to MongoDB")
 
     yield

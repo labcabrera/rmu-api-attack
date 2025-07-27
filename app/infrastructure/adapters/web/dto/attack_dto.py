@@ -18,6 +18,18 @@ from .attack_calculations_dto import AttackCalculationsDTO
 class AttackDTO(BaseModel):
     """DTO for complete attack"""
 
+    id: str = Field(..., description="Attack ID")
+    actionId: str = Field(..., description="Action ID")
+    sourceId: str = Field(..., description="Source ID")
+    targetId: str = Field(..., description="Target ID")
+    status: str = Field(..., description="Attack status")
+    modifiers: AttackModifiersDTO = Field(..., description="Attack input")
+    roll: Optional[AttackRollDTO] = Field(None, description="Attack roll")
+    calculated: Optional[AttackCalculationsDTO] = Field(
+        None, description="Calculated attack data"
+    )
+    results: Optional[AttackResultDTO] = Field(None, description="Attack results")
+
     model_config = ConfigDict(
         use_enum_values=True,
         json_schema_extra={
@@ -54,18 +66,6 @@ class AttackDTO(BaseModel):
             }
         },
     )
-
-    id: str = Field(..., description="Attack ID")
-    actionId: str = Field(..., description="Action ID")
-    sourceId: str = Field(..., description="Source ID")
-    targetId: str = Field(..., description="Target ID")
-    status: str = Field(..., description="Attack status")
-    modifiers: AttackModifiersDTO = Field(..., description="Attack input")
-    roll: Optional[AttackRollDTO] = Field(None, description="Attack roll")
-    calculated: Optional[AttackCalculationsDTO] = Field(
-        None, description="Calculated attack data"
-    )
-    results: Optional[AttackResultDTO] = Field(None, description="Attack results")
 
     def to_entity(self):
         return Attack(

@@ -8,17 +8,16 @@ class AttackRollModifiersDTO(BaseModel):
 
     bo: int = Field(..., description="Source offensive bonus")
     bd: int = Field(..., description="Target defensive bonus")
-    boInjuryPenalty: int = Field(None, description="Injury penalty to offensive bonus")
+    boInjuryPenalty: int = Field(0, description="Injury penalty to offensive bonus")
     boActionsPointsPenalty: int = Field(
-        None, description="Actions points penalty to offensive bonus"
+        0, description="Actions points penalty to offensive bonus"
     )
-    boPacePenalty: int = Field(None, description="Pace penalty to offensive bonus")
-    boFatiguePenalty: int = Field(
-        None, description="Fatigue penalty to offensive bonus"
-    )
-    rangePenalty: int = Field(None, description="Range penalty")
-    parry: int = Field(None, description="Parry value")
-    customBonus: int = Field(None, description="Custom bonus to offensive bonus")
+    boPacePenalty: int = Field(0, description="Pace penalty to offensive bonus")
+    boFatiguePenalty: int = Field(0, description="Fatigue penalty to offensive bonus")
+    rangePenalty: int = Field(0, description="Range penalty")
+    bdShield: int = Field(0, description="Shield defensive bonus")
+    parry: int = Field(0, description="Parry value")
+    customBonus: int = Field(0, description="Custom bonus to offensive bonus")
 
     def to_entity(self):
         return AttackRollModifiers(

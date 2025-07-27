@@ -50,21 +50,31 @@ class AttackSituationalModifiers:
     positional_target: PositionalTarget = PositionalTarget.NONE
     dodge: DodgeType = DodgeType.NONE
 
-    stunned_target: bool = False
-
     disabled_db: bool = False
     disabled_shield: bool = False
-
-    surprised: bool = False
-    prone_attacker: bool = False
-    prone_defender: bool = False
 
     size_difference: int = 0
     off_hand: bool = False
     higher_ground: bool = False
 
-    range: int = 0
-    ranged_attack_in_melee: bool = False
+    source_status: list[str] = None
+    target_status: list[str] = None
+
+
+@dataclass
+class AttackFeature:
+    """Attack feature data"""
+
+    key: str = None
+    value: str = None
+
+
+@dataclass
+class AttackSkill:
+    """Attack skill data"""
+
+    skillId: str = None
+    bonus: int = 0
 
 
 @dataclass
@@ -77,6 +87,8 @@ class AttackModifiers:
     at: int = 1
     roll_modifiers: AttackRollModifiers = None
     situational_modifiers: AttackSituationalModifiers = None
+    features: list[AttackFeature] = None
+    source_skills: list[AttackSkill] = None
 
     def __post_init__(self):
         """Validate input data after initialization"""

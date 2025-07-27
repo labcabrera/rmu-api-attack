@@ -25,7 +25,7 @@ class AttackCalculator:
         self._notification_port = notification_port
         self._attack_table_client = attack_table_client
 
-    async def calculate_attack(self, attack: Attack) -> Attack:
+    async def calculate_attack(self, attack: Attack) -> None:
         self.validate_attack(attack)
         await self.calculate_attack_results(attack)
 
@@ -37,7 +37,21 @@ class AttackCalculator:
         if not attack.modifiers:
             raise ValueError("Attack must have modifiers to calculate results")
 
-    async def calculate_attack_results(self, attack: Attack) -> Attack:
+    async def calculate_attack_results(self, attack: Attack) -> None:
+
+        if self._attack_table_client:
+            attack_table_entry = await self._attack_table_client.get_attack_table_entry(
+                attack_table=attack.modifiers.attack_table,
+                size=attack.modifiers.attack_size,
+                roll=attack.calculated.total,
+                at=5,
+            )
+            attack.results = AttackResult(
+                attack_table_entry=attack_table_entry,
+                criticals=[],
+            )
+
+    def update_attack_calculated_modifiers(self, attack: Attack) -> None:
         attack.calculated = AttackCalculations(total=0, modifiers=[])
 
         attack.calculated.modifiers.append(
@@ -66,15 +80,3 @@ class AttackCalculator:
         ]
 
         attack.calculated.total = sum(p.value for p in attack.calculated.modifiers)
-
-        if self._attack_table_client:
-            attack_table_entry = await self._attack_table_client.get_attack_table_entry(
-                attack_table=attack.modifiers.attack_table,
-                size=attack.modifiers.attack_size,
-                roll=attack.calculated.total,
-                at=5,
-            )
-            attack.results = AttackResult(
-                attack_table_entry=attack_table_entry,
-                criticals=[],
-            )

@@ -3,12 +3,29 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.domain.entities import AttackModifiers
 from app.domain.entities.enums import AttackType
 
+from .attack_skill_dto import AttackSkillDTO
+from .attack_feature_dto import AttackFeatureDTO
 from .attack_roll_modifiers_dto import AttackRollModifiersDTO
 from .attack_situational_modifiers_dto import AttackSituationalModifiersDTO
 
 
 class AttackModifiersDTO(BaseModel):
     """DTO for attack modifiers"""
+
+    attackType: AttackType = Field(..., description="Type of attack (melee, ranged)")
+    attackTable: str = Field(..., description="Attack table identifier")
+    attackSize: str = Field(..., description="Attack size identifier")
+    at: int = Field(..., description="Attack table type", ge=0)
+    rollModifiers: AttackRollModifiersDTO = Field(
+        ..., description="Modifiers for the attack roll"
+    )
+    situationalModifiers: AttackSituationalModifiersDTO = Field(
+        ..., description="Situational modifiers for the attack"
+    )
+    features: list[AttackFeatureDTO] = Field([], description="List of attack features")
+    sourceSkills: list[AttackSkillDTO] = Field(
+        [], description="List of source skills for the attack"
+    )
 
     model_config = ConfigDict(
         use_enum_values=True,
@@ -22,17 +39,6 @@ class AttackModifiersDTO(BaseModel):
         },
     )
 
-    attackType: AttackType = Field(..., description="Type of attack (melee, ranged)")
-    attackTable: str = Field(..., description="Attack table identifier")
-    attackSize: str = Field(..., description="Attack size identifier")
-    at: int = Field(..., description="Attack table type", ge=0)
-    rollModifiers: AttackRollModifiersDTO = Field(
-        ..., description="Modifiers for the attack roll"
-    )
-    situationalModifiers: AttackSituationalModifiersDTO = Field(
-        ..., description="Situational modifiers for the attack"
-    )
-
     def to_entity(self):
         return AttackModifiers(
             attack_type=self.attackType,
@@ -41,6 +47,8 @@ class AttackModifiersDTO(BaseModel):
             at=self.at,
             roll_modifiers=self.rollModifiers.to_entity(),
             situational_modifiers=self.situationalModifiers.to_entity(),
+            features=[feature.to_entity() for feature in self.features],
+            source_skills=[skill.to_entity() for skill in self.sourceSkills],
         )
 
     @classmethod
@@ -54,4 +62,10 @@ class AttackModifiersDTO(BaseModel):
             situationalModifiers=AttackSituationalModifiersDTO.from_entity(
                 entity.situational_modifiers
             ),
+            features=[
+                AttackFeatureDTO.from_entity(feature) for feature in entity.features
+            ],
+            sourceSkills=[
+                AttackSkillDTO.from_entity(skill) for skill in entity.source_skills
+            ],
         )
