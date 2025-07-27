@@ -6,7 +6,7 @@ from app.domain.entities.attack import (
     AttackBonusEntry,
     AttackResult,
 )
-from app.domain.entities.enums import AttackStatus, PositionalSource, PositionalTarget, RestrictedQuarters
+from app.domain.entities.enums import AttackStatus, Cover, PositionalSource, PositionalTarget, RestrictedQuarters
 from app.domain.ports.attack_ports import AttackNotificationPort
 from app.domain.ports.attack_table_port import AttackTableClient
 
@@ -80,7 +80,9 @@ class AttackCalculator:
         self.append_source_weapon_type(attack)
         self.append_positional_source(attack)
         self.append_positional_target(attack)
+        self.append_cover(attack)
         self.append_range_in_melee_bonus(attack)
+        
         # TODO called shot
 
         attack.calculated.modifiers = [
@@ -215,3 +217,20 @@ class AttackCalculator:
     def append_range_in_melee_bonus(self, attack: Attack) -> None:
         if not attack.is_melee() and self.source_has_status(attack, "melee"):
             self.append_bonus(attack, "range-in-melee", -20)
+
+    def append_cover(self, attack: Attack) -> None:
+        bonus = 0
+        match attack.modifiers.situational_modifiers.cover:
+            case Cover.SOFT_PARTIAL:
+                bonus = -10 or not attack.is_melee() -20
+            case Cover.SOFT_HALF:
+                bonus = -20 or not attack.is_melee() -40
+            case Cover.SOFT_FULL:
+                bonus = -50 or not attack.is_melee() -100
+            case Cover.HARD_PARTIAL:
+                bonus = -20 or not attack.is_melee() -40
+            case Cover.HARD_HALF:
+                bonus = -40 or not attack.is_melee() -80
+            case Cover.HARD_FULL:
+                bonus = -100 or not attack.is_melee() -200
+        self.append_bonus(attack, "cover", bonus)

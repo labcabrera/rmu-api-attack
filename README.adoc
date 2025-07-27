@@ -176,16 +176,21 @@ It is divided into the following blocks:
 
 === Source statuses allowed
 
-* _prone_: applies -50 penalty.
-* _ambidextrous_: reduces off-hand penalty.
+|===
+| Status | Description |
+|_prone_           | Applies -50 penalty.
+|_ambidextrous_    | Reduces off-hand penalty.
+|===
 
 === Target statuses allowed
 
-* _stunned_: applies 20 bonus.
-* _prone_: applies 30 bonus for melee attacks or -30 penalty for ranged attacks.
-* _melee_: indicates that the target is in melee range, which can affect ranged attacks.
-* _flying_: applies a -10 penalty.
-
+|===
+| Status | Description |
+| _stunned_        | Applies 20 bonus.
+| _prone_          | Applies 30 bonus for melee attacks or -30 penalty for ranged attacks.
+| _melee_          | Indicates that the target is in melee range, which can affect ranged attacks.
+| _flying_         | Applies a -10 penalty.
+|===
 
 == Technology Stack
 

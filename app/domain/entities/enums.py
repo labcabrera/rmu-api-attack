@@ -107,9 +107,12 @@ class Cover(Enum):
     """Cover status enumeration"""
 
     NONE = "none"
-    PARTIAL = "partial"
-    HALF = "half"
-    FULL = "full"
+    SOFT_PARTIAL = "soft_partial"
+    SOFT_HALF = "soft_half"
+    SOFT_FULL = "soft_full"
+    HARD_PARTIAL = "hard_partial"
+    HARD_HALF = "hard_half"
+    HARD_FULL = "hard_full"
 
     @classmethod
     def from_value(cls, value: Union[str, "Cover"]) -> "Cover":
