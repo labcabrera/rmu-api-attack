@@ -55,6 +55,7 @@ class AttackSituationalModifiers:
 
     size_difference: int = 0
     off_hand: bool = False
+    two_handed_weapon: bool = False
     higher_ground: bool = False
 
     source_status: list[str] = None

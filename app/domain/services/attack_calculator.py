@@ -6,7 +6,7 @@ from app.domain.entities.attack import (
     AttackBonusEntry,
     AttackResult,
 )
-from app.domain.entities.enums import AttackStatus, RestrictedQuarters
+from app.domain.entities.enums import AttackStatus, PositionalSource, RestrictedQuarters
 from app.domain.ports.attack_ports import AttackNotificationPort
 from app.domain.ports.attack_table_port import AttackTableClient
 
@@ -77,6 +77,8 @@ class AttackCalculator:
         self.append_restricted_quarters(attack)
         self.append_source_statuses(attack)
         self.append_target_statuses(attack)
+        self.append_source_weapon_type(attack)
+        self.append_positional_source(attack)
         # TODO called shot
 
         attack.calculated.modifiers = [
@@ -163,6 +165,18 @@ class AttackCalculator:
                     bonus = -100
             self.append_bonus(attack, "restricted-quarters", bonus)
 
+    def append_positional_source(self, attack: Attack) -> None:
+        if attack.modifiers.situational_modifiers.positional_source:
+            bonus = 0
+            match attack.modifiers.situational_modifiers.positional_source:
+                case PositionalSource.TO_FLANK:
+                    bonus = -30
+                case PositionalSource.TO_REAR:
+                    bonus = -70
+            self.append_bonus(attack, "positional-source", bonus)
+            reverse_strike_skill_bonus = self.get_skill_bonus(attack, "reverse-strike")
+            self.append_bonus(attack, "positional-source-skill-reverse-strike", reverse_strike_skill_bonus)
+
     def append_source_statuses(self, attack: Attack) -> None:
         if self.source_has_status(attack, "prone"):
             self.append_bonus(attack, "prone-source", -50)
@@ -174,3 +188,12 @@ class AttackCalculator:
             self.append_bonus(attack, "surprised-target", 25)
         if self.target_has_status(attack, "prone"):
             self.append_bonus(attack, "prone-target", 30)
+
+    def append_source_weapon_type(self, attack: Attack) -> None:
+        # TODO check Ambidextrous status
+        if attack.modifiers.situational_modifiers.off_hand:
+            self.append_bonus(attack,"off-hand-weapon",-20)
+            if self.source_has_status(attack, "ambidextrous"):
+                self.append_bonus(attack, "ambidextrous", 20)
+        if attack.modifiers.situational_modifiers.two_handed_weapon:
+            self.append_bonus(attack, "two-handed-weapon", 10)

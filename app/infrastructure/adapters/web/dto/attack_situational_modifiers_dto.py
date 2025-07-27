@@ -31,6 +31,7 @@ class AttackSituationalModifiersDTO(BaseModel):
 
     sizeDifference: int = Field(0, description="Size difference")
     offHand: bool = Field(False, description="Off-hand status")
+    twoHandedWeapon: bool = Field(False, description="Two-handed weapon status")
     higherGround: bool = Field(False, description="Higher ground status")
 
     sourceStatus: list[str] = Field([], description="Source status list")
@@ -50,6 +51,7 @@ class AttackSituationalModifiersDTO(BaseModel):
             disabled_parry=self.disabledParry,
             size_difference=self.sizeDifference,
             off_hand=self.offHand,
+            two_handed_weapon=self.twoHandedWeapon,
             higher_ground=self.higherGround,
             source_status=self.sourceStatus,
             target_status=self.targetStatus,
@@ -72,6 +74,7 @@ class AttackSituationalModifiersDTO(BaseModel):
             disabledParry=entity.disabled_parry,
             sizeDifference=entity.size_difference,
             offHand=entity.off_hand,
+            twoHandedWeapon=entity.two_handed_weapon,
             higherGround=entity.higher_ground,
             sourceStatus=entity.source_status,
             targetStatus=entity.target_status,

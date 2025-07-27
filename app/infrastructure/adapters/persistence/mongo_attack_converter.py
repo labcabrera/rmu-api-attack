@@ -71,6 +71,7 @@ class MongoAttackConverter:
                     "disabledParry": attack.modifiers.situational_modifiers.disabled_parry,
                     "sizeDifference": attack.modifiers.situational_modifiers.size_difference,
                     "offHand": attack.modifiers.situational_modifiers.off_hand,
+                    "twoHandedWeapon": attack.modifiers.situational_modifiers.two_handed_weapon,
                     "higherGround": attack.modifiers.situational_modifiers.higher_ground,
                     "sourceStatus": attack.modifiers.situational_modifiers.source_status
                     or [],
@@ -169,6 +170,7 @@ class MongoAttackConverter:
             disabled_parry=situational_modifiers_data.get("disabledParry", False),
             size_difference=situational_modifiers_data.get("sizeDifference", 0),
             off_hand=situational_modifiers_data.get("offHand", False),
+            two_handed_weapon=situational_modifiers_data.get("twoHandedWeapon", False),
             higher_ground=situational_modifiers_data.get("higherGround", False),
             source_status=situational_modifiers_data.get("sourceStatus", []),
             target_status=situational_modifiers_data.get("targetStatus", []),
