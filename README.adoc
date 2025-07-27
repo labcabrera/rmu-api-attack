@@ -167,9 +167,25 @@ It is divided into the following blocks:
 * *roll*: information on dice rolls applicable to attack or critical rolls.
 * *results*: result of the attack, whether it is an attack with no effect, a damage, a set of critical hits, or a failure.
 
-== Source target skills allowed
+== Skills and character combat statuses
+
+=== Source target skills allowed
 
 * _footwork_: reduces melee pace modifier.
+* _reverse-strike_*: reduces positional target bonus when attacking from the rear.
+
+=== Source statuses allowed
+
+* _prone_: applies -50 penalty.
+* _ambidextrous_: reduces off-hand penalty.
+
+=== Target statuses allowed
+
+* _stunned_: applies 20 bonus.
+* _prone_: applies 30 bonus for melee attacks or -30 penalty for ranged attacks.
+* _melee_: indicates that the target is in melee range, which can affect ranged attacks.
+* _flying_: applies a -10 penalty.
+
 
 == Technology Stack
 
