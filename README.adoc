@@ -171,14 +171,17 @@ It is divided into the following blocks:
 
 === Source target skills allowed
 
-* _footwork_: reduces melee pace modifier.
-* _reverse-strike_*: reduces positional target bonus when attacking from the rear.
-* _restricted-quarters_: reduces positional target bonus when attacking in restricted quarters.
+|===
+| Skill                 | Description
+| _footwork_            | Reduces melee pace modifier.
+| _reverse-strike_      | Reduces positional target bonus when attacking from the rear.
+| _restricted-quarters_ | Reduces positional target bonus when attacking in restricted quarters.
+|===
 
 === Source statuses allowed
 
 |===
-| Status | Description |
+| Status           | Description
 |_prone_           | Applies -50 penalty.
 |_ambidextrous_    | Reduces off-hand penalty.
 |===
@@ -186,7 +189,7 @@ It is divided into the following blocks:
 === Target statuses allowed
 
 |===
-| Status | Description |
+| Status           | Description
 | _stunned_        | Applies 20 bonus.
 | _prone_          | Applies 30 bonus for melee attacks or -30 penalty for ranged attacks.
 | _melee_          | Indicates that the target is in melee range, which can affect ranged attacks.
