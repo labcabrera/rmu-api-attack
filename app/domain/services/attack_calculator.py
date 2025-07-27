@@ -6,8 +6,8 @@ from app.domain.entities.attack import (
     AttackBonusEntry,
     AttackResult,
 )
-from app.domain.entities.attack_table import AttackTableEntry
-from app.domain.ports.attack_ports import AttackNotificationPort, AttackRepository
+from app.domain.entities.enums import AttackStatus, RestrictedQuarters
+from app.domain.ports.attack_ports import AttackNotificationPort
 from app.domain.ports.attack_table_port import AttackTableClient
 
 from app.infrastructure.logging.logger_config import get_logger
@@ -41,16 +41,23 @@ class AttackCalculator:
     async def calculate_attack_results(self, attack: Attack) -> None:
         self.update_attack_calculated_modifiers(attack)
         if self._attack_table_client:
-            attack_table_entry = await self._attack_table_client.get_attack_table_entry(
-                attack_table=attack.modifiers.attack_table,
-                size=attack.modifiers.attack_size,
-                roll=attack.calculated.total,
-                at=5,
-            )
-            attack.results = AttackResult(
-                attack_table_entry=attack_table_entry,
-                criticals=[],
-            )
+            try:
+                attack_table_entry = (
+                    await self._attack_table_client.get_attack_table_entry(
+                        attack_table=attack.modifiers.attack_table,
+                        size=attack.modifiers.attack_size,
+                        roll=attack.calculated.total,
+                        at=5,
+                    )
+                )
+                attack.results = AttackResult(
+                    attack_table_entry=attack_table_entry,
+                    criticals=[],
+                )
+            except Exception as e:
+                logger.error(f"Error calculating attack results: {e}")
+                # TODO update attack message
+                attack.status = AttackStatus.FAILED
 
     def update_attack_calculated_modifiers(self, attack: Attack) -> None:
         attack.calculated = AttackCalculations(total=0, modifiers=[])
@@ -66,6 +73,11 @@ class AttackCalculator:
         self.append_bonus_bd_shield(attack)
         self.append_parry(attack)
         self.append_bonus(attack, "custom-bonus", roll_modifiers.custom_bonus)
+        self.append_off_hand(attack)
+        self.append_restricted_quarters(attack)
+        self.append_source_statuses(attack)
+        self.append_target_statuses(attack)
+        # TODO called shot
 
         attack.calculated.modifiers = [
             p for p in attack.calculated.modifiers if p.value != 0
@@ -91,6 +103,12 @@ class AttackCalculator:
             if skill.skill_id == skill_id:
                 return skill.bonus
         return 0
+
+    def source_has_status(self, attack: Attack, status: str) -> bool:
+        return status in attack.modifiers.situational_modifiers.source_status
+
+    def target_has_status(self, attack: Attack, status: str) -> bool:
+        return status in attack.modifiers.situational_modifiers.target_status
 
     def append_bonus_bd(self, attack: Attack) -> None:
         if not attack.modifiers.situational_modifiers.disabled_db:
@@ -126,3 +144,33 @@ class AttackCalculator:
     def append_parry(self, attack: Attack) -> None:
         if not attack.modifiers.situational_modifiers.disabled_parry:
             self.append_bonus(attack, "parry", attack.modifiers.roll_modifiers.parry)
+
+    def append_off_hand(self, attack: Attack) -> None:
+        if attack.modifiers.situational_modifiers.off_hand:
+            self.append_bonus(attack, "off-hand", -20)
+
+    def append_restricted_quarters(self, attack: Attack) -> None:
+        if attack.modifiers.situational_modifiers.restricted_quarters:
+            bonus = 0;
+            match attack.modifiers.situational_modifiers.restricted_quarters:
+                case RestrictedQuarters.CLOSE:
+                    bonus = -25
+                case RestrictedQuarters.CRAMPED:
+                    bonus = -50
+                case RestrictedQuarters.TIGHT:
+                    bonus = -75
+                case RestrictedQuarters.CONFINED:
+                    bonus = -100
+            self.append_bonus(attack, "restricted-quarters", bonus)
+
+    def append_source_statuses(self, attack: Attack) -> None:
+        if self.source_has_status(attack, "prone"):
+            self.append_bonus(attack, "prone-source", -50)
+
+    def append_target_statuses(self, attack: Attack) -> None:
+        if self.target_has_status(attack, "stunned"):
+            self.append_bonus(attack, "stunned-target", 20)
+        if self.target_has_status(attack, "surprised"):
+            self.append_bonus(attack, "surprised-target", 25)
+        if self.target_has_status(attack, "prone"):
+            self.append_bonus(attack, "prone-target", 30)

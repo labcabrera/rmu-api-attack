@@ -43,7 +43,8 @@ class AttackTableRestAdapter(AttackTableClient):
 
         try:
             client = await self._get_client()
-            url = f"{self.base_url}/attack-tables/{attack_table}/{size}/{at}/{roll}"
+            adjusted_roll = min(175, max(roll, 1))
+            url = f"{self.base_url}/attack-tables/{attack_table}/{size}/{at}/{adjusted_roll}"
             logger.debug(f"Making request to {url}")
             response = await client.get(url)
             response.raise_for_status()
