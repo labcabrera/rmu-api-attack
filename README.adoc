@@ -167,7 +167,7 @@ It is divided into the following blocks:
 * *roll*: information on dice rolls applicable to attack or critical rolls.
 * *results*: result of the attack, whether it is an attack with no effect, a damage, a set of critical hits, or a failure.
 
-== Skills and character combat statuses
+== Skills, character combat statuses and attack features
 
 === Source target skills allowed
 
@@ -196,6 +196,13 @@ It is divided into the following blocks:
 | _flying_         | Applies a -10 penalty.
 |===
 
+=== Attack features
+
+|===
+| Feature           | Description
+| _slaying-attack_  | Values from _i_ to _v_. Add a critical bonus to critical roll.
+|===
+
 == Technology Stack
 
 * **FastAPI**: Modern Python web framework
@@ -204,3 +211,12 @@ It is divided into the following blocks:
 * **Uvicorn**: ASGI server
 * **Pytest**: Testing framework
 * **Hexagonal Architecture**: Clean architecture with ports and adapters pattern
+
+== TODO
+
+* Called shots
+* Disarm attacks
+* Katas modifiers
+* Protecting others
+* Mounted combat
+* Subdual

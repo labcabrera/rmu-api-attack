@@ -133,16 +133,48 @@ class AttackRoll:
     roll: int
 
 
+class StatusResult:
+    """Status result data"""
+
+    status: str
+    rounds: int = -1
+    value: int = 0
+    modifier: str = None
+
+
+@dataclass
+class AttackCriticalEffect:
+    """Critical effect data"""
+
+    status: str = None
+    rounds: int = 0
+    value: int = 0
+    delay: int = 0
+
+
 @dataclass
 class AttackCriticalResult:
     """Critical result data"""
 
-    status: str
-    roll: Optional[int]
-    text: Optional[str]
-    damage: Optional[int]
+    key: str = None
     criticalType: Optional[str] = None
     criticalSeverity: Optional[str] = None
+    effects: list[AttackCriticalEffect] = None
+    roll: Optional[int] = None
+    adjusted_roll: Optional[int] = None
+
+
+class AttackResultEffects:
+
+    text: Optional[str] = None
+
+
+@dataclass
+class AttackFumbleResult:
+
+    status: str = None
+    roll: Optional[int] = None
+    text: Optional[str] = None
 
 
 @dataclass
@@ -151,6 +183,7 @@ class AttackResult:
 
     attack_table_entry: Optional[AttackTableEntry] = None
     criticals: list[AttackCriticalResult] = None
+    fumble: Optional[AttackFumbleResult] = None
 
 
 @dataclass

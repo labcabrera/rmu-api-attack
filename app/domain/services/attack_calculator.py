@@ -5,6 +5,7 @@ from app.domain.entities.attack import (
     Attack,
     AttackCalculations,
     AttackBonusEntry,
+    AttackFumbleResult,
     AttackResult,
 )
 from app.domain.entities.enums import AttackStatus, Cover, PositionalSource, PositionalTarget, RestrictedQuarters
@@ -58,6 +59,7 @@ class AttackCalculator:
         attack.results = AttackResult(
             attack_table_entry=None,
             criticals=[],
+            fumble=None,
         )
 
     async def calculate_attack_results(self, attack: Attack) -> None:
@@ -277,4 +279,9 @@ class AttackCalculator:
             attack.calculated.critical_severity_modifiers.append(AttackBonusEntry("size-difference", attack.modifiers.situational_modifiers.size_difference))
         attack.calculated.critical_severity_total = sum(
             p.value for p in attack.calculated.critical_severity_modifiers
+        )
+
+    def calculate_fumble_result(self, attack: Attack) -> None:
+        attack.fumble = AttackFumbleResult(
+            status=AttackStatus.PENDING_FUMBLE_ROLL,
         )

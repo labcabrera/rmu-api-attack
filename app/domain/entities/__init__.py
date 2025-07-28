@@ -11,6 +11,7 @@ from .attack import (
     AttackCriticalResult,
     AttackFeature,
     AttackSkill,
+    AttackFumbleResult,
 )
 from .enums import AttackStatus, AttackType
 from .page import Page, Pagination
@@ -33,4 +34,5 @@ __all__ = [
     "AttackCriticalResult",
     "AttackFeature",
     "AttackSkill",
+    "AttackFumbleResult",
 ]

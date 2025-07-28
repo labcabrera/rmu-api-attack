@@ -15,6 +15,8 @@ class AttackStatus(Enum):
     CALCULATED = "calculated"
     APPLIED = "applied"
     FAILED = "failed"
+    PENDING_CRITICAL_ROLL = "pending_critical_roll"
+    PENDING_FUMBLE_ROLL = "pending_fumble_roll"
 
 
 class AttackSize(Enum):
