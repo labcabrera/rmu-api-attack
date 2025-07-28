@@ -53,8 +53,8 @@ class AttackTableRestAdapter(AttackTableClient):
             entry = AttackTableEntry(
                 text=json.get("text", ""),
                 damage=json.get("damage", 0),
-                criticalType=json.get("criticalType", None),
-                criticalSeverity=json.get("criticalSeverity", None),
+                critical_type=json.get("criticalType", None),
+                critical_severity=json.get("criticalSeverity", None),
             )
             logger.info(f"Successfully retrieved attack table entry: {entry}")
             return entry

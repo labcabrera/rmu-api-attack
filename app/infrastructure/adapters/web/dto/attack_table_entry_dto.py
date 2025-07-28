@@ -20,8 +20,8 @@ class AttackTableEntryDTO(BaseModel):
         return AttackTableEntry(
             text=self.text,
             damage=self.damage,
-            criticalType=self.criticalType,
-            criticalSeverity=self.criticalSeverity,
+            critical_type=self.criticalType,
+            critical_severity=self.criticalSeverity,
         )
 
     @classmethod
@@ -29,6 +29,6 @@ class AttackTableEntryDTO(BaseModel):
         return cls(
             text=entity.text,
             damage=entity.damage,
-            criticalType=entity.criticalType,
-            criticalSeverity=entity.criticalSeverity,
+            criticalType=entity.critical_type,
+            criticalSeverity=entity.critical_severity,
         )

@@ -130,8 +130,8 @@ class MongoAttackConverter:
                 results_dict["attackTableEntry"] = {
                     "text": attack.results.attack_table_entry.text,
                     "damage": attack.results.attack_table_entry.damage,
-                    "criticalType": attack.results.attack_table_entry.criticalType,
-                    "criticalSeverity": attack.results.attack_table_entry.criticalSeverity,
+                    "criticalType": attack.results.attack_table_entry.critical_type,
+                    "criticalSeverity": attack.results.attack_table_entry.critical_severity,
                 }
 
             attack_dict["results"] = results_dict
@@ -275,8 +275,8 @@ class MongoAttackConverter:
                 attack_table_entry = AttackTableEntry(
                     text=entry_data["text"],
                     damage=entry_data["damage"],
-                    criticalType=entry_data.get("criticalType"),
-                    criticalSeverity=entry_data.get("criticalSeverity"),
+                    critical_type=entry_data.get("criticalType"),
+                    critical_severity=entry_data.get("criticalSeverity"),
                 )
 
             results = AttackResult()

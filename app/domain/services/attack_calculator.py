@@ -1,14 +1,17 @@
 import math
 from typing import Optional
+from uuid import uuid4
 
-from app.domain.entities.attack import (
+from app.domain.entities import (
     Attack,
     AttackCalculations,
     AttackBonusEntry,
     AttackFumbleResult,
     AttackResult,
+    AttackCriticalResult
 )
 from app.domain.entities.enums import AttackStatus, Cover, PositionalSource, PositionalTarget, RestrictedQuarters
+
 from app.domain.ports.attack_ports import AttackNotificationPort
 from app.domain.ports.attack_table_port import AttackTableClient
 
@@ -35,6 +38,7 @@ class AttackCalculator:
             self.calculate_critical_modifiers(attack)
             self.calculate_critical_severity_modifiers(attack)
             await self.calculate_attack_results(attack)
+            self.create_critical_results(attack)
         else:
             # TODO
             pass
@@ -285,3 +289,29 @@ class AttackCalculator:
         attack.fumble = AttackFumbleResult(
             status=AttackStatus.PENDING_FUMBLE_ROLL,
         )
+
+    def create_critical_results(self, attack: Attack) -> None:
+        if not attack.results.attack_table_entry or not attack.results.attack_table_entry.critical_type:
+            return
+        critical_severity_map: dict[str, list[str]] = {
+            "A": ["A"],
+            "B": ["B"],
+            "C": ["C"],
+            "D": ["D"],
+            "E": ["E"],
+            "F": ["E", "A"],
+            "G": ["E", "B"],
+            "H": ["E", "C"],
+            "I": ["E", "C", "A"],
+            "J": ["J", "C", "B"],
+        }
+        severity_list = critical_severity_map.get(attack.results.attack_table_entry.critical_severity, [])
+        attack.results.criticals = [
+            AttackCriticalResult(
+                critical_type=attack.results.attack_table_entry.critical_type,
+                critical_severity=severity,
+                status="pending"
+            ) for severity in severity_list
+        ]
+        for idx, critical in enumerate(attack.results.criticals):
+            critical.key = f"{critical.critical_type}_{critical.critical_severity}_{idx}"

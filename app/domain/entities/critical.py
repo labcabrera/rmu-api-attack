@@ -28,7 +28,7 @@ class AttackCriticalResult:
 
     key: str = None
     status: str = None
-    criticalType: Optional[str] = None
-    criticalSeverity: Optional[str] = None
+    critical_type: Optional[str] = None
+    critical_severity: Optional[str] = None
     adjusted_roll: Optional[int] = None
     result: Optional[CriticalTableEntry] = None
