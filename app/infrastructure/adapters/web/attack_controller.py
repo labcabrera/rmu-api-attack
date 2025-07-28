@@ -223,10 +223,9 @@ async def execute_attack_critical_roll(
     logger.info(f"Executing roll for attack {attack_id}: {request}")
     try:
         command = request.to_command(attack_id=attack_id)
-        command.validate()
-        use_case = container.get_update_attack_roll_use_case()
+        use_case = container.get_update_critical_roll_use_case()
         attack = await use_case.execute(command=command)
-        logger.info(f"Successfully executed roll for attack {attack_id}: {attack_id}")
+        logger.info(f"Successfully updated critical roll << {attack_id}")
         return AttackDTO.from_entity(attack)
 
     except HTTPException:

@@ -33,7 +33,11 @@ class AttackResolutionService:
     async def update_critical_roll(
         self, attack_id: str, critical_key: str, roll: int
     ) -> Attack:
-        pass
+        attack = await self._attack_repository.find_by_id(attack_id)
+        # TODO
+        return attack
 
     async def update_fumble_roll(self, attack_id: str, roll: int) -> Attack:
-        pass
+        attack = await self._attack_repository.find_by_id(attack_id)
+        # TODO
+        return attack
