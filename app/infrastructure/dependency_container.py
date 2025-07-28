@@ -6,8 +6,11 @@ This assembles all the components and their dependencies.
 from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from app.domain.services.attack_calculator import AttackCalculator
-from app.domain.services.attack_domain_service import AttackDomainService
+from app.domain.services import (
+    AttackCalculator,
+    AttackDomainService,
+    AttackResolutionService,
+)
 from app.domain.ports.attack_ports import AttackRepository
 from app.domain.ports.attack_table_port import AttackTableClient
 
@@ -20,6 +23,8 @@ from app.application.use_cases import (
     SearchAttacksByRsqlUseCase,
     UpdateAttackModifiersUseCase,
     UpdateAttackRollUseCase,
+    UpdateCriticalRollUseCase,
+    UpdateFumbleRollUseCase,
 )
 
 from app.infrastructure.config.config import settings
@@ -49,6 +54,7 @@ class DependencyContainer:
         # Domain services
         self._attack_domain_service: Optional[AttackDomainService] = None
         self._attack_calculator: Optional[AttackCalculator] = None
+        self._attack_resolution_service: Optional[AttackResolutionService] = None
 
         # Attack Use Cases
         self._apply_attack_use_case: Optional[ApplyAttackUseCase] = None
@@ -62,6 +68,8 @@ class DependencyContainer:
             UpdateAttackModifiersUseCase
         ] = None
         self._update_attack_roll_use_case: Optional[UpdateAttackRollUseCase] = None
+        self._update_critical_roll_use_case: Optional[UpdateCriticalRollUseCase] = None
+        self._update_fumble_roll_use_case: Optional[UpdateFumbleRollUseCase] = None
 
     async def initialize(self):
         """Initialize all dependencies"""
@@ -101,6 +109,10 @@ class DependencyContainer:
             attack_calculator=self._attack_calculator,
             attack_repository=self._attack_repository,
         )
+        self._attack_resolution_service = AttackResolutionService(
+            attack_calculator=self._attack_calculator,
+            attack_repository=self._attack_repository,
+        )
 
         # Initialize Attack use cases
         self._apply_attack_results_use_case = ApplyAttackUseCase(
@@ -119,7 +131,13 @@ class DependencyContainer:
             attack_calculator=self._attack_calculator,
         )
         self._update_attack_roll_use_case = UpdateAttackRollUseCase(
-            self._attack_domain_service
+            self._attack_resolution_service
+        )
+        self._update_critical_roll_use_case = UpdateCriticalRollUseCase(
+            self._attack_resolution_service
+        )
+        self._update_fumble_roll_use_case = UpdateFumbleRollUseCase(
+            self._attack_resolution_service
         )
 
     async def cleanup(self):
@@ -161,6 +179,14 @@ class DependencyContainer:
     def get_update_attack_roll_use_case(self) -> UpdateAttackRollUseCase:
         """Get update attack roll use case instance"""
         return self._update_attack_roll_use_case
+
+    def get_update_critical_roll_use_case(self) -> UpdateCriticalRollUseCase:
+        """Get update critical roll use case instance"""
+        return self._update_critical_roll_use_case
+
+    def get_update_fumble_roll_use_case(self) -> UpdateFumbleRollUseCase:
+        """Get update fumble roll use case instance"""
+        return self._update_fumble_roll_use_case
 
     # External services
     def get_attack_table_service(self) -> AttackTableClient:

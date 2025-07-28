@@ -43,7 +43,7 @@ def log_endpoint(func: Callable) -> Callable:
                 safe_kwargs[key] = str(value)[:100]  # Limit length
 
         logger.info(
-            f"ENDPOINT START: {func.__name__}",
+            f"Endpoint start: {func.__name__}",
             extra={
                 "endpoint": func.__name__,
                 "endpoint_args": [
@@ -61,7 +61,7 @@ def log_endpoint(func: Callable) -> Callable:
             execution_time = time.time() - start_time
 
             logger.info(
-                f"ENDPOINT SUCCESS: {func.__name__} ({execution_time:.3f}s)",
+                f"Endpoint success: {func.__name__} ({execution_time:.3f}s)",
                 extra={
                     "endpoint": func.__name__,
                     "execution_time": execution_time,
@@ -74,7 +74,7 @@ def log_endpoint(func: Callable) -> Callable:
         except HTTPException as e:
             execution_time = time.time() - start_time
             logger.warning(
-                f"ENDPOINT HTTP ERROR: {func.__name__} ({execution_time:.3f}s)",
+                f"Endpoint HTTP error: {func.__name__} ({execution_time:.3f}s)",
                 extra={
                     "endpoint": func.__name__,
                     "execution_time": execution_time,
@@ -87,7 +87,7 @@ def log_endpoint(func: Callable) -> Callable:
         except Exception as e:
             execution_time = time.time() - start_time
             logger.error(
-                f"ENDPOINT ERROR: {func.__name__} ({execution_time:.3f}s)",
+                f"Endpoint error: {func.__name__} ({execution_time:.3f}s)",
                 extra={
                     "endpoint": func.__name__,
                     "execution_time": execution_time,
@@ -100,19 +100,19 @@ def log_endpoint(func: Callable) -> Callable:
 
     @functools.wraps(func)
     def sync_wrapper(*args, **kwargs) -> Any:
-        logger.info(f"FUNCTION START: {func.__name__}")
+        logger.info(f"Function start: {func.__name__}")
         start_time = time.time()
 
         try:
             result = func(*args, **kwargs)
             execution_time = time.time() - start_time
-            logger.info(f"FUNCTION SUCCESS: {func.__name__} ({execution_time:.3f}s)")
+            logger.info(f"Function success: {func.__name__} ({execution_time:.3f}s)")
             return result
 
         except Exception as e:
             execution_time = time.time() - start_time
             logger.error(
-                f"FUNCTION ERROR: {func.__name__} ({execution_time:.3f}s)",
+                f"Function error: {func.__name__} ({execution_time:.3f}s)",
                 extra={
                     "function": func.__name__,
                     "execution_time": execution_time,
@@ -141,7 +141,7 @@ def log_errors(func: Callable) -> Callable:
             return await func(*args, **kwargs)
         except Exception as e:
             logger.error(
-                f"💥 UNEXPECTED ERROR in {func.__name__}",
+                f"Unexpected error in {func.__name__}",
                 extra={
                     "function": func.__name__,
                     "error_type": type(e).__name__,
@@ -160,7 +160,7 @@ def log_errors(func: Callable) -> Callable:
             return func(*args, **kwargs)
         except Exception as e:
             logger.error(
-                f"UNEXPECTED ERROR in {func.__name__}",
+                f"Unexpected error in {func.__name__}",
                 extra={
                     "function": func.__name__,
                     "error_type": type(e).__name__,

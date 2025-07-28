@@ -4,7 +4,7 @@ These contain business logic that doesn't naturally fit into entities.
 """
 
 from typing import Optional
-from app.domain.entities import Attack, AttackRoll
+from app.domain.entities import Attack
 from app.domain.ports import AttackRepository, AttackNotificationPort
 from app.domain.entities.enums import AttackStatus
 from app.domain.exceptions import (
@@ -37,15 +37,6 @@ class AttackDomainService:
 
         return created_attack
 
-    async def update_attack_roll(self, attack_id: str, roll_value: int) -> Attack:
-        """Execute a roll for an attack"""
-
-        attack = await self._attack_repository.find_by_id(attack_id)
-        attack.roll = AttackRoll(roll=roll_value)
-        await self._attack_calculator.calculate_attack(attack)
-        updated_attack = await self._attack_repository.update(attack)
-        return updated_attack
-
     async def apply_attack_results(
         self,
         attack_id: str,
@@ -76,25 +67,3 @@ class AttackDomainService:
             updated_attack = await self._attack_repository.update(attack)
             return updated_attack
         pass
-
-    def calculate_attack_result(
-        self, roll_value: int, attack_bonus: int = 0
-    ) -> tuple[str, int]:
-        """
-        Calculate attack result based on roll value.
-        This is a simplified RMU attack table calculation.
-        """
-        total_roll = roll_value + attack_bonus
-
-        if total_roll >= 100:
-            return "Critical Hit", 15
-        elif total_roll >= 80:
-            return "12AT", 12
-        elif total_roll >= 60:
-            return "8AT", 8
-        elif total_roll >= 40:
-            return "5AT", 5
-        elif total_roll >= 20:
-            return "3AT", 3
-        else:
-            return "Miss", 0
