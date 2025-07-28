@@ -5,9 +5,7 @@ from app.infrastructure.config.config import settings
 from app.infrastructure.dependency_container import container
 from app.infrastructure.logging import setup_logging, get_logger
 from app.infrastructure.adapters.web.attack_controller import router as attack_router
-from app.infrastructure.adapters.web.critical_controller import (
-    router as critical_router,
-)
+
 
 setup_logging(
     log_level=getattr(settings, "LOG_LEVEL", "INFO"),
@@ -46,7 +44,6 @@ app = FastAPI(
 
 # Include routers
 app.include_router(attack_router, prefix=settings.API_PREFIX)
-app.include_router(critical_router, prefix=settings.API_PREFIX)
 
 
 @app.get("/")
