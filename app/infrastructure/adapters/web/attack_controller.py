@@ -15,6 +15,8 @@ from app.infrastructure.adapters.web.dto import (
     CreateAttackRequestDTO,
     UpdateAttackModifiersRequestDTO,
     UpdateAttackRollRequestDTO,
+    UpdateCriticalRollRequestDTO,
+    UpdateFumbleRollRequestDTO,
 )
 
 
@@ -173,8 +175,8 @@ async def delete_attack(attack_id: str):
 
 @router.patch(
     "/{attack_id}/roll",
-    summary="Apply attack roll",
-    description="Applies the result of the damage roll to an attack.",
+    summary="Update attack roll",
+    description="Updates the results of the attack from the dice roll.",
     response_model=AttackDTO,
     responses={404: {"model": AttackNotFoundDTO}},
 )
@@ -182,6 +184,76 @@ async def delete_attack(attack_id: str):
 @log_errors
 async def execute_attack_roll(attack_id: str, request: UpdateAttackRollRequestDTO):
     """Applies the result of the damage roll to an attack."""
+
+    logger.info(f"Executing roll for attack {attack_id}: {request}")
+    try:
+        command = request.to_command(attack_id=attack_id)
+        command.validate()
+        use_case = container.get_update_attack_roll_use_case()
+        attack = await use_case.execute(command=command)
+        logger.info(f"Successfully executed roll for attack {attack_id}: {attack_id}")
+        return AttackDTO.from_entity(attack)
+
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.warning(
+            f"Validation error executing roll for attack {attack_id}: {str(e)}"
+        )
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error executing roll for attack {attack_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@router.patch(
+    "/{attack_id}/critical-roll",
+    summary="Update critical roll",
+    description="Updates the results of the attack from the critical dice roll.",
+    response_model=AttackDTO,
+    responses={404: {"model": AttackNotFoundDTO}},
+)
+@log_endpoint
+@log_errors
+async def execute_attack_critical_roll(
+    attack_id: str, request: UpdateCriticalRollRequestDTO
+):
+    """Applies the result of the critical damage roll to an attack."""
+
+    logger.info(f"Executing roll for attack {attack_id}: {request}")
+    try:
+        command = request.to_command(attack_id=attack_id)
+        command.validate()
+        use_case = container.get_update_attack_roll_use_case()
+        attack = await use_case.execute(command=command)
+        logger.info(f"Successfully executed roll for attack {attack_id}: {attack_id}")
+        return AttackDTO.from_entity(attack)
+
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.warning(
+            f"Validation error executing roll for attack {attack_id}: {str(e)}"
+        )
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error executing roll for attack {attack_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@router.patch(
+    "/{attack_id}/fumble-roll",
+    summary="Update fumble roll",
+    description="Updates the results of the attack from the fumble dice roll.",
+    response_model=AttackDTO,
+    responses={404: {"model": AttackNotFoundDTO}},
+)
+@log_endpoint
+@log_errors
+async def execute_attack_fumble_roll(
+    attack_id: str, request: UpdateFumbleRollRequestDTO
+):
+    """Applies the result of the fumble damage roll to an attack."""
 
     logger.info(f"Executing roll for attack {attack_id}: {request}")
     try:

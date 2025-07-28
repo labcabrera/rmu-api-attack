@@ -85,5 +85,4 @@ async def health_check():
             if "@" in settings.MONGODB_URL
             else settings.MONGODB_URL
         ),
-        "architecture": "hexagonal",
     }

@@ -13,6 +13,8 @@ from .errors_dto import AttackNotFoundDTO
 from .pagination_dto import PaginationDTO, PagedAttacksDTO
 from .update_attack_modifiers_request_dto import UpdateAttackModifiersRequestDTO
 from .update_attack_roll_request_dto import UpdateAttackRollRequestDTO
+from .update_critical_roll_request_dto import UpdateCriticalRollRequestDTO
+from .update_fumble_roll_request_dto import UpdateFumbleRollRequestDTO
 
 __all__ = [
     "AttackBonusEntryDTO",
@@ -31,4 +33,6 @@ __all__ = [
     "PagedAttacksDTO",
     "UpdateAttackModifiersRequestDTO",
     "UpdateAttackRollRequestDTO",
+    "UpdateCriticalRollRequestDTO",
+    "UpdateFumbleRollRequestDTO",
 ]
