@@ -251,7 +251,12 @@ The main entity of the domain is the Attack which has the following structure:
         "criticalSeverityTotal": -1
     },
     "results": {
-        "attackTableEntry": null
+        "attackTableEntry": {
+            "literal": "14CS",
+            "damage": 14,
+            "criticalType": "S",
+            "criticalSeverity": "C"
+        }
     }
 }
 ----
