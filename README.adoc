@@ -78,85 +78,94 @@ The main entity of the domain is the Attack which has the following structure:
 [source,json]
 ----
 {
-    "id": "attack_001",
-    "actionId": "action_001",
-    "status": "draft",
-    "modifiers":{
-        "attackType": "melee",
-        "rollModifiers": {
-            "bo": 80,
-            "boInjuryPenalty": -10,
-            "boActionPointsPenalty": -5,
-            "boPacePenalty": 0,
-            "boFatiguePenalty": -1,
-            "bd": 20,
-            "rangePenalty": 0,
-            "parry": 20,
-            "custom": 20,
-        },
-        "calledShot": {
-            "calledShot": "head",
-            "calledShotAT": 5
-        },
-        "situations": {
-            "sizeDiference": 0,
-            "disabledDb": false,
-            "higherGround": true,
-            "surprised": false,
-            "proneAttacker": false,
-            "proneDefender": false,
-            "restrictedQuarters": "none",
-            "positionalAttacker": "none",
-            "positionalDefender": "none",
-            "rangedAttackInMelee": false,
-            "range": 10,
-            "flyingDefenseBonus": false,
-            "cover": "partial",
-            "canUseShield": true,
-            "dodge": "partial"
-        },
-        "features": [
-            {
-                "name": "slaying-attack",
-                "value": "1"
-            }
-        ],
-        "skills": [
-            {
-                "name": "foo",
-                "value": 10
+    "content": [
+        {
+            "id": "6885f67513eb1407a5e406f9",
+            "actionId": "action_001",
+            "sourceId": "character_001",
+            "targetId": "character_002",
+            "status": "draft",
+            "modifiers": {
+                "attackType": "melee",
+                "attackTable": "arming-sword",
+                "attackSize": "medium",
+                "at": 5,
+                "actionPoints": 3,
+                "fumble": 2,
+                "rollModifiers": {
+                    "bo": 50,
+                    "bd": -20,
+                    "injuryPenalty": -1,
+                    "pacePenalty": -20,
+                    "fatiguePenalty": -4,
+                    "rangePenalty": -5,
+                    "shield": -15,
+                    "parry": -6,
+                    "customBonus": 42
+                },
+                "situationalModifiers": {
+                    "cover": "soft_partial",
+                    "restrictedQuarters": "close",
+                    "positionalSource": "to_flank",
+                    "positionalTarget": "flank",
+                    "dodge": "none",
+                    "disabledDB": false,
+                    "disabledShield": false,
+                    "disabledParry": false,
+                    "sizeDifference": -1,
+                    "offHand": false,
+                    "twoHandedWeapon": true,
+                    "higherGround": false,
+                    "sourceStatus": [
+                        "melee"
+                    ],
+                    "targetStatus": [
+                        "melee",
+                        "prone",
+                        "stunned",
+                        "surprised"
+                    ]
+                },
+                "features": [
+                    {
+                        "key": "foo",
+                        "value": "foo-value"
+                    }
+                ],
+                "sourceSkills": [
+                    {
+                        "skillId": "reverse-strike",
+                        "bonus": 12
+                    },
+                    {
+                        "skillId": "footwork",
+                        "bonus": 10
+                    },
+                    {
+                        "skillId": "restricted-quarters",
+                        "bonus": 10
+                    }
+                ]
             },
-            {
-                "name": "bar",
-                "value": 5
-            }
-        ]
-    },
-    "calculated": {
-        "boModifiers": [
-            {
-                "name": "foo",
-                "value": 80
+            "roll": {
+                "roll": 1
             },
-            {
-                "name": "var",
-                "value": -20
+            "calculated": {
+                "rollModifiers": [],
+                "criticalModifiers": [],
+                "criticalSeverityModifiers": [],
+                "rollTotal": 0,
+                "criticalTotal": 0,
+                "criticalSeverityTotal": 0
             },
-        ],
-        "totalBo": 60
-    },
-    "roll": {
-        "roll": 15
-    },
-    "result": {
-        "labelResult": "8AT",
-        "hitPoints": 8,
-        "criticals": [
-            {
-                "id": "crit_001",
-                "status": "applied"
-            }
-        ]
+            "results": null
+        }
+    ],
+    "pagination": {
+        "page": 0,
+        "size": 10,
+        "totalElements": 1,
+        "totalPages": 1
     }
 }
 ----
