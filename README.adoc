@@ -78,94 +78,180 @@ The main entity of the domain is the Attack which has the following structure:
 [source,json]
 ----
 {
-    "content": [
-        {
-            "id": "6885f67513eb1407a5e406f9",
-            "actionId": "action_001",
-            "sourceId": "character_001",
-            "targetId": "character_002",
-            "status": "draft",
-            "modifiers": {
-                "attackType": "melee",
-                "attackTable": "arming-sword",
-                "attackSize": "medium",
-                "at": 5,
-                "actionPoints": 3,
-                "fumble": 2,
-                "rollModifiers": {
-                    "bo": 50,
-                    "bd": -20,
-                    "injuryPenalty": -1,
-                    "pacePenalty": -20,
-                    "fatiguePenalty": -4,
-                    "rangePenalty": -5,
-                    "shield": -15,
-                    "parry": -6,
-                    "customBonus": 42
-                },
-                "situationalModifiers": {
-                    "cover": "soft_partial",
-                    "restrictedQuarters": "close",
-                    "positionalSource": "to_flank",
-                    "positionalTarget": "flank",
-                    "dodge": "none",
-                    "disabledDB": false,
-                    "disabledShield": false,
-                    "disabledParry": false,
-                    "sizeDifference": -1,
-                    "offHand": false,
-                    "twoHandedWeapon": true,
-                    "higherGround": false,
-                    "sourceStatus": [
-                        "melee"
-                    ],
-                    "targetStatus": [
-                        "melee",
-                        "prone",
-                        "stunned",
-                        "surprised"
-                    ]
-                },
-                "features": [
-                    {
-                        "key": "foo",
-                        "value": "foo-value"
-                    }
-                ],
-                "sourceSkills": [
-                    {
-                        "skillId": "reverse-strike",
-                        "bonus": 12
-                    },
-                    {
-                        "skillId": "footwork",
-                        "bonus": 10
-                    },
-                    {
-                        "skillId": "restricted-quarters",
-                        "bonus": 10
-                    }
-                ]
+    "id": "6886d5ff30491b92ef3ab03f",
+    "actionId": "action_001",
+    "sourceId": "character_001",
+    "targetId": "character_002",
+    "status": "failed",
+    "modifiers": {
+        "attackType": "melee",
+        "attackTable": "arming-sword",
+        "attackSize": "medium",
+        "at": 5,
+        "actionPoints": 3,
+        "fumble": 2,
+        "rollModifiers": {
+            "bo": 50,
+            "bd": -20,
+            "injuryPenalty": -1,
+            "pacePenalty": -20,
+            "fatiguePenalty": -4,
+            "rangePenalty": -5,
+            "shield": -15,
+            "parry": -6,
+            "customBonus": 42
+        },
+        "situationalModifiers": {
+            "cover": "soft_partial",
+            "restrictedQuarters": "close",
+            "positionalSource": "to_flank",
+            "positionalTarget": "flank",
+            "dodge": "none",
+            "disabledDB": false,
+            "disabledShield": false,
+            "disabledParry": false,
+            "sizeDifference": -1,
+            "offHand": false,
+            "twoHandedWeapon": true,
+            "higherGround": false,
+            "sourceStatus": [
+                "melee"
+            ],
+            "targetStatus": [
+                "melee",
+                "prone",
+                "stunned",
+                "surprised"
+            ]
+        },
+        "features": [
+            {
+                "key": "slaying-attack",
+                "value": "i"
+            }
+        ],
+        "sourceSkills": [
+            {
+                "skillId": "reverse-strike",
+                "bonus": 12
             },
-            "roll": {
-                "roll": 1
+            {
+                "skillId": "footwork",
+                "bonus": 10
             },
-            "calculated": {
-                "rollModifiers": [],
-                "criticalModifiers": [],
-                "criticalSeverityModifiers": [],
-                "rollTotal": 0,
-                "criticalTotal": 0,
-                "criticalSeverityTotal": 0
+            {
+                "skillId": "restricted-quarters",
+                "bonus": 10
+            }
+        ]
+    },
+    "roll": {
+        "roll": 55
+    },
+    "calculated": {
+        "rollModifiers": [
+            {
+                "key": "roll",
+                "value": 55
             },
-            "results": null
-        }
-    ],
-    "pagination": {
-        "page": 0,
-        "size": 10,
-        "totalElements": 1,
-        "totalPages": 1
+            {
+                "key": "bo",
+                "value": 50
+            },
+            {
+                "key": "injury-penalty",
+                "value": -1
+            },
+            {
+                "key": "fatigue-penalty",
+                "value": -4
+            },
+            {
+                "key": "pace-penalty",
+                "value": -20
+            },
+            {
+                "key": "pace-penalty-skill-footwork",
+                "value": 10
+            },
+            {
+                "key": "range-penalty",
+                "value": -5
+            },
+            {
+                "key": "bd",
+                "value": -20
+            },
+            {
+                "key": "shield",
+                "value": -15
+            },
+            {
+                "key": "parry",
+                "value": -6
+            },
+            {
+                "key": "custom-bonus",
+                "value": 42
+            },
+            {
+                "key": "restricted-quarters",
+                "value": -25
+            },
+            {
+                "key": "restricted-quarters-skill-restricted-quarters",
+                "value": 10
+            },
+            {
+                "key": "stunned-target",
+                "value": 20
+            },
+            {
+                "key": "surprised-target",
+                "value": 25
+            },
+            {
+                "key": "prone-target",
+                "value": 30
+            },
+            {
+                "key": "two-handed-weapon",
+                "value": 10
+            },
+            {
+                "key": "positional-source",
+                "value": -30
+            },
+            {
+                "key": "positional-source-skill-reverse-strike",
+                "value": 12
+            },
+            {
+                "key": "positional-target",
+                "value": 15
+            },
+            {
+                "key": "cover",
+                "value": -10
+            },
+            {
+                "key": "size-bonus",
+                "value": -5
+            }
+        ],
+        "criticalModifiers": [],
+        "criticalSeverityModifiers": [
+            {
+                "key": "size-difference",
+                "value": -1
+            }
+        ],
+        "rollTotal": 138,
+        "criticalTotal": 0,
+        "criticalSeverityTotal": -1
+    },
+    "results": {
+        "attackTableEntry": null
     }
 }
 ----
