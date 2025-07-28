@@ -74,7 +74,7 @@ class TestAttackDTOConversions:
                 attack_table_entry=AttackTableEntry(
                     roll=85,
                     at=50,
-                    literal="15 hits",
+                    text="15 hits",
                     damage=15,
                     criticalType="Slash",
                     criticalSeverity="A",
@@ -101,7 +101,7 @@ class TestAttackDTOConversions:
         assert attack_dto.results.attackTableEntry is not None
         assert attack_dto.results.attackTableEntry.roll == 85
         assert attack_dto.results.attackTableEntry.at == 50
-        assert attack_dto.results.attackTableEntry.literal == "15 hits"
+        assert attack_dto.results.attackTableEntry.text == "15 hits"
         assert attack_dto.results.attackTableEntry.damage == 15
         assert attack_dto.results.attackTableEntry.criticalType == "Slash"
         assert attack_dto.results.attackTableEntry.criticalSeverity == "A"

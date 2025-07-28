@@ -4,6 +4,7 @@ Domain entities for the RMU Attack system.
 
 from typing import Optional
 from dataclasses import dataclass
+
 from .attack_table import AttackTableEntry
 from .enums import (
     AttackStatus,
@@ -14,6 +15,7 @@ from .enums import (
     PositionalTarget,
     RestrictedQuarters,
 )
+from .critical import AttackCriticalResult
 
 
 @dataclass
@@ -130,43 +132,9 @@ class AttackCalculations:
 class AttackRoll:
     """Attack roll data"""
 
-    roll: int
-
-
-class StatusResult:
-    """Status result data"""
-
-    status: str
-    rounds: int = -1
-    value: int = 0
-    modifier: str = None
-
-
-@dataclass
-class AttackCriticalEffect:
-    """Critical effect data"""
-
-    status: str = None
-    rounds: int = 0
-    value: int = 0
-    delay: int = 0
-
-
-@dataclass
-class AttackCriticalResult:
-    """Critical result data"""
-
-    key: str = None
-    criticalType: Optional[str] = None
-    criticalSeverity: Optional[str] = None
-    effects: list[AttackCriticalEffect] = None
     roll: Optional[int] = None
-    adjusted_roll: Optional[int] = None
-
-
-class AttackResultEffects:
-
-    text: Optional[str] = None
+    fumbleRoll: Optional[int] = None
+    criticalRolls: dict[str, int] = None
 
 
 @dataclass

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 @dataclass
 class AttackTableEntry:
 
-    literal: str
+    text: str
     damage: int
     criticalType: Optional[str] = None
     criticalSeverity: Optional[str] = None

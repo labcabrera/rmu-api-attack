@@ -51,7 +51,7 @@ class AttackTableRestAdapter(AttackTableClient):
             logger.debug(f"Received response: {response}")
             json = response.json()
             entry = AttackTableEntry(
-                literal=json.get("literal", ""),
+                text=json.get("text", ""),
                 damage=json.get("damage", 0),
                 criticalType=json.get("criticalType", None),
                 criticalSeverity=json.get("criticalSeverity", None),

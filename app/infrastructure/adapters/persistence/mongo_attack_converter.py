@@ -16,7 +16,7 @@ from app.domain.entities import (
     AttackBonusEntry,
     AttackSituationalModifiers,
     AttackTableEntry,
-    AttackCriticalResult,
+    CriticalTableEntry,
     AttackFeature,
     AttackSkill,
 )
@@ -128,7 +128,7 @@ class MongoAttackConverter:
 
             if attack.results.attack_table_entry:
                 results_dict["attackTableEntry"] = {
-                    "literal": attack.results.attack_table_entry.literal,
+                    "text": attack.results.attack_table_entry.text,
                     "damage": attack.results.attack_table_entry.damage,
                     "criticalType": attack.results.attack_table_entry.criticalType,
                     "criticalSeverity": attack.results.attack_table_entry.criticalSeverity,
@@ -259,7 +259,7 @@ class MongoAttackConverter:
             results_data = attack_dict["results"]
             criticals = []
             for c_data in results_data.get("criticals", []):
-                critical = AttackCriticalResult(
+                critical = CriticalTableEntry(
                     id=c_data["id"],
                     type=c_data.get("type", "unknown"),
                     roll=c_data.get("roll", 0),
@@ -273,7 +273,7 @@ class MongoAttackConverter:
             if results_data.get("attackTableEntry"):
                 entry_data = results_data["attackTableEntry"]
                 attack_table_entry = AttackTableEntry(
-                    literal=entry_data["literal"],
+                    text=entry_data["text"],
                     damage=entry_data["damage"],
                     criticalType=entry_data.get("criticalType"),
                     criticalSeverity=entry_data.get("criticalSeverity"),

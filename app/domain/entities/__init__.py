@@ -8,11 +8,11 @@ from .attack import (
     AttackCalculations,
     AttackBonusEntry,
     AttackTableEntry,
-    AttackCriticalResult,
     AttackFeature,
     AttackSkill,
     AttackFumbleResult,
 )
+from .critical import CriticalEffect, CriticalTableEntry, AttackCriticalResult
 from .enums import AttackStatus, AttackType
 from .page import Page, Pagination
 
@@ -31,8 +31,11 @@ __all__ = [
     "Page",
     "Pagination",
     "AttackTableEntry",
-    "AttackCriticalResult",
+    "CriticalTableEntry",
     "AttackFeature",
     "AttackSkill",
     "AttackFumbleResult",
+    "CriticalEffect",
+    "CriticalTableEntry",
+    "AttackCriticalResult",
 ]
