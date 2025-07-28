@@ -1,10 +1,12 @@
-from .attack.apply_attack_use_case import ApplyAttackUseCase
-from .attack.create_attack_use_case import CreateAttackUseCase
-from .attack.delete_attack_use_case import DeleteAttackUseCase
-from .attack.search_attacks_by_rsql_use_case import SearchAttacksByRsqlUseCase
-from .attack.search_attack_by_id_use_case import SearchAttackByIdUseCase
-from .attack.update_attack_modifiers_use_case import UpdateAttackModifiersUseCase
-from .attack.update_attack_roll_use_case import UpdateAttackRollUseCase
+from .apply_attack_use_case import ApplyAttackUseCase
+from .create_attack_use_case import CreateAttackUseCase
+from .delete_attack_use_case import DeleteAttackUseCase
+from .search_attacks_by_rsql_use_case import SearchAttacksByRsqlUseCase
+from .search_attack_by_id_use_case import SearchAttackByIdUseCase
+from .update_attack_modifiers_use_case import UpdateAttackModifiersUseCase
+from .update_attack_roll_use_case import UpdateAttackRollUseCase
+from .update_critical_roll_use_case import UpdateCriticalRollUseCase
+from .update_fumble_roll_use_case import UpdateFumbleRollUseCase
 
 __all__ = [
     "ApplyAttackUseCase",
@@ -15,4 +17,6 @@ __all__ = [
     "GetAttackUseCase",
     "UpdateAttackModifiersUseCase",
     "UpdateAttackRollUseCase",
+    "UpdateCriticalRollUseCase",
+    "UpdateFumbleRollUseCase",
 ]
