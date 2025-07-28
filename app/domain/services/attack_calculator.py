@@ -10,7 +10,7 @@ from app.domain.entities import (
     AttackResult,
     AttackCriticalResult
 )
-from app.domain.entities.enums import AttackStatus, Cover, PositionalSource, PositionalTarget, RestrictedQuarters
+from app.domain.entities.enums import AttackStatus, Cover, CriticalStatus, PositionalSource, PositionalTarget, RestrictedQuarters
 
 from app.domain.ports.attack_ports import AttackNotificationPort
 from app.domain.ports.attack_table_port import AttackTableClient
@@ -305,13 +305,18 @@ class AttackCalculator:
             "I": ["E", "C", "A"],
             "J": ["J", "C", "B"],
         }
+        if attack.results.attack_table_entry.critical_severity not in critical_severity_map:
+            raise ValueError(
+                f"Invalid critical severity: {attack.results.attack_table_entry.critical_severity}"
+            )
         severity_list = critical_severity_map.get(attack.results.attack_table_entry.critical_severity, [])
         attack.results.criticals = [
             AttackCriticalResult(
                 critical_type=attack.results.attack_table_entry.critical_type,
                 critical_severity=severity,
-                status="pending"
+                status=CriticalStatus.PENDING,
             ) for severity in severity_list
         ]
+        # TODO check additional critical features
         for idx, critical in enumerate(attack.results.criticals):
-            critical.key = f"{critical.critical_type}_{critical.critical_severity}_{idx}"
+            critical.key = f"{critical.critical_type}_{critical.critical_severity}_{idx+1}".lower()

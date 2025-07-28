@@ -19,6 +19,26 @@ class AttackStatus(Enum):
     PENDING_FUMBLE_ROLL = "pending_fumble_roll"
 
 
+class CriticalStatus(Enum):
+    """Critical status enumeration"""
+
+    PENDING = "pending"
+    ROLLED = "rolled"
+    FAILED = "failed"
+
+    @classmethod
+    def from_value(cls, value: Union[str, "CriticalStatus"]) -> "CriticalStatus":
+        if not value:
+            return None
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            for i in cls:
+                if i.value == value:
+                    return i
+        raise TypeError(f"Invalid CriticalStatus value: {value}")
+
+
 class AttackSize(Enum):
     """Attack size enumeration"""
 

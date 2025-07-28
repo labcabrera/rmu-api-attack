@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from app.domain.entities.enums import CriticalStatus
+
 
 @dataclass
 class CriticalEffect:
@@ -27,7 +29,7 @@ class AttackCriticalResult:
     """Critical result data"""
 
     key: str = None
-    status: str = None
+    status: CriticalStatus = None
     critical_type: Optional[str] = None
     critical_severity: Optional[str] = None
     adjusted_roll: Optional[int] = None

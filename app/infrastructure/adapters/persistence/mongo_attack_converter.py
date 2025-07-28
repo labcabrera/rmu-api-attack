@@ -16,14 +16,15 @@ from app.domain.entities import (
     AttackBonusEntry,
     AttackSituationalModifiers,
     AttackTableEntry,
-    CriticalTableEntry,
     AttackFeature,
     AttackSkill,
+    AttackCriticalResult,
 )
 from app.domain.entities.enums import (
     AttackStatus,
     AttackType,
     Cover,
+    CriticalStatus,
     PositionalSource,
     PositionalTarget,
     RestrictedQuarters,
@@ -124,17 +125,9 @@ class MongoAttackConverter:
 
         # Handle results conversion
         if attack.results:
-            results_dict = {}
-
-            if attack.results.attack_table_entry:
-                results_dict["attackTableEntry"] = {
-                    "text": attack.results.attack_table_entry.text,
-                    "damage": attack.results.attack_table_entry.damage,
-                    "criticalType": attack.results.attack_table_entry.critical_type,
-                    "criticalSeverity": attack.results.attack_table_entry.critical_severity,
-                }
-
-            attack_dict["results"] = results_dict
+            attack_dict["results"] = MongoAttackConverter.attack_result_to_dict(
+                attack.results
+            )
         else:
             attack_dict["results"] = None
 
@@ -251,25 +244,8 @@ class MongoAttackConverter:
 
         results = None
         if attack_dict.get("results"):
-            results_data = attack_dict["results"]
-            criticals = []
-
-        results = None
-        if attack_dict.get("results"):
-            results_data = attack_dict["results"]
-            criticals = []
-            for c_data in results_data.get("criticals", []):
-                critical = CriticalTableEntry(
-                    id=c_data["id"],
-                    type=c_data.get("type", "unknown"),
-                    roll=c_data.get("roll", 0),
-                    result=c_data.get("result", ""),
-                    status=c_data["status"],
-                )
-                criticals.append(critical)
-
-            # Handle attack table entry conversion
             attack_table_entry = None
+            results_data = attack_dict["results"]
             if results_data.get("attackTableEntry"):
                 entry_data = results_data["attackTableEntry"]
                 attack_table_entry = AttackTableEntry(
@@ -279,8 +255,21 @@ class MongoAttackConverter:
                     critical_severity=entry_data.get("criticalSeverity"),
                 )
 
-            results = AttackResult()
-            results.attack_table_entry = attack_table_entry
+            criticals = []
+            for c_data in results_data.get("criticals", []):
+                critical = AttackCriticalResult(
+                    key=c_data["key"],
+                    status=CriticalStatus.from_value(c_data["status"]),
+                    critical_type=c_data.get("type", "unknown"),
+                    critical_severity=c_data.get("criticalSeverity", None),
+                    adjusted_roll=c_data.get("adjustedRoll", 0),
+                    # result=c_data.get("result", ""),
+                )
+                criticals.append(critical)
+            results = AttackResult(
+                attack_table_entry=attack_table_entry,
+                criticals=criticals,
+            )
 
         if not "status" in attack_dict:
             raise ValueError("Attack dictionary must contain 'status' field")
@@ -301,3 +290,44 @@ class MongoAttackConverter:
             calculated=calculated,
             results=results,
         )
+
+    @staticmethod
+    def attack_result_to_dict(attack_result: AttackResult) -> Dict[str, Any]:
+        """Convert AttackResult domain entity to dictionary for MongoDB"""
+        result_dict = {}
+        if attack_result.attack_table_entry:
+            result_dict["attackTableEntry"] = {
+                "text": attack_result.attack_table_entry.text,
+                "damage": attack_result.attack_table_entry.damage,
+                "criticalType": attack_result.attack_table_entry.critical_type,
+                "criticalSeverity": attack_result.attack_table_entry.critical_severity,
+            }
+        if attack_result.criticals:
+            result_dict["criticals"] = [
+                {
+                    "key": critical.key,
+                    "status": critical.status.value,
+                    "type": critical.critical_type,
+                    "criticalSeverity": critical.critical_severity,
+                    "adjustedRoll": critical.adjusted_roll,
+                    "result": (
+                        {
+                            "text": (
+                                critical.result.text
+                                if hasattr(critical, "result")
+                                else None
+                            ),
+                        }
+                        if critical.result
+                        else None
+                    ),
+                }
+                for critical in attack_result.criticals
+            ]
+        if attack_result.fumble:
+            result_dict["fumble"] = {
+                "status": attack_result.fumble.status,
+                "roll": attack_result.fumble.roll,
+                "text": attack_result.fumble.text,
+            }
+        return result_dict
