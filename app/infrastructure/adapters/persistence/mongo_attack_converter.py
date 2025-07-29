@@ -97,7 +97,11 @@ class MongoAttackConverter:
 
         # Handle roll conversion
         if attack.roll:
-            attack_dict["roll"] = {"roll": attack.roll.roll}
+            attack_dict["roll"] = {
+                "roll": attack.roll.roll,
+                "criticalRolls": attack.roll.critical_rolls or None,
+                "fumbleRoll": attack.roll.fumble_roll or None,
+            }
         else:
             attack_dict["roll"] = None
 
@@ -201,7 +205,12 @@ class MongoAttackConverter:
 
         roll = None
         if attack_dict.get("roll"):
-            roll = AttackRoll(roll=attack_dict["roll"]["roll"])
+
+            roll = AttackRoll(
+                roll=attack_dict["roll"]["roll"],
+                critical_rolls=attack_dict["roll"].get("criticalRolls", None),
+                fumble_roll=attack_dict["roll"].get("fumbleRoll", None),
+            )
 
         # Handle calculated conversion
         calculated = None

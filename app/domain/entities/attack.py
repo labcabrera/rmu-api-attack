@@ -133,8 +133,8 @@ class AttackRoll:
     """Attack roll data"""
 
     roll: Optional[int] = None
-    fumbleRoll: Optional[int] = None
-    criticalRolls: dict[str, int] = None
+    critical_rolls: dict[str, int] = None
+    fumble_roll: Optional[int] = None
 
 
 @dataclass
@@ -152,6 +152,14 @@ class AttackResult:
     attack_table_entry: Optional[AttackTableEntry] = None
     criticals: list[AttackCriticalResult] = None
     fumble: Optional[AttackFumbleResult] = None
+
+    def get_critical_by_key(self, key: str) -> Optional[AttackCriticalResult]:
+        """Get critical result by key"""
+        if self.criticals:
+            for critical in self.criticals:
+                if critical.key == key:
+                    return critical
+        return None
 
 
 @dataclass
