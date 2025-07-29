@@ -9,9 +9,10 @@ class CriticalEffect:
     """Critical effect data"""
 
     status: str = None
-    rounds: int = 0
-    value: int = 0
-    delay: int = 0
+    rounds: Optional[int] = 0
+    value: Optional[int] = 0
+    delay: Optional[int] = 0
+    condition: Optional[str] = None
 
 
 @dataclass

@@ -9,6 +9,7 @@ from .attack_roll_modifiers_dto import AttackRollModifiersDTO
 from .attack_situational_modifiers_dto import AttackSituationalModifiersDTO
 from .attack_table_entry_dto import AttackTableEntryDTO
 from .create_attack_request_dto import CreateAttackRequestDTO
+from .critical_effect_dto import CriticalEffectDTO
 from .errors_dto import AttackNotFoundDTO
 from .pagination_dto import PaginationDTO, PagedAttacksDTO
 from .update_attack_modifiers_request_dto import UpdateAttackModifiersRequestDTO
@@ -28,6 +29,7 @@ __all__ = [
     "AttackSituationalModifiersDTO",
     "AttackTableEntryDTO",
     "CreateAttackRequestDTO",
+    "CriticalEffectDTO",
     "AttackNotFoundDTO",
     "PaginationDTO",
     "PagedAttacksDTO",

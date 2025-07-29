@@ -19,6 +19,8 @@ from app.domain.entities import (
     AttackFeature,
     AttackSkill,
     AttackCriticalResult,
+    CriticalTableEntry,
+    CriticalEffect,
 )
 from app.domain.entities.enums import (
     AttackStatus,
@@ -251,34 +253,7 @@ class MongoAttackConverter:
                 critical_severity_total=calculated_data.get("criticalSeverityTotal", 0),
             )
 
-        results = None
-        if attack_dict.get("results"):
-            attack_table_entry = None
-            results_data = attack_dict["results"]
-            if results_data.get("attackTableEntry"):
-                entry_data = results_data["attackTableEntry"]
-                attack_table_entry = AttackTableEntry(
-                    text=entry_data["text"],
-                    damage=entry_data["damage"],
-                    critical_type=entry_data.get("criticalType"),
-                    critical_severity=entry_data.get("criticalSeverity"),
-                )
-
-            criticals = []
-            for c_data in results_data.get("criticals", []):
-                critical = AttackCriticalResult(
-                    key=c_data["key"],
-                    status=CriticalStatus.from_value(c_data["status"]),
-                    critical_type=c_data.get("type", "unknown"),
-                    critical_severity=c_data.get("criticalSeverity", None),
-                    adjusted_roll=c_data.get("adjustedRoll", 0),
-                    # result=c_data.get("result", ""),
-                )
-                criticals.append(critical)
-            results = AttackResult(
-                attack_table_entry=attack_table_entry,
-                criticals=criticals,
-            )
+        results = MongoAttackConverter.dict_to_attack_result(attack_dict)
 
         if not "status" in attack_dict:
             raise ValueError("Attack dictionary must contain 'status' field")
@@ -312,27 +287,43 @@ class MongoAttackConverter:
                 "criticalSeverity": attack_result.attack_table_entry.critical_severity,
             }
         if attack_result.criticals:
-            result_dict["criticals"] = [
-                {
-                    "key": critical.key,
-                    "status": critical.status.value,
-                    "type": critical.critical_type,
-                    "criticalSeverity": critical.critical_severity,
-                    "adjustedRoll": critical.adjusted_roll,
-                    "result": (
-                        {
-                            "text": (
-                                critical.result.text
-                                if hasattr(critical, "result")
-                                else None
-                            ),
-                        }
-                        if critical.result
-                        else None
-                    ),
-                }
-                for critical in attack_result.criticals
-            ]
+            criticals = []
+            for c in attack_result.criticals:
+                critical_effects = None
+                if c.result and c.result.effects:
+                    critical_effects = []
+                    for effect in c.result.effects:
+                        critical_effects.append(
+                            {
+                                "status": effect.status,
+                                "rounds": effect.rounds,
+                                "value": effect.value,
+                                "delay": effect.delay,
+                                "condition": effect.condition,
+                            }
+                        )
+                critical_result = (
+                    {
+                        "text": c.result.text,
+                        "damage": c.result.damage,
+                        "location": c.result.location,
+                        "effects": critical_effects,
+                    }
+                    if c.result
+                    else None
+                )
+                criticals.append(
+                    {
+                        "key": c.key,
+                        "status": c.status.value,
+                        "type": c.critical_type,
+                        "criticalSeverity": c.critical_severity,
+                        "adjustedRoll": c.adjusted_roll,
+                        "result": critical_result,
+                    }
+                )
+            result_dict["criticals"] = criticals
+
         if attack_result.fumble:
             result_dict["fumble"] = {
                 "status": attack_result.fumble.status,
@@ -340,3 +331,58 @@ class MongoAttackConverter:
                 "text": attack_result.fumble.text,
             }
         return result_dict
+
+    @staticmethod
+    def dict_to_attack_result(dict: Dict[str, Any]) -> Optional[AttackResult]:
+        results = None
+        if dict.get("results"):
+            attack_table_entry = None
+            results_data = dict["results"]
+            if results_data.get("attackTableEntry"):
+                entry_data = results_data["attackTableEntry"]
+                attack_table_entry = AttackTableEntry(
+                    text=entry_data["text"],
+                    damage=entry_data["damage"],
+                    critical_type=entry_data.get("criticalType"),
+                    critical_severity=entry_data.get("criticalSeverity"),
+                )
+
+            criticals = []
+            for c_data in results_data.get("criticals", []):
+                critical_result = None
+                if c_data.get("result"):
+                    critical_effects = None
+                    if c_data["result"].get("effects"):
+                        critical_effects = []
+                        for effect in c_data["result"]["effects"]:
+                            critical_effects.append(
+                                CriticalEffect(
+                                    status=effect.get("status"),
+                                    rounds=effect.get("rounds", None),
+                                    value=effect.get("value", None),
+                                    delay=effect.get("delay", None),
+                                    condition=effect.get("condition", None),
+                                )
+                            )
+
+                    critical_result = CriticalTableEntry(
+                        text=c_data.get("result").get("text", None),
+                        damage=c_data.get("result").get("damage", None),
+                        location=c_data.get("result").get("location", None),
+                        effects=critical_effects,
+                    )
+
+                critical = AttackCriticalResult(
+                    key=c_data["key"],
+                    status=CriticalStatus.from_value(c_data["status"]),
+                    critical_type=c_data.get("type", "unknown"),
+                    critical_severity=c_data.get("criticalSeverity", None),
+                    adjusted_roll=c_data.get("adjustedRoll", 0),
+                    result=critical_result,
+                )
+                criticals.append(critical)
+            results = AttackResult(
+                attack_table_entry=attack_table_entry,
+                criticals=criticals,
+            )
+        return results

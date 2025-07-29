@@ -8,7 +8,7 @@ from logging import critical
 from typing import Optional
 import httpx
 
-from app.domain.entities import AttackTableEntry, CriticalTableEntry
+from app.domain.entities import AttackTableEntry, CriticalTableEntry, CriticalEffect
 from app.domain.ports.attack_table_port import AttackTableClient
 from app.infrastructure.logging import get_logger
 
@@ -89,10 +89,26 @@ class AttackTableRestAdapter(AttackTableClient):
             response.raise_for_status()
             logger.debug(f"Received response: {response}")
             json = response.json()
+
+            effects = None
+            if json.get("effects"):
+                effects = []
+                for effect in json["effects"]:
+                    effects.append(
+                        CriticalEffect(
+                            status=effect.get("status"),
+                            rounds=effect.get("rounds", None),
+                            value=effect.get("value", None),
+                            delay=effect.get("delay", None),
+                            condition=effect.get("condition", None),
+                        )
+                    )
+
             return CriticalTableEntry(
                 text=json.get("message", ""),
                 damage=json.get("dmg", 0),
                 location=json.get("location", ""),
+                effects=effects,
             )
         except Exception as e:
             logger.error(f"Unexpected error calling attack table API: {str(e)}")
