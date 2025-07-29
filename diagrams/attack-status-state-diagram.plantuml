@@ -1,0 +1,30 @@
+@startuml Attack Status State Diagram
+title Attack Status State Diagram
+
+skinparam state {
+    BackgroundColor #4373b1ff
+    FontColor White
+    BorderColor White
+}
+
+PENDING_ATTACK_ROLL: Created attack with modifiers
+PENDING_CRITICAL_ROLL : Critical hit roll required
+PENDING_FUMBLE_ROLL : Fumble roll required
+PENDING_APPLY : Calculated damage and effects
+APPLIED : Attack successfully applied to tactical module
+
+[*] --> PENDING_ATTACK_ROLL
+
+PENDING_ATTACK_ROLL --> PENDING_APPLY : Normal hit
+PENDING_ATTACK_ROLL --> PENDING_CRITICAL_ROLL : Critical hit
+PENDING_ATTACK_ROLL -> PENDING_FUMBLE_ROLL : Fumble
+
+PENDING_CRITICAL_ROLL --> PENDING_APPLY : Critical roll completed
+
+PENDING_FUMBLE_ROLL --> PENDING_APPLY : Fumble roll completed
+
+PENDING_APPLY --> APPLIED : Apply damage and effects
+
+APPLIED --> [*]
+
+@enduml

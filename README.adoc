@@ -235,6 +235,10 @@ It is divided into the following blocks:
 * *roll*: information on dice rolls applicable to attack or critical rolls.
 * *results*: result of the attack, whether it is an attack with no effect, a damage, a set of critical hits, or a failure.
 
+=== Attack Status
+
+image::diagrams/attack-status-state-diagram.png[Attack Status State Diagram]
+
 == Skills, character combat statuses and attack features
 
 === Source target skills allowed
@@ -282,6 +286,7 @@ It is divided into the following blocks:
 
 == TODO
 
+* Update actions points penalty
 * Called shots
 * Disarm attacks
 * Katas modifiers
