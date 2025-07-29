@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional
-from app.domain.entities.attack_table import AttackTableEntry
+
+from app.domain.entities import AttackTableEntry, CriticalTableEntry
 
 
 class AttackTableClient(ABC):
@@ -8,5 +8,11 @@ class AttackTableClient(ABC):
     @abstractmethod
     async def get_attack_table_entry(
         self, attack_table: str, size: str, roll: int, at: int
-    ) -> Optional[AttackTableEntry]:
+    ) -> AttackTableEntry:
+        pass
+
+    @abstractmethod
+    async def get_critical_table_entry(
+        self, critical_type: str, critical_severity: str, roll: int
+    ) -> CriticalTableEntry:
         pass

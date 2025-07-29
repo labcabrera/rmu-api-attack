@@ -18,7 +18,7 @@ class CriticalEffect:
 class CriticalTableEntry:
     """Critical result data"""
 
-    dmg: int = 0
+    damage: int = 0
     effects: list[CriticalEffect] = None
     location: str = None
     text: str = None

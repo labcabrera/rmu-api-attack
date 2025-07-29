@@ -7,8 +7,9 @@ import asyncio
 from logging import critical
 from typing import Optional
 import httpx
+
+from app.domain.entities import AttackTableEntry, CriticalTableEntry
 from app.domain.ports.attack_table_port import AttackTableClient
-from app.domain.entities.attack_table import AttackTableEntry
 from app.infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
@@ -37,10 +38,9 @@ class AttackTableRestAdapter(AttackTableClient):
 
     async def get_attack_table_entry(
         self, attack_table: str, size: str, roll: int, at: int
-    ) -> Optional[AttackTableEntry]:
+    ) -> AttackTableEntry:
 
         logger.info(f"Fetching attack table entry for roll={roll}, at={at}")
-
         try:
             client = await self._get_client()
             adjusted_roll = min(175, max(roll, 1))
@@ -64,14 +64,40 @@ class AttackTableRestAdapter(AttackTableClient):
                 f"HTTP error calling attack table API: {e.response.status_code} - {e.response.text}"
             )
             raise Exception(f"Attack table API error: {e.response.status_code}")
-
         except httpx.RequestError as e:
             logger.error(f"Network error calling attack table API: {str(e)}")
             raise Exception(f"Network error accessing attack table API: {str(e)}")
-
         except Exception as e:
             logger.error(f"Unexpected error calling attack table API: {str(e)}")
             raise Exception(f"Unexpected error accessing attack table API: {str(e)}")
+
+    async def get_critical_table_entry(
+        self, critical_type: str, critical_severity: str, roll: int
+    ) -> CriticalTableEntry:
+        """
+        Get attack table entry by critical type, critical severity, roll and AT.
+        """
+
+        logger.info(
+            f"Fetching critical {critical_type}-{critical_severity} for roll={roll}"
+        )
+        try:
+            client = await self._get_client()
+            url = f"{self.base_url}/critical-tables/{critical_type}/{critical_severity}/{roll}"
+            logger.debug(f"Making request to {url}")
+            response = await client.get(url)
+            response.raise_for_status()
+            logger.debug(f"Received response: {response}")
+            json = response.json()
+            return CriticalTableEntry(
+                text=json.get("message", ""),
+                damage=json.get("dmg", 0),
+                location=json.get("location", ""),
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error calling attack table API: {str(e)}")
+            raise Exception(f"Unexpected error accessing attack table API: {str(e)}")
+        return None
 
     async def close(self):
         """Close HTTP client connection"""

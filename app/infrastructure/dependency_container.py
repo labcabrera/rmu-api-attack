@@ -112,6 +112,7 @@ class DependencyContainer:
         self._attack_resolution_service = AttackResolutionService(
             attack_calculator=self._attack_calculator,
             attack_repository=self._attack_repository,
+            attack_table_client=self._attack_table_service,
         )
 
         # Initialize Attack use cases

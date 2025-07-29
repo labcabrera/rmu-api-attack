@@ -4,6 +4,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.domain.entities import AttackCriticalResult
 from app.domain.entities.enums import CriticalStatus
 
+from .critical_table_entry_dto import CriticalTableEntryDTO
+
 
 class AttackCriticalResultDTO(BaseModel):
     """DTO for critical hit"""
@@ -13,7 +15,9 @@ class AttackCriticalResultDTO(BaseModel):
     criticalType: Optional[str] = Field(..., description="Type of critical hit")
     criticalSeverity: Optional[str] = Field(..., description="Severity of critical hit")
     adjustedRoll: Optional[int] = Field(None, description="Adjusted roll value")
-    result: Optional[dict] = Field(None, description="Critical result data")
+    result: Optional[CriticalTableEntryDTO] = Field(
+        None, description="Critical result data"
+    )
 
     model_config = ConfigDict(
         json_schema_extra={"example": {"key": "critical_001", "status": "success"}}
@@ -26,7 +30,7 @@ class AttackCriticalResultDTO(BaseModel):
             critical_type=self.criticalType,
             critical_severity=self.criticalSeverity,
             adjusted_roll=self.adjustedRoll,
-            result=self.result,
+            result=self.result.to_entity() if self.result else None,
         )
 
     @classmethod
@@ -37,5 +41,9 @@ class AttackCriticalResultDTO(BaseModel):
             criticalType=entity.critical_type,
             criticalSeverity=entity.critical_severity,
             adjustedRoll=entity.adjusted_roll,
-            result=entity.result,
+            result=(
+                CriticalTableEntryDTO.from_entity(entity.result)
+                if entity.result
+                else None
+            ),
         )
