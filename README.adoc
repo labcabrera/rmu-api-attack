@@ -1,13 +1,16 @@
 = RMU API Attack
 
-REST API for attack management in the RMU system using MongoDB and Hexagonal Architecture.
+REST API for attack management in the Rolemaster Unified system using Python with MongoDB.
 
 WARNING: *This application is an independent project developed by fans of Rolemaster Unified. It is not affiliated with, endorsed by, or licensed by Iron Crown Enterprises (ICE), the owners of the Rolemaster intellectual property.*
 *All Rolemaster trademarks, game systems, and materials are the property of Iron Crown Enterprises. This software is provided for personal, non-commercial use only. If you enjoy Rolemaster, please support the official publications and content from ICE.*
 
 == Description
 
-This API exposes endpoints to manage attack information, including creating, querying, updating, and deleting attacks in the RMU (Rolemaster Unified) system. The API uses MongoDB for persistent data storage and follows Hexagonal Architecture (Ports and Adapters) principles for better separation of concerns, testability, and maintainability.
+This API exposes endpoints to manage attack information, including creating, querying, updating, and deleting attacks according
+to RMU system.
+
+image::diagrams/c4-context.png[API Attack Context System]
 
 == Prerequisites
 
