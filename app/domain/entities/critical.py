@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from app.domain.entities.enums import CriticalStatus
+from app.domain.entities.enums import CriticalStatus, FumbleStatus
 
 
 @dataclass
@@ -35,3 +35,13 @@ class AttackCriticalResult:
     critical_severity: Optional[str] = None
     adjusted_roll: Optional[int] = None
     result: Optional[CriticalTableEntry] = None
+
+
+@dataclass
+class FumbleTableEntry:
+    """Fumble result data"""
+
+    status: FumbleStatus = None
+    text: Optional[str] = None
+    additional_damage_text: Optional[str] = None
+    effects: Optional[list[CriticalEffect]] = None

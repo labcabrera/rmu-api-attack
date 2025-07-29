@@ -8,7 +8,12 @@ from logging import critical
 from typing import Optional
 import httpx
 
-from app.domain.entities import AttackTableEntry, CriticalTableEntry, CriticalEffect
+from app.domain.entities import (
+    AttackTableEntry,
+    CriticalTableEntry,
+    CriticalEffect,
+    FumbleTableEntry,
+)
 from app.domain.ports.attack_table_port import AttackTableClient
 from app.infrastructure.logging import get_logger
 
@@ -58,15 +63,6 @@ class AttackTableRestAdapter(AttackTableClient):
             )
             logger.info(f"Successfully retrieved attack table entry: {entry}")
             return entry
-
-        except httpx.HTTPStatusError as e:
-            logger.error(
-                f"HTTP error calling attack table API: {e.response.status_code} - {e.response.text}"
-            )
-            raise Exception(f"Attack table API error: {e.response.status_code}")
-        except httpx.RequestError as e:
-            logger.error(f"Network error calling attack table API: {str(e)}")
-            raise Exception(f"Network error accessing attack table API: {str(e)}")
         except Exception as e:
             logger.error(f"Unexpected error calling attack table API: {str(e)}")
             raise Exception(f"Unexpected error accessing attack table API: {str(e)}")
@@ -113,7 +109,45 @@ class AttackTableRestAdapter(AttackTableClient):
         except Exception as e:
             logger.error(f"Unexpected error calling attack table API: {str(e)}")
             raise Exception(f"Unexpected error accessing attack table API: {str(e)}")
-        return None
+
+    async def get_fumble_table_entry(
+        self, fumble_table: str, roll: int
+    ) -> FumbleTableEntry:
+        """
+        Get fumble table entry by fumble type, fumble severity, roll.
+        """
+
+        logger.info(f"Fetching fumble {fumble_table} for roll={roll}")
+        try:
+            client = await self._get_client()
+            url = f"{self.base_url}/fumble-tables/{fumble_table}/{roll}"
+            logger.debug(f"Making request to {url}")
+            response = await client.get(url)
+            response.raise_for_status()
+            logger.debug(f"Received response: {response}")
+            json = response.json()
+            effects = None
+            if json.get("effects"):
+                effects = []
+                for effect in json["effects"]:
+                    effects.append(
+                        CriticalEffect(
+                            status=effect.get("status"),
+                            rounds=effect.get("rounds", None),
+                            value=effect.get("value", None),
+                            delay=effect.get("delay", None),
+                            condition=effect.get("condition", None),
+                        )
+                    )
+            return FumbleTableEntry(
+                text=json.get("message", ""),
+                status=json.get("status", None),
+                additional_damage_text=json.get("additionalDamageText", None),
+                effects=effects,
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error calling attack table API: {str(e)}")
+            raise Exception(f"Unexpected error accessing attack table API: {str(e)}")
 
     async def close(self):
         """Close HTTP client connection"""

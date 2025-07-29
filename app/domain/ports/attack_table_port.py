@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.domain.entities import AttackTableEntry, CriticalTableEntry
+from app.domain.entities import AttackTableEntry, CriticalTableEntry, FumbleTableEntry
 
 
 class AttackTableClient(ABC):
@@ -15,4 +15,10 @@ class AttackTableClient(ABC):
     async def get_critical_table_entry(
         self, critical_type: str, critical_severity: str, roll: int
     ) -> CriticalTableEntry:
+        pass
+
+    @abstractmethod
+    async def get_fumble_table_entry(
+        self, fumble_type: str, fumble_severity: str, roll: int
+    ) -> FumbleTableEntry:
         pass
