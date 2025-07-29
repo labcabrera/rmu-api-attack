@@ -11,11 +11,12 @@ from .enums import (
     AttackType,
     Cover,
     DodgeType,
+    FumbleStatus,
     PositionalSource,
     PositionalTarget,
     RestrictedQuarters,
 )
-from .critical import AttackCriticalResult
+from .critical import AttackCriticalResult, CriticalEffect
 
 
 @dataclass
@@ -84,9 +85,10 @@ class AttackSkill:
 class AttackModifiers:
     """Attack modifiers data"""
 
-    attack_type: AttackType
-    attack_table: str
+    attack_type: AttackType = None
+    attack_table: str = None
     attack_size: str = "medium"
+    fumble_table: str = None
     at: int = 1
     action_points: int = 4
     fumble: int = 1
@@ -140,9 +142,11 @@ class AttackRoll:
 @dataclass
 class AttackFumbleResult:
 
-    status: str = None
-    roll: Optional[int] = None
+    status: FumbleStatus = None
     text: Optional[str] = None
+    additional_damage_text: Optional[str] = None
+    damage: Optional[int] = None
+    effects: Optional[list[CriticalEffect]] = None
 
 
 @dataclass

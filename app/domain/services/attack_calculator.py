@@ -10,7 +10,7 @@ from app.domain.entities import (
     AttackResult,
     AttackCriticalResult
 )
-from app.domain.entities.enums import AttackStatus, Cover, CriticalStatus, PositionalSource, PositionalTarget, RestrictedQuarters
+from app.domain.entities.enums import AttackStatus, Cover, CriticalStatus, FumbleStatus, PositionalSource, PositionalTarget, RestrictedQuarters
 
 from app.domain.ports.attack_ports import AttackNotificationPort
 from app.domain.ports.attack_table_port import AttackTableClient
@@ -40,8 +40,7 @@ class AttackCalculator:
             await self.calculate_attack_results(attack)
             self.create_critical_results(attack)
         else:
-            # TODO
-            pass
+            self.calculate_fumble_result(attack)
         self.update_status(attack)
 
     def validate_attack(self, attack: Attack) -> None:
@@ -332,3 +331,9 @@ class AttackCalculator:
             attack.status = AttackStatus.PENDING_FUMBLE_ROLL
         else:
             attack.status = AttackStatus.PENDING_APPLY
+
+    def calculate_fumble_result(self, attack: Attack) -> None:
+        attack.status = AttackStatus.PENDING_FUMBLE_ROLL
+        attack.results.fumble = AttackFumbleResult(
+            status=FumbleStatus.PENDING_FUMBLE_ROLL
+        )

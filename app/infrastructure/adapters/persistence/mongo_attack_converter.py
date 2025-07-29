@@ -21,12 +21,14 @@ from app.domain.entities import (
     AttackCriticalResult,
     CriticalTableEntry,
     CriticalEffect,
+    AttackFumbleResult,
 )
 from app.domain.entities.enums import (
     AttackStatus,
     AttackType,
     Cover,
     CriticalStatus,
+    FumbleStatus,
     PositionalSource,
     PositionalTarget,
     RestrictedQuarters,
@@ -50,6 +52,7 @@ class MongoAttackConverter:
                 "attackType": attack.modifiers.attack_type.value,
                 "attackTable": attack.modifiers.attack_table,
                 "attackSize": attack.modifiers.attack_size,
+                "fumbleTable": attack.modifiers.fumble_table,
                 "at": attack.modifiers.at,
                 "actionPoints": attack.modifiers.action_points,
                 "fumble": attack.modifiers.fumble,
@@ -190,6 +193,7 @@ class MongoAttackConverter:
             attack_type=AttackType.from_value(modifiers_data["attackType"]),
             attack_table=attack_dict.get("modifiers", {}).get("attackTable", ""),
             attack_size=attack_dict.get("modifiers", {}).get("attackSize", ""),
+            fumble_table=attack_dict.get("modifiers", {}).get("fumbleTable", ""),
             at=attack_dict.get("modifiers", {}).get("at", 0),
             action_points=attack_dict.get("modifiers", {}).get("actionPoints", 4),
             fumble=attack_dict.get("modifiers", {}).get("fumble", 1),
@@ -326,10 +330,22 @@ class MongoAttackConverter:
 
         if attack_result.fumble:
             result_dict["fumble"] = {
-                "status": attack_result.fumble.status,
-                "roll": attack_result.fumble.roll,
+                "status": attack_result.fumble.status.value,
                 "text": attack_result.fumble.text,
+                "additionalDamageText": attack_result.fumble.additional_damage_text,
+                "damage": attack_result.fumble.damage,
+                # "effects": [
+                #     {
+                #         "status": effect.status,
+                #         "rounds": effect.rounds,
+                #         "value": effect.value,
+                #         "delay": effect.delay,
+                #         "condition": effect.condition,
+                #     }
+                #     for effect in attack_result.fumble.effects
+                # ],
             }
+
         return result_dict
 
     @staticmethod
@@ -381,8 +397,23 @@ class MongoAttackConverter:
                     result=critical_result,
                 )
                 criticals.append(critical)
+
+            fumble = None
+            if results_data.get("fumble"):
+                fumble_data = results_data["fumble"]
+                fumble = AttackFumbleResult(
+                    status=FumbleStatus.from_value(fumble_data.get("status")),
+                    text=fumble_data.get("text", None),
+                    additional_damage_text=fumble_data.get(
+                        "additionalDamageText", None
+                    ),
+                    damage=fumble_data.get("damage", None),
+                    # effects=[
+                )
+
             results = AttackResult(
                 attack_table_entry=attack_table_entry,
                 criticals=criticals,
+                fumble=fumble,
             )
         return results

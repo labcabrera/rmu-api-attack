@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from app.domain.entities import (
     AttackResult,
 )
-
+from .attack_fumble_result_dto import AttackFumbleResultDTO
 from .attack_critical_result_dto import AttackCriticalResultDTO
 from .attack_table_entry_dto import AttackTableEntryDTO
 
@@ -20,6 +20,7 @@ class AttackResultDTO(BaseModel):
     criticals: list = Field(
         default_factory=list, description="List of critical results"
     )
+    fumble: Optional[AttackFumbleResultDTO] = Field(None, description="Fumble result")
 
     def to_entity(self):
         return AttackResult(
@@ -30,7 +31,9 @@ class AttackResultDTO(BaseModel):
                 AttackCriticalResultDTO.from_entity(critical)
                 for critical in self.criticals
             ],
-            fumble=None,
+            fumble=(
+                AttackFumbleResultDTO.from_entity(self.fumble) if self.fumble else None
+            ),
         )
 
     @classmethod
@@ -45,5 +48,9 @@ class AttackResultDTO(BaseModel):
                 AttackCriticalResultDTO.from_entity(critical)
                 for critical in entity.criticals
             ],
-            fumble=None,
+            fumble=(
+                AttackFumbleResultDTO.from_entity(entity.fumble)
+                if entity.fumble
+                else None
+            ),
         )
