@@ -42,6 +42,7 @@ class AttackCalculator:
         else:
             # TODO
             pass
+        self.update_status(attack)
 
     def validate_attack(self, attack: Attack) -> None:
         if not attack:
@@ -50,6 +51,9 @@ class AttackCalculator:
             raise ValueError("Attack must have a roll to calculate results")
         if not attack.modifiers:
             raise ValueError("Attack must have modifiers to calculate results")
+        if attack.status is AttackStatus.APPLIED:
+            raise ValueError("Attack already applied, cannot recalculate")
+
         
     def initialize_attack_calculations(self, attack: Attack) -> None:
         attack.calculated = AttackCalculations(
@@ -314,9 +318,17 @@ class AttackCalculator:
             AttackCriticalResult(
                 critical_type=attack.results.attack_table_entry.critical_type,
                 critical_severity=severity,
-                status=CriticalStatus.PENDING,
+                status=CriticalStatus.PENDING_CRITICAL_ROLL,
             ) for severity in severity_list
         ]
         # TODO check additional critical features
         for idx, critical in enumerate(attack.results.criticals):
             critical.key = f"{critical.critical_type}_{critical.critical_severity}_{idx+1}".lower()
+
+    def update_status(self, attack: Attack) -> None:
+        if attack.results.criticals:
+            attack.status = AttackStatus.PENDING_CRITICAL_ROLL
+        elif attack.results.fumble:
+            attack.status = AttackStatus.PENDING_FUMBLE_ROLL
+        else:
+            attack.status = AttackStatus.PENDING_APPLY

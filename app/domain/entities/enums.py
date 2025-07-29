@@ -9,21 +9,32 @@ from typing import Union
 class AttackStatus(Enum):
     """Attack status enumeration"""
 
-    DRAFT = "draft"
-    READY_TO_ROLL = "ready_to_roll"
-    ROLLED = "ready_to_critical_roll"
-    CALCULATED = "calculated"
-    APPLIED = "applied"
-    FAILED = "failed"
+    PENDING_ATTACK_ROLL = "pending_attack_roll"
     PENDING_CRITICAL_ROLL = "pending_critical_roll"
     PENDING_FUMBLE_ROLL = "pending_fumble_roll"
+    PENDING_APPLY = "pending_apply"
+    APPLIED = "applied"
+    FAILED = "failed"
+
+    @classmethod
+    def from_value(cls, value: Union[str, "AttackStatus"]) -> "AttackStatus":
+        if not value:
+            return None
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            for i in cls:
+                if i.value == value:
+                    return i
+        raise TypeError(f"Invalid AttackStatus value: {value}")
 
 
 class CriticalStatus(Enum):
     """Critical status enumeration"""
 
-    PENDING = "pending"
-    ROLLED = "rolled"
+    PENDING_CRITICAL_ROLL = "pending_critical_roll"
+    PENDING_APPLY = "pending_apply"
+    APPLIED = "applied"
     FAILED = "failed"
 
     @classmethod

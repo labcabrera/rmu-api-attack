@@ -374,7 +374,7 @@ class MongoAttackConverter:
 
                 critical = AttackCriticalResult(
                     key=c_data["key"],
-                    status=CriticalStatus.from_value(c_data["status"]),
+                    status=CriticalStatus.from_value(c_data.get("status")),
                     critical_type=c_data.get("type", "unknown"),
                     critical_severity=c_data.get("criticalSeverity", None),
                     adjusted_roll=c_data.get("adjustedRoll", 0),

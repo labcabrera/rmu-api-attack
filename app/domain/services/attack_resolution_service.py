@@ -1,7 +1,7 @@
 from typing import Optional
 
 from app.domain.entities import Attack, AttackRoll
-from app.domain.entities.enums import CriticalStatus
+from app.domain.entities.enums import AttackStatus, CriticalStatus
 from app.domain.ports import AttackRepository, AttackNotificationPort
 from app.domain.ports.attack_table_port import AttackTableClient
 
@@ -34,8 +34,10 @@ class AttackResolutionService:
     async def update_critical_roll(
         self, attack_id: str, critical_key: str, roll: int
     ) -> Attack:
-        # TODO check valid status
+
         attack = await self._attack_repository.find_by_id(attack_id)
+        if not attack.status == AttackStatus.PENDING_CRITICAL_ROLL:
+            raise ValueError("Attack is not in a state to roll criticals")
 
         critical_result = attack.results.get_critical_by_key(critical_key)
         if not critical_result:
@@ -55,7 +57,7 @@ class AttackResolutionService:
             roll=adjusted_roll,
         )
         critical_result.adjusted_roll = adjusted_roll
-        critical_result.status = CriticalStatus.ROLLED
+        critical_result.status = CriticalStatus.PENDING_APPLY
         critical_result.result = critical_table_entry
 
         updated_attack = await self._attack_repository.update(attack)

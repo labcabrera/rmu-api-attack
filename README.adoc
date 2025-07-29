@@ -2,6 +2,9 @@
 
 REST API for attack management in the RMU system using MongoDB and Hexagonal Architecture.
 
+WARNING: *This application is an independent project developed by fans of Rolemaster Unified. It is not affiliated with, endorsed by, or licensed by Iron Crown Enterprises (ICE), the owners of the Rolemaster intellectual property.*
+*All Rolemaster trademarks, game systems, and materials are the property of Iron Crown Enterprises. This software is provided for personal, non-commercial use only. If you enjoy Rolemaster, please support the official publications and content from ICE.*
+
 == Description
 
 This API exposes endpoints to manage attack information, including creating, querying, updating, and deleting attacks in the RMU (Rolemaster Unified) system. The API uses MongoDB for persistent data storage and follows Hexagonal Architecture (Ports and Adapters) principles for better separation of concerns, testability, and maintainability.
@@ -17,7 +20,7 @@ This API exposes endpoints to manage attack information, including creating, que
 Clone the repository and navigate to the project directory. Then execute:
 
 Install dependencies:
-+
+
 [source,bash]
 ----
 python3 -m venv .venv
@@ -26,7 +29,7 @@ pip install -r requirements.txt
 ----
 
 Run the application:
-+
+
 [source,bash]
 ----
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -78,185 +81,147 @@ The main entity of the domain is the Attack which has the following structure:
 [source,json]
 ----
 {
-    "id": "6886d5ff30491b92ef3ab03f",
+    "id": "6888972603b67e285cae95f0",
     "actionId": "action_001",
     "sourceId": "character_001",
     "targetId": "character_002",
-    "status": "failed",
+    "status": "draft",
     "modifiers": {
         "attackType": "melee",
         "attackTable": "arming-sword",
         "attackSize": "medium",
-        "at": 5,
-        "actionPoints": 3,
+        "at": 1,
+        "actionPoints": 4,
         "fumble": 2,
         "rollModifiers": {
-            "bo": 50,
+            "bo": 100,
             "bd": -20,
-            "injuryPenalty": -1,
-            "pacePenalty": -20,
-            "fatiguePenalty": -4,
-            "rangePenalty": -5,
-            "shield": -15,
-            "parry": -6,
-            "customBonus": 42
+            "injuryPenalty": 0,
+            "pacePenalty": 0,
+            "fatiguePenalty": 0,
+            "rangePenalty": 0,
+            "shield": 0,
+            "parry": 0,
+            "customBonus": 0
         },
         "situationalModifiers": {
-            "cover": "soft_partial",
-            "restrictedQuarters": "close",
-            "positionalSource": "to_flank",
-            "positionalTarget": "flank",
+            "cover": "none",
+            "restrictedQuarters": "none",
+            "positionalSource": "none",
+            "positionalTarget": "none",
             "dodge": "none",
             "disabledDB": false,
             "disabledShield": false,
             "disabledParry": false,
-            "sizeDifference": -1,
+            "sizeDifference": 0,
             "offHand": false,
-            "twoHandedWeapon": true,
+            "twoHandedWeapon": false,
             "higherGround": false,
-            "sourceStatus": [
-                "melee"
-            ],
-            "targetStatus": [
-                "melee",
-                "prone",
-                "stunned",
-                "surprised"
-            ]
+            "sourceStatus": [],
+            "targetStatus": []
         },
-        "features": [
-            {
-                "key": "slaying-attack",
-                "value": "i"
-            }
-        ],
-        "sourceSkills": [
-            {
-                "skillId": "reverse-strike",
-                "bonus": 12
-            },
-            {
-                "skillId": "footwork",
-                "bonus": 10
-            },
-            {
-                "skillId": "restricted-quarters",
-                "bonus": 10
-            }
-        ]
+        "features": [],
+        "sourceSkills": []
     },
     "roll": {
-        "roll": 55
+        "roll": 128,
+        "criticalRolls": {
+            "p_e_1": 12,
+            "p_a_2": 45
+        },
+        "fumbleRoll": null
     },
     "calculated": {
         "rollModifiers": [
             {
                 "key": "roll",
-                "value": 55
+                "value": 128
             },
             {
                 "key": "bo",
-                "value": 50
-            },
-            {
-                "key": "injury-penalty",
-                "value": -1
-            },
-            {
-                "key": "fatigue-penalty",
-                "value": -4
-            },
-            {
-                "key": "pace-penalty",
-                "value": -20
-            },
-            {
-                "key": "pace-penalty-skill-footwork",
-                "value": 10
-            },
-            {
-                "key": "range-penalty",
-                "value": -5
+                "value": 100
             },
             {
                 "key": "bd",
                 "value": -20
-            },
-            {
-                "key": "shield",
-                "value": -15
-            },
-            {
-                "key": "parry",
-                "value": -6
-            },
-            {
-                "key": "custom-bonus",
-                "value": 42
-            },
-            {
-                "key": "restricted-quarters",
-                "value": -25
-            },
-            {
-                "key": "restricted-quarters-skill-restricted-quarters",
-                "value": 10
-            },
-            {
-                "key": "stunned-target",
-                "value": 20
-            },
-            {
-                "key": "surprised-target",
-                "value": 25
-            },
-            {
-                "key": "prone-target",
-                "value": 30
-            },
-            {
-                "key": "two-handed-weapon",
-                "value": 10
-            },
-            {
-                "key": "positional-source",
-                "value": -30
-            },
-            {
-                "key": "positional-source-skill-reverse-strike",
-                "value": 12
-            },
-            {
-                "key": "positional-target",
-                "value": 15
-            },
-            {
-                "key": "cover",
-                "value": -10
-            },
-            {
-                "key": "size-bonus",
-                "value": -5
             }
         ],
-        "criticalModifiers": [],
-        "criticalSeverityModifiers": [
+        "criticalModifiers": [
             {
-                "key": "size-difference",
-                "value": -1
+                "key": "absolute-hit",
+                "value": 7
             }
         ],
-        "rollTotal": 138,
-        "criticalTotal": 0,
-        "criticalSeverityTotal": -1
+        "criticalSeverityModifiers": [],
+        "rollTotal": 208,
+        "criticalTotal": 7,
+        "criticalSeverityTotal": 0
     },
     "results": {
         "attackTableEntry": {
-            "literal": "14CS",
-            "damage": 14,
-            "criticalType": "S",
-            "criticalSeverity": "C"
-        }
+            "text": "26FP",
+            "damage": 26,
+            "criticalType": "P",
+            "criticalSeverity": "F"
+        },
+        "criticals": [
+            {
+                "key": "p_e_1",
+                "status": "rolled",
+                "criticalType": "P",
+                "criticalSeverity": "E",
+                "adjustedRoll": 19,
+                "result": {
+                    "text": "Foe flinches from blow, avoiding even greater damage to his neck.",
+                    "damage": 15,
+                    "location": "head",
+                    "effects": [
+                        {
+                            "status": "bleeding",
+                            "rounds": null,
+                            "value": 2,
+                            "delay": null,
+                            "condition": null
+                        },
+                        {
+                            "status": "stunned",
+                            "rounds": 1,
+                            "value": -25,
+                            "delay": null,
+                            "condition": null
+                        }
+                    ]
+                }
+            },
+            {
+                "key": "p_a_2",
+                "status": "rolled",
+                "criticalType": "P",
+                "criticalSeverity": "A",
+                "adjustedRoll": 52,
+                "result": {
+                    "text": "Point sinks an inch into foe's bicep muscle.",
+                    "damage": 2,
+                    "location": "arm",
+                    "effects": [
+                        {
+                            "status": "bleeding",
+                            "rounds": null,
+                            "value": 2,
+                            "delay": null,
+                            "condition": null
+                        },
+                        {
+                            "status": "penalty",
+                            "rounds": null,
+                            "value": -5,
+                            "delay": null,
+                            "condition": null
+                        }
+                    ]
+                }
+            }
+        ]
     }
 }
 ----

@@ -20,6 +20,6 @@ class CreateAttackUseCase:
             source_id=command.source_id,
             target_id=command.target_id,
             modifiers=command.modifiers,
-            status=AttackStatus.DRAFT,
+            status=AttackStatus.PENDING_ATTACK_ROLL,
         )
         return await self._domain_service.create_attack(attack)
