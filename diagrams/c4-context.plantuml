@@ -5,7 +5,7 @@ title C4 Context Attack API
 
 LAYOUT_LEFT_RIGHT()
 
-UpdateElementStyle(person, $bgColor="#008fb3")
+UpdateElementStyle(person, $bgColor="#2b4a74ff")
 UpdateElementStyle(system, $bgColor="#4373b1ff")
 UpdateElementStyle(external_system, $bgColor="#96b6beff")
 UpdateElementStyle(boundary, $bgColor="#d1dcdfff")
