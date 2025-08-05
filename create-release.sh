@@ -1,19 +1,13 @@
 #!/bin/bash
 
-# Script to create releases using git flow
-# Usage: ./create-release.sh [version]
-# Example: ./create-release.sh 1.2.0
-
 set -e
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Function to show help
 show_help() {
     echo -e "${BLUE}RMU API Attack - Release Creator${NC}"
     echo ""
@@ -41,7 +35,6 @@ show_help() {
     echo "  7. Push main, develop and tags"
 }
 
-# Function for logging
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
 }
@@ -58,7 +51,6 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Function to execute commands
 execute_command() {
     local cmd="$1"
     local description="$2"
@@ -81,11 +73,8 @@ execute_command() {
     fi
 }
 
-# Function to validate version format
 validate_version() {
     local version="$1"
-    
-    # Validate basic semver format (x.y.z or x.y.z-suffix)
     if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\.-]+)?$ ]]; then
         log_error "Invalid version format: $version"
         log_error "Must follow semver format: x.y.z or x.y.z-suffix"
@@ -93,10 +82,8 @@ validate_version() {
     fi
 }
 
-# Function to check prerequisites
 check_prerequisites() {
     log_info "Checking prerequisites..."
-    
     # Check git
     if ! command -v git &> /dev/null; then
         log_error "git is not installed"
@@ -145,7 +132,6 @@ check_repository_state() {
     
     # Update develop
     execute_command "git pull origin develop" "Update develop branch"
-    
     log_success "Repository state verified"
 }
 
@@ -281,10 +267,7 @@ main() {
             exit 0
         fi
     fi
-    
-    # Create release
     create_release "$version"
 }
 
-# Execute main function
 main "$@"
