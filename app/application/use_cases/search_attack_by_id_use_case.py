@@ -1,8 +1,5 @@
-from typing import Optional
-
 from app.domain.entities.attack import Attack
-from app.domain.entities.page import Page, Pagination
-from app.domain.ports.attack_ports import AttackRepository
+from app.application.ports import AttackRepository
 
 
 class SearchAttackByIdUseCase:
@@ -15,5 +12,4 @@ class SearchAttackByIdUseCase:
         self,
         attack_id: str,
     ) -> Attack:
-
         return await self._attack_repository.find_by_id(attack_id)

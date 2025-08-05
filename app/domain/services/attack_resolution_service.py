@@ -2,8 +2,11 @@ from typing import Optional
 
 from app.domain.entities import Attack, AttackRoll
 from app.domain.entities.enums import AttackStatus, CriticalStatus
-from app.domain.ports import AttackRepository, AttackNotificationPort
-from app.domain.ports.attack_table_port import AttackTableClient
+from app.application.ports import (
+    AttackRepository,
+    AttackNotificationPort,
+    AttackTableClient,
+)
 
 from .attack_calculator import AttackCalculator
 

@@ -10,11 +10,11 @@ from pymongo.errors import DuplicateKeyError
 from bson import ObjectId
 
 from app.domain.exceptions import AttackNotFoundException
-
-from app.infrastructure.config.config import settings
-from app.domain.ports import AttackRepository
 from app.domain.entities import Attack
+
+from app.application.ports import AttackRepository
 from app.infrastructure.logging import get_logger
+from app.infrastructure.config.config import settings
 
 from .rsql_parser import RSQLParser
 from .mongo_attack_converter import MongoAttackConverter
