@@ -12,8 +12,7 @@ from app.domain.entities import (
 )
 from app.domain.entities.enums import AttackStatus, Cover, CriticalStatus, FumbleStatus, PositionalSource, PositionalTarget, RestrictedQuarters
 
-from app.domain.ports.attack_ports import AttackNotificationPort
-from app.domain.ports.attack_table_port import AttackTableClient
+from app.application.ports import AttackNotificationPort, AttackTableClient
 
 from app.infrastructure.logging.logger_config import get_logger
 

@@ -2,7 +2,7 @@ from typing import Optional
 
 from app.domain.entities import Attack
 from app.domain.services.attack_calculator import AttackCalculator
-from app.domain.ports.attack_ports import AttackNotificationPort, AttackRepository
+from app.application.ports import AttackNotificationPort, AttackRepository
 
 from app.application.commands import (
     UpdateAttackModifiersCommand,

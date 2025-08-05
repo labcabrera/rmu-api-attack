@@ -4,7 +4,6 @@ This adapter implements the AttackTableService port by making HTTP calls to an e
 """
 
 import asyncio
-from logging import critical
 from typing import Optional
 import httpx
 
@@ -14,7 +13,7 @@ from app.domain.entities import (
     CriticalEffect,
     FumbleTableEntry,
 )
-from app.domain.ports.attack_table_port import AttackTableClient
+from app.application.ports import AttackTableClient
 from app.infrastructure.logging import get_logger
 
 logger = get_logger(__name__)

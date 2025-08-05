@@ -4,7 +4,6 @@ Logging decorators for endpoints and error handling
 
 import functools
 import time
-import json
 import traceback
 from typing import Any, Callable, Dict
 from fastapi import Request, HTTPException

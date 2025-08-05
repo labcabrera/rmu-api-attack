@@ -11,10 +11,7 @@ from app.domain.services import (
     AttackDomainService,
     AttackResolutionService,
 )
-from app.domain.ports.attack_ports import AttackRepository
-from app.domain.ports.attack_table_port import AttackTableClient
-
-
+from app.application.ports import AttackRepository, AttackTableClient
 from app.application.use_cases import (
     ApplyAttackUseCase,
     CreateAttackUseCase,
@@ -26,9 +23,8 @@ from app.application.use_cases import (
     UpdateCriticalRollUseCase,
     UpdateFumbleRollUseCase,
 )
-
 from app.infrastructure.config.config import settings
-from app.infrastructure.adapters.persistence.mongo_attack_repository import (
+from app.infrastructure.adapters.persistence import (
     MongoAttackRepository,
 )
 from app.infrastructure.adapters.external.attack_table_rest_adapter import (
