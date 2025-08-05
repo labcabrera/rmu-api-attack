@@ -18,7 +18,6 @@ from app.domain.entities.enums import (
     PositionalTarget,
     RestrictedQuarters,
 )
-from app.infrastructure.adapters.web.attack_dto_converter import AttackDTOConverter
 
 
 class TestAttackDTOConversions:
