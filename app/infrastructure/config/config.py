@@ -5,8 +5,7 @@ class Settings:
     """Application settings and configuration"""
 
     # MongoDB Configuration
-    MONGODB_URL: str = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-    MONGODB_DATABASE: str = os.getenv("MONGO_DATABASE", "rmu-attack")
+    MONGODB_URL: str = os.getenv("RMU_MONGO_ATTACK_URI", "mongodb://localhost:27017")
 
     # API Configuration
     API_VERSION: str = "v1"
