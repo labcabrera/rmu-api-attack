@@ -5,7 +5,10 @@ class Settings:
     """Application settings and configuration"""
 
     # MongoDB Configuration
-    MONGODB_URL: str = os.getenv("RMU_MONGO_ATTACK_URI", "mongodb://localhost:27017")
+    MONGODB_URL: str = os.getenv(
+        "RMU_MONGO_ATTACK_URI",
+        "mongodb://admin:admin@localhost:27017/rmu-attack?authSource=admin",
+    )
 
     # API Configuration
     API_VERSION: str = "v1"
