@@ -72,7 +72,7 @@ class DependencyContainer:
 
         # Database connection
         self._client = AsyncIOMotorClient(settings.MONGODB_URL)
-        self._database = self._client[settings.MONGODB_DATABASE]
+        self._database = self._client.get_default_database()
 
         # Test connection
         await self._database.command("ping")
