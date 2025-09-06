@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rmu-api-attack"
-version = "0.1.0"
+version = "0.1.1"
 description = "RMU API Attack - FastAPI application for managing RPG attacks"
 authors = ["Lab Cabrera <labcabrera@example.com>"]
 readme = "README.adoc"
