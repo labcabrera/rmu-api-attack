@@ -87,7 +87,9 @@ class AttackCalculator:
     def calculate_attack_roll_modifiers(self, attack: Attack) -> None:
         roll_modifiers = attack.modifiers.roll_modifiers
 
-        self.append_bonus(attack, "roll", attack.roll.roll)
+        if(attack.roll):
+            self.append_bonus(attack, "roll", attack.roll.roll)
+
         self.append_bonus(attack, "bo", roll_modifiers.bo)
         self.append_injury_penalty(attack)
         self.append_bonus(attack, "fatigue-penalty", roll_modifiers.fatigue_penalty)
@@ -113,7 +115,6 @@ class AttackCalculator:
         attack.calculated.roll_modifiers = [
             p for p in attack.calculated.roll_modifiers if p.value != 0
         ]
-
         attack.calculated.roll_total = sum(p.value for p in attack.calculated.roll_modifiers)
 
 
