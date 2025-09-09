@@ -5,7 +5,6 @@ This assembles all the components and their dependencies.
 
 from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorClient
-
 from app.domain.services import (
     AttackCalculator,
     AttackDomainService,
@@ -24,10 +23,10 @@ from app.application.use_cases import (
     UpdateFumbleRollUseCase,
 )
 from app.infrastructure.config.config import settings
-from app.infrastructure.adapters.persistence import (
+from app.infrastructure.persistence import (
     MongoAttackRepository,
 )
-from app.infrastructure.adapters.external.attack_table_rest_adapter import (
+from app.infrastructure.api.attack_table_rest_adapter import (
     AttackTableRestAdapter,
     AttackTableRestAdapterWithRetry,
 )

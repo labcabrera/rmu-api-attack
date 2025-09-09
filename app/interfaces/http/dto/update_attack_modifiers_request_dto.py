@@ -1,8 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
-
 from app.application.commands import CreateAttackCommand
-
-from app.infrastructure.adapters.web.dto import AttackModifiersDTO
+from .attack_modifiers_dto import AttackModifiersDTO
 from app.application.commands import UpdateAttackModifiersCommand
 
 

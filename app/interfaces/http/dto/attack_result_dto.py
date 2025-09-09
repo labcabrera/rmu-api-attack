@@ -1,9 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
-
-from app.domain.entities import (
-    AttackResult,
-)
+from app.domain.entities import AttackResult
 from .attack_fumble_result_dto import AttackFumbleResultDTO
 from .attack_critical_result_dto import AttackCriticalResultDTO
 from .attack_table_entry_dto import AttackTableEntryDTO
