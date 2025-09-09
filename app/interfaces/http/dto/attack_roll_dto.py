@@ -1,9 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
-
-from app.domain.entities import (
-    AttackRoll,
-)
+from app.domain.entities import AttackRoll
 
 
 class AttackRollDTO(BaseModel):

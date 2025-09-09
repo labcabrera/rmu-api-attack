@@ -4,11 +4,9 @@ Attack web controller.
 
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
-
 from app.infrastructure.dependency_container import container
 from app.infrastructure.logging import log_endpoint, log_errors, get_logger
-
-from app.infrastructure.adapters.web.dto import (
+from app.interfaces.http.dto import (
     AttackDTO,
     PagedAttacksDTO,
     AttackNotFoundDTO,
@@ -19,9 +17,7 @@ from app.infrastructure.adapters.web.dto import (
     UpdateFumbleRollRequestDTO,
 )
 
-
 logger = get_logger(__name__)
-
 router = APIRouter(prefix="/attacks", tags=["Attacks"])
 
 

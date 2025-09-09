@@ -34,6 +34,8 @@ class AttackDomainService:
         """Create a new attack with business validation"""
 
         created_attack = await self._attack_repository.save(attack)
+        self._attack_calculator.initialize_attack_calculations(created_attack)
+        self._attack_calculator.calculate_attack_roll_modifiers(created_attack)
         if self._notification_port:
             await self._notification_port.notify_attack_created(created_attack)
 

@@ -1,7 +1,5 @@
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
-
-
 from app.domain.entities import CriticalEffect
 
 

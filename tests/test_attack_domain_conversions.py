@@ -12,13 +12,13 @@ from app.domain.entities import (
     Critical,
 )
 from app.domain.entities.enums import AttackStatus, AttackType
-from app.infrastructure.adapters.web.attack_dtos import (
+from app.infrastructure.adapters.http.attack_dtos import (
     AttackDTO,
     AttackModifiersDTO,
     AttackRollModifiersDTO,
     CreateAttackRequestDTO,
 )
-from app.infrastructure.adapters.web.attack_dto_converter import (
+from app.infrastructure.adapters.http.attack_dto_converter import (
     attack_to_dto,
     create_request_to_domain,
 )

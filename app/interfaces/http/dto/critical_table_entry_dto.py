@@ -1,9 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
-
-
 from app.domain.entities import CriticalTableEntry
-
 from .critical_effect_dto import CriticalEffectDTO
 
 

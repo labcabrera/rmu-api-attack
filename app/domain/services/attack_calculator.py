@@ -1,7 +1,6 @@
 import math
 from typing import Optional
 from uuid import uuid4
-
 from app.domain.entities import (
     Attack,
     AttackCalculations,
@@ -11,13 +10,10 @@ from app.domain.entities import (
     AttackCriticalResult
 )
 from app.domain.entities.enums import AttackStatus, Cover, CriticalStatus, FumbleStatus, PositionalSource, PositionalTarget, RestrictedQuarters
-
 from app.application.ports import AttackNotificationPort, AttackTableClient
-
 from app.infrastructure.logging.logger_config import get_logger
 
 logger = get_logger(__name__)
-
 
 class AttackCalculator:
 
@@ -91,7 +87,9 @@ class AttackCalculator:
     def calculate_attack_roll_modifiers(self, attack: Attack) -> None:
         roll_modifiers = attack.modifiers.roll_modifiers
 
-        self.append_bonus(attack, "roll", attack.roll.roll)
+        if(attack.roll):
+            self.append_bonus(attack, "roll", attack.roll.roll)
+
         self.append_bonus(attack, "bo", roll_modifiers.bo)
         self.append_injury_penalty(attack)
         self.append_bonus(attack, "fatigue-penalty", roll_modifiers.fatigue_penalty)
@@ -117,7 +115,6 @@ class AttackCalculator:
         attack.calculated.roll_modifiers = [
             p for p in attack.calculated.roll_modifiers if p.value != 0
         ]
-
         attack.calculated.roll_total = sum(p.value for p in attack.calculated.roll_modifiers)
 
 
