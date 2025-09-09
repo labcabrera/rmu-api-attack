@@ -21,8 +21,7 @@ async def lifespan(app: FastAPI):
     """
     logger.info("Starting RMU Attack API...")
     await container.initialize()
-    logger.info("Initialized  dependencies")
-    logger.info("Connected to MongoDB")
+    logger.info("Started RMU Attack API")
 
     yield
 
