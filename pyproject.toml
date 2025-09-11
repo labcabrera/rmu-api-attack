@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rmu-api-attack"
-version = "0.2.0"
+version = "0.2.1"
 description = "RMU API Attack - FastAPI application for managing RPG attacks"
 authors = ["Lab Cabrera <labcabrera@example.com>"]
 readme = "README.adoc"
@@ -13,6 +13,7 @@ uvicorn = {extras = ["standard"], version = "^0.24.0"}
 motor = "^3.3.0"
 pydantic = "^2.4.0"
 pymongo = "^4.5.0"
+httpx = "^0.25.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"

@@ -7,6 +7,7 @@ from .update_attack_modifiers_use_case import UpdateAttackModifiersUseCase
 from .update_attack_roll_use_case import UpdateAttackRollUseCase
 from .update_critical_roll_use_case import UpdateCriticalRollUseCase
 from .update_fumble_roll_use_case import UpdateFumbleRollUseCase
+from .update_attack_parry_use_case import UpdateAttackParryUseCase
 
 __all__ = [
     "ApplyAttackUseCase",
@@ -19,4 +20,5 @@ __all__ = [
     "UpdateAttackRollUseCase",
     "UpdateCriticalRollUseCase",
     "UpdateFumbleRollUseCase",
+    "UpdateAttackParryUseCase",
 ]
