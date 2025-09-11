@@ -21,6 +21,7 @@ from app.application.use_cases import (
     UpdateAttackRollUseCase,
     UpdateCriticalRollUseCase,
     UpdateFumbleRollUseCase,
+    UpdateAttackParryUseCase,
 )
 from app.infrastructure.config.config import settings
 from app.infrastructure.persistence import (
@@ -62,6 +63,7 @@ class DependencyContainer:
         self._update_attack_modifiers_use_case: Optional[
             UpdateAttackModifiersUseCase
         ] = None
+        self._update_attack_parry_use_case: Optional[UpdateAttackParryUseCase] = None
         self._update_attack_roll_use_case: Optional[UpdateAttackRollUseCase] = None
         self._update_critical_roll_use_case: Optional[UpdateCriticalRollUseCase] = None
         self._update_fumble_roll_use_case: Optional[UpdateFumbleRollUseCase] = None
@@ -135,6 +137,10 @@ class DependencyContainer:
         self._update_fumble_roll_use_case = UpdateFumbleRollUseCase(
             self._attack_resolution_service
         )
+        self._update_attack_parry_use_case = UpdateAttackParryUseCase(
+            attack_repository=self._attack_repository,
+            attack_calculator=self._attack_calculator,
+        )
 
     async def cleanup(self):
         """Clean up dependencies"""
@@ -183,6 +189,10 @@ class DependencyContainer:
     def get_update_fumble_roll_use_case(self) -> UpdateFumbleRollUseCase:
         """Get update fumble roll use case instance"""
         return self._update_fumble_roll_use_case
+
+    def get_update_attack_parry_use_case(self) -> UpdateAttackParryUseCase:
+        """Get update attack parry use case instance"""
+        return self._update_attack_parry_use_case
 
     # External services
     def get_attack_table_service(self) -> AttackTableClient:

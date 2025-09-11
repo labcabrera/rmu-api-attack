@@ -7,6 +7,7 @@ from .update_attack_modifiers_command import UpdateAttackModifiersCommand
 from .update_attack_roll_command import UpdateAttackRollCommand
 from .update_critical_roll_command import UpdateCriticalRollCommand
 from .update_fumble_roll_command import UpdateFumbleRollCommand
+from .update_attack_parry_command import UpdateAttackParryCommand
 
 __all__ = [
     "CreateAttackCommand",
@@ -14,4 +15,5 @@ __all__ = [
     "UpdateAttackRollCommand",
     "UpdateCriticalRollCommand",
     "UpdateFumbleRollCommand",
+    "UpdateAttackParryCommand",
 ]

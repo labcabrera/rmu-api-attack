@@ -15,6 +15,7 @@ from app.interfaces.http.dto import (
     UpdateAttackRollRequestDTO,
     UpdateCriticalRollRequestDTO,
     UpdateFumbleRollRequestDTO,
+    UpdateParryRequestDTO,
 )
 
 logger = get_logger(__name__)
@@ -166,6 +167,41 @@ async def delete_attack(attack_id: str):
         raise
     except Exception as e:
         logger.error(f"Error deleting attack {attack_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@router.patch(
+    "/{attack_id}/parry",
+    summary="Update attack parry",
+    description="Updates the parry value of the attack.",
+    response_model=AttackDTO,
+    responses={404: {"model": AttackNotFoundDTO}},
+)
+@log_endpoint
+@log_errors
+async def execute_attack_parry(attack_id: str, request: UpdateParryRequestDTO):
+    """Updates the parry value of an attack."""
+
+    logger.info(f"Updating parry for attack {attack_id}: {request}")
+    try:
+        command = request.to_command(attack_id=attack_id)
+        command.validate()
+        use_case = container.get_update_attack_parry_use_case()
+        attack = await use_case.execute(command=command)
+        logger.info(
+            f"Successfully executed parry update for attack {attack_id}: {attack_id}"
+        )
+        return AttackDTO.from_entity(attack)
+
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.warning(
+            f"Validation error executing roll for attack {attack_id}: {str(e)}"
+        )
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error executing roll for attack {attack_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 

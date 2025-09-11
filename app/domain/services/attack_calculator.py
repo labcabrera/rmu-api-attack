@@ -177,7 +177,7 @@ class AttackCalculator:
 
     def append_parry(self, attack: Attack) -> None:
         if not attack.modifiers.situational_modifiers.disabled_parry:
-            self.append_bonus(attack, "parry", attack.modifiers.roll_modifiers.parry)
+            self.append_bonus(attack, "parry", -attack.modifiers.roll_modifiers.parry)
 
     def append_off_hand(self, attack: Attack) -> None:
         if attack.modifiers.situational_modifiers.off_hand:
