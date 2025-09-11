@@ -146,11 +146,11 @@ class AttackCalculator:
 
     def append_bonus_bd(self, attack: Attack) -> None:
         if not attack.modifiers.situational_modifiers.disabled_db:
-            self.append_bonus(attack, "bd", attack.modifiers.roll_modifiers.bd)
+            self.append_bonus(attack, "bd", -attack.modifiers.roll_modifiers.bd)
 
     def append_bonus_bd_shield(self, attack: Attack) -> None:
         if not attack.modifiers.situational_modifiers.disabled_shield:
-            self.append_bonus(attack, "shield", attack.modifiers.roll_modifiers.shield)
+            self.append_bonus(attack, "shield", -attack.modifiers.roll_modifiers.shield)
 
     def append_injury_penalty(self, attack: Attack) -> None:
         self.append_bonus(
