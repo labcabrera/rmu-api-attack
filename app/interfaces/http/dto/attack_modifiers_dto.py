@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.domain.entities import AttackModifiers
 from app.domain.entities.enums import AttackType
-
+from .attack_armor_dto import AttackArmorDTO
 from .attack_skill_dto import AttackSkillDTO
 from .attack_feature_dto import AttackFeatureDTO
 from .attack_roll_modifiers_dto import AttackRollModifiersDTO
@@ -18,11 +18,14 @@ class AttackModifiersDTO(BaseModel):
     fumbleTable: str = Field(
         ..., description="Fumble table identifier", example="melee-one-hand"
     )
-    at: int = Field(..., description="Attack table type", ge=1)
+    armor: AttackArmorDTO = Field(..., description="Attack armor data")
     actionPoints: int = Field(
         ..., description="Action points available for the attack", ge=1
     )
     fumble: int = Field(1, description="Fumble threshold for the attack", ge=0)
+    calledShot: str | None = Field(
+        default=None, description="Called shot location or description"
+    )
     rollModifiers: AttackRollModifiersDTO = Field(
         ..., description="Modifiers for the attack roll"
     )
@@ -52,9 +55,10 @@ class AttackModifiersDTO(BaseModel):
             attack_table=self.attackTable,
             attack_size=self.attackSize,
             fumble_table=self.fumbleTable,
-            at=self.at,
+            armor=self.armor.to_entity(),
             action_points=self.actionPoints,
             fumble=self.fumble,
+            called_shot=self.calledShot,
             roll_modifiers=self.rollModifiers.to_entity(),
             situational_modifiers=self.situationalModifiers.to_entity(),
             features=[feature.to_entity() for feature in self.features],
@@ -68,9 +72,10 @@ class AttackModifiersDTO(BaseModel):
             attackTable=entity.attack_table,
             attackSize=entity.attack_size,
             fumbleTable=entity.fumble_table,
-            at=entity.at,
+            armor=AttackArmorDTO.from_entity(entity.armor),
             actionPoints=entity.action_points,
             fumble=entity.fumble,
+            calledShot=getattr(entity, "called_shot", None),
             rollModifiers=AttackRollModifiersDTO.from_entity(entity.roll_modifiers),
             situationalModifiers=AttackSituationalModifiersDTO.from_entity(
                 entity.situational_modifiers

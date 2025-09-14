@@ -6,18 +6,17 @@ This is an infrastructure adapter that implements the AttackRepository port.
 from typing import Optional, List
 from fastapi import HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
-from pymongo.errors import DuplicateKeyError
 from bson import ObjectId
 
 from app.domain.exceptions import AttackNotFoundException
 from app.domain.entities import Attack
-
 from app.application.ports import AttackRepository
 from app.infrastructure.logging import get_logger
 from app.infrastructure.config.config import settings
 
 from .rsql_parser import RSQLParser
-from .mongo_attack_converter import MongoAttackConverter
+from .attack_from_mongo_converter import AttackFromMongoConverter
+from .attack_to_mongo_converter import AttackToMongoConverter
 
 logger = get_logger(__name__)
 
@@ -26,7 +25,6 @@ class MongoAttackRepository(AttackRepository):
     """MongoDB implementation of AttackRepository"""
 
     def __init__(self, database=None):
-        self._converter = MongoAttackConverter()
         self._rsql_parser = RSQLParser()
 
         if database is not None:
@@ -68,7 +66,7 @@ class MongoAttackRepository(AttackRepository):
             object_id = ObjectId(attack_id)
             attack_dict = await self._collection.find_one({"_id": object_id})
             if attack_dict:
-                return self._converter.dict_to_attack(attack_dict)
+                return AttackFromMongoConverter.dict_to_attack(attack_dict)
             else:
                 logger.warning(f"Attack with ID {attack_id} not found")
                 raise AttackNotFoundException(attack_id)
@@ -89,7 +87,7 @@ class MongoAttackRepository(AttackRepository):
             cursor = self._collection.find(mongo_query).skip(skip).limit(limit)
             attacks = []
             async for doc in cursor:
-                attacks.append(self._converter.dict_to_attack(doc))
+                attacks.append(AttackFromMongoConverter.dict_to_attack(doc))
             return attacks
         except Exception as e:
             print(f"Error in find_by_rsql: {e}")
@@ -97,7 +95,7 @@ class MongoAttackRepository(AttackRepository):
 
     async def save(self, attack: Attack) -> Attack:
         await self.connect()
-        attack_dict = self._converter.attack_to_dict(attack, include_id=False)
+        attack_dict = AttackToMongoConverter.attack_to_dict(attack, include_id=False)
         try:
             result = await self._collection.insert_one(attack_dict)
             attack.id = str(result.inserted_id)
@@ -112,7 +110,7 @@ class MongoAttackRepository(AttackRepository):
             raise ValueError("Cannot update attack without ID")
         try:
             object_id = ObjectId(attack.id)
-            attack_dict = self._converter.attack_to_dict(attack, include_id=True)
+            attack_dict = AttackToMongoConverter.attack_to_dict(attack, include_id=True)
             result = await self._collection.replace_one({"_id": object_id}, attack_dict)
             if result.matched_count == 0:
                 return None
@@ -175,7 +173,7 @@ class MongoAttackRepository(AttackRepository):
         cursor = self._collection.find(query).skip(skip).limit(limit)
         attacks = []
         async for doc in cursor:
-            attacks.append(self._converter.dict_to_attack(doc))
+            attacks.append(AttackFromMongoConverter.dict_to_attack(doc))
         return attacks
 
     async def count_all(

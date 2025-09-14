@@ -13,5 +13,5 @@ class UpdateAttackRollUseCase:
         """Execute the update attack roll use case."""
 
         return await self._attack_resolution_service.update_attack_roll(
-            attack_id=command.attack_id, roll=command.roll
+            attack_id=command.attack_id, roll=command.roll, location=command.location
         )

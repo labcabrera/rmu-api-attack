@@ -4,8 +4,6 @@ This class handles conversion between Attack domain entities and MongoDB documen
 """
 
 from typing import Dict, Any, Optional
-from bson import ObjectId
-
 from app.domain.entities import (
     Attack,
     AttackModifiers,
@@ -22,6 +20,7 @@ from app.domain.entities import (
     CriticalTableEntry,
     CriticalEffect,
     AttackFumbleResult,
+    AttackArmor,
 )
 from app.domain.entities.enums import (
     AttackStatus,
@@ -36,111 +35,8 @@ from app.domain.entities.enums import (
 )
 
 
-class MongoAttackConverter:
+class AttackFromMongoConverter:
     """Converter for Attack entities to/from MongoDB documents"""
-
-    @staticmethod
-    def attack_to_dict(attack: Attack, include_id: bool = True) -> Dict[str, Any]:
-        """Convert Attack domain entity to dictionary for MongoDB"""
-
-        attack_dict = {
-            "actionId": attack.action_id,
-            "sourceId": attack.source_id,
-            "targetId": attack.target_id,
-            "status": attack.status.value,
-            "modifiers": {
-                "attackType": attack.modifiers.attack_type.value,
-                "attackTable": attack.modifiers.attack_table,
-                "attackSize": attack.modifiers.attack_size,
-                "fumbleTable": attack.modifiers.fumble_table,
-                "at": attack.modifiers.at,
-                "actionPoints": attack.modifiers.action_points,
-                "fumble": attack.modifiers.fumble,
-                "rollModifiers": {
-                    "bo": attack.modifiers.roll_modifiers.bo,
-                    "bd": attack.modifiers.roll_modifiers.bd,
-                    "injuryPenalty": attack.modifiers.roll_modifiers.injury_penalty,
-                    "pacePenalty": attack.modifiers.roll_modifiers.pace_penalty,
-                    "fatiguePenalty": attack.modifiers.roll_modifiers.fatigue_penalty,
-                    "rangePenalty": attack.modifiers.roll_modifiers.range_penalty,
-                    "shield": attack.modifiers.roll_modifiers.shield,
-                    "parry": attack.modifiers.roll_modifiers.parry,
-                    "customBonus": attack.modifiers.roll_modifiers.custom_bonus,
-                },
-                "situationalModifiers": {
-                    "cover": attack.modifiers.situational_modifiers.cover.value,
-                    "restrictedQuarters": attack.modifiers.situational_modifiers.restricted_quarters.value,
-                    "positionalSource": attack.modifiers.situational_modifiers.positional_source.value,
-                    "positionalTarget": attack.modifiers.situational_modifiers.positional_target.value,
-                    "dodge": attack.modifiers.situational_modifiers.dodge.value,
-                    "disabledDb": attack.modifiers.situational_modifiers.disabled_db,
-                    "disabledShield": attack.modifiers.situational_modifiers.disabled_shield,
-                    "disabledParry": attack.modifiers.situational_modifiers.disabled_parry,
-                    "sizeDifference": attack.modifiers.situational_modifiers.size_difference,
-                    "offHand": attack.modifiers.situational_modifiers.off_hand,
-                    "twoHandedWeapon": attack.modifiers.situational_modifiers.two_handed_weapon,
-                    "higherGround": attack.modifiers.situational_modifiers.higher_ground,
-                    "sourceStatus": attack.modifiers.situational_modifiers.source_status
-                    or [],
-                    "targetStatus": attack.modifiers.situational_modifiers.target_status
-                    or [],
-                },
-                "features": [
-                    {"key": feature.key, "value": feature.value}
-                    for feature in attack.modifiers.features or []
-                ],
-                "sourceSkills": [
-                    {"skillId": skill.skill_id, "bonus": skill.bonus}
-                    for skill in attack.modifiers.source_skills or []
-                ],
-            },
-        }
-
-        # Only add _id if requested and attack has an id (for updates)
-        if include_id and attack.id:
-            attack_dict["_id"] = ObjectId(attack.id)
-
-        # Handle roll conversion
-        if attack.roll:
-            attack_dict["roll"] = {
-                "roll": attack.roll.roll,
-                "criticalRolls": attack.roll.critical_rolls or None,
-                "fumbleRoll": attack.roll.fumble_roll or None,
-            }
-        else:
-            attack_dict["roll"] = None
-
-        # Handle calculated conversion
-        if attack.calculated:
-            attack_dict["calculated"] = {
-                "rollModifiers": [
-                    {"key": modifier.key, "value": modifier.value}
-                    for modifier in attack.calculated.roll_modifiers
-                ],
-                "criticalModifiers": [
-                    {"key": modifier.key, "value": modifier.value}
-                    for modifier in attack.calculated.critical_modifiers
-                ],
-                "criticalSeverityModifiers": [
-                    {"key": modifier.key, "value": modifier.value}
-                    for modifier in attack.calculated.critical_severity_modifiers
-                ],
-                "rollTotal": attack.calculated.roll_total,
-                "criticalTotal": attack.calculated.critical_total,
-                "criticalSeverityTotal": attack.calculated.critical_severity_total,
-            }
-        else:
-            attack_dict["calculated"] = None
-
-        # Handle results conversion
-        if attack.results:
-            attack_dict["results"] = MongoAttackConverter.attack_result_to_dict(
-                attack.results
-            )
-        else:
-            attack_dict["results"] = None
-
-        return attack_dict
 
     @staticmethod
     def dict_to_attack(attack_dict: Dict[str, Any]) -> Optional[Attack]:
@@ -160,6 +56,7 @@ class MongoAttackConverter:
             pace_penalty=roll_modifiers_data.get("pacePenalty", 0),
             fatigue_penalty=roll_modifiers_data.get("fatiguePenalty", 0),
             range_penalty=roll_modifiers_data.get("rangePenalty", 0),
+            called_shot_penalty=roll_modifiers_data.get("calledShotPenalty", 0),
             shield=roll_modifiers_data.get("shield", 0),
             parry=roll_modifiers_data.get("parry", 0),
             custom_bonus=roll_modifiers_data.get("customBonus", 0),
@@ -194,9 +91,16 @@ class MongoAttackConverter:
             attack_table=attack_dict.get("modifiers", {}).get("attackTable", ""),
             attack_size=attack_dict.get("modifiers", {}).get("attackSize", ""),
             fumble_table=attack_dict.get("modifiers", {}).get("fumbleTable", ""),
-            at=attack_dict.get("modifiers", {}).get("at", 0),
+            armor=AttackArmor(
+                at=modifiers_data.get("armor", {}).get("at", None),
+                body_at=modifiers_data.get("armor", {}).get("body_at", None),
+                head_at=modifiers_data.get("armor", {}).get("head_at", None),
+                arms_at=modifiers_data.get("armor", {}).get("arms_at", None),
+                legs_at=modifiers_data.get("armor", {}).get("legs_at", None),
+            ),
             action_points=attack_dict.get("modifiers", {}).get("actionPoints", 4),
             fumble=attack_dict.get("modifiers", {}).get("fumble", 1),
+            called_shot=modifiers_data.get("calledShot", None),
             roll_modifiers=roll_modifiers,
             situational_modifiers=situational_modifiers,
             features=[
@@ -211,9 +115,10 @@ class MongoAttackConverter:
 
         roll = None
         if attack_dict.get("roll"):
-
             roll = AttackRoll(
                 roll=attack_dict["roll"]["roll"],
+                location=attack_dict["roll"].get("location", None),
+                at=attack_dict["roll"].get("at", None),
                 critical_rolls=attack_dict["roll"].get("criticalRolls", None),
                 fumble_roll=attack_dict["roll"].get("fumbleRoll", None),
             )
@@ -257,7 +162,7 @@ class MongoAttackConverter:
                 critical_severity_total=calculated_data.get("criticalSeverityTotal", 0),
             )
 
-        results = MongoAttackConverter.dict_to_attack_result(attack_dict)
+        results = AttackFromMongoConverter.dict_to_attack_result(attack_dict)
 
         if not "status" in attack_dict:
             raise ValueError("Attack dictionary must contain 'status' field")
@@ -269,6 +174,7 @@ class MongoAttackConverter:
 
         return Attack(
             id=attack_id,
+            game_id=attack_dict.get("gameId", ""),
             action_id=attack_dict.get("actionId", ""),
             source_id=attack_dict.get("sourceId", ""),
             target_id=attack_dict.get("targetId", ""),
@@ -278,75 +184,6 @@ class MongoAttackConverter:
             calculated=calculated,
             results=results,
         )
-
-    @staticmethod
-    def attack_result_to_dict(attack_result: AttackResult) -> Dict[str, Any]:
-        """Convert AttackResult domain entity to dictionary for MongoDB"""
-        result_dict = {}
-        if attack_result.attack_table_entry:
-            result_dict["attackTableEntry"] = {
-                "text": attack_result.attack_table_entry.text,
-                "damage": attack_result.attack_table_entry.damage,
-                "criticalType": attack_result.attack_table_entry.critical_type,
-                "criticalSeverity": attack_result.attack_table_entry.critical_severity,
-            }
-        if attack_result.criticals:
-            criticals = []
-            for c in attack_result.criticals:
-                critical_effects = None
-                if c.result and c.result.effects:
-                    critical_effects = []
-                    for effect in c.result.effects:
-                        critical_effects.append(
-                            {
-                                "status": effect.status,
-                                "rounds": effect.rounds,
-                                "value": effect.value,
-                                "delay": effect.delay,
-                                "condition": effect.condition,
-                            }
-                        )
-                critical_result = (
-                    {
-                        "text": c.result.text,
-                        "damage": c.result.damage,
-                        "location": c.result.location,
-                        "effects": critical_effects,
-                    }
-                    if c.result
-                    else None
-                )
-                criticals.append(
-                    {
-                        "key": c.key,
-                        "status": c.status.value,
-                        "type": c.critical_type,
-                        "criticalSeverity": c.critical_severity,
-                        "adjustedRoll": c.adjusted_roll,
-                        "result": critical_result,
-                    }
-                )
-            result_dict["criticals"] = criticals
-
-        if attack_result.fumble:
-            result_dict["fumble"] = {
-                "status": attack_result.fumble.status.value,
-                "text": attack_result.fumble.text,
-                "additionalDamageText": attack_result.fumble.additional_damage_text,
-                "damage": attack_result.fumble.damage,
-                # "effects": [
-                #     {
-                #         "status": effect.status,
-                #         "rounds": effect.rounds,
-                #         "value": effect.value,
-                #         "delay": effect.delay,
-                #         "condition": effect.condition,
-                #     }
-                #     for effect in attack_result.fumble.effects
-                # ],
-            }
-
-        return result_dict
 
     @staticmethod
     def dict_to_attack_result(dict: Dict[str, Any]) -> Optional[AttackResult]:

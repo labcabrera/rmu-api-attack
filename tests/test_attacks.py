@@ -13,7 +13,7 @@ from app.domain.entities import (
     AttackStatus,
     AttackType,
 )
-from app.infrastructure.dependency_container import container
+from app.infrastructure.container import Container
 
 # Mock attack data for testing
 MOCK_ATTACK_1 = Attack(
@@ -70,7 +70,9 @@ client = TestClient(app)
 class TestAttacksAPI:
     """Tests for the attacks endpoint"""
 
-    @patch.object(container, "get_get_attack_use_case")
+    container = Container()
+
+    @patch.object(container, "search_attack_by_id_use_case")
     def test_get_existing_attack(self, mock_get_use_case):
         """Test to get an existing attack"""
         # Mock the use case and its execute method
@@ -130,7 +132,7 @@ class TestAttacksAPI:
 
         mock_use_case.execute.assert_called_once_with(attack_id)
 
-    @patch.object(container, "get_create_attack_use_case")
+    @patch.object(container, "create_attack_use_case")
     def test_create_attack_success(self, mock_create_use_case):
         """Test successful attack creation"""
         # Mock the use case and its execute method
@@ -181,7 +183,7 @@ class TestAttacksAPI:
 
         assert response.status_code == 422  # Validation error
 
-    @patch.object(container, "get_update_attack_use_case")
+    @patch.object(container, "update_attack_modifiers_use_case")
     def test_update_attack_success(self, mock_update_use_case):
         """Test successful attack update"""
         # Mock the use case
@@ -213,7 +215,7 @@ class TestAttacksAPI:
 
         assert response.status_code == 404
 
-    @patch.object(container, "get_delete_attack_use_case")
+    @patch.object(container, "delete_attack_use_case")
     def test_delete_attack_success(self, mock_delete_use_case):
         """Test successful attack deletion"""
         # Mock the use case
@@ -241,7 +243,7 @@ class TestAttacksAPI:
 
         assert response.status_code == 404
 
-    @patch.object(container, "get_list_attacks_use_case")
+    @patch.object(container, "search_attack_by_rsql_use_case")
     def test_list_attacks_success(self, mock_list_use_case):
         """Test successful attacks listing"""
         # Mock the use case
@@ -285,7 +287,7 @@ class TestAttacksAPI:
         assert len(data) == 1
         assert data[0]["id"] == "atk_001"
 
-    @patch.object(container, "get_execute_attack_roll_use_case")
+    @patch.object(container, "update_attack_roll_use_case")
     def test_execute_attack_roll_success(self, mock_roll_use_case):
         """Test successful attack roll execution"""
         # Mock the use case

@@ -96,36 +96,3 @@ class AttackRepository(ABC):
     async def exists(self, attack_id: str) -> bool:
         """Check if an attack exists"""
         pass
-
-
-class AttackNotificationPort(ABC):
-    """Port for attack notifications"""
-
-    @abstractmethod
-    async def notify_attack_created(self, attack: Attack) -> None:
-        """Notify that an attack was created"""
-        pass
-
-    @abstractmethod
-    async def notify_attack_executed(self, attack: Attack) -> None:
-        """Notify that an attack was executed"""
-        pass
-
-    @abstractmethod
-    async def notify_attack_updated(self, attack: Attack) -> None:
-        """Notify that an attack was updated"""
-        pass
-
-
-class AttackValidationPort(ABC):
-    """Port for attack validation"""
-
-    @abstractmethod
-    async def validate_attack_creation(self, attack: Attack) -> bool:
-        """Validate if an attack can be created"""
-        pass
-
-    @abstractmethod
-    async def validate_attack_execution(self, attack: Attack) -> bool:
-        """Validate if an attack can be executed"""
-        pass

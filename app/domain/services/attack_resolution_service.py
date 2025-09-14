@@ -26,10 +26,12 @@ class AttackResolutionService:
         self._notification_port = notification_port
         self._attack_table_client = attack_table_client
 
-    async def update_attack_roll(self, attack_id: str, roll: int) -> Attack:
+    async def update_attack_roll(
+        self, attack_id: str, roll: int, location: Optional[str]
+    ) -> Attack:
         # TODO check valid status
         attack = await self._attack_repository.find_by_id(attack_id)
-        attack.roll = AttackRoll(roll=roll)
+        attack.set_roll(roll=roll, location=location)
         await self._attack_calculator.calculate_attack(attack)
         updated_attack = await self._attack_repository.update(attack)
         return updated_attack
