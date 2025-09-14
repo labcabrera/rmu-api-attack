@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.infrastructure.config.config import settings
-from app.infrastructure.dependency_container import container
+from app.infrastructure.container import Container
 from app.infrastructure.logging import setup_logging, get_logger
 from app.interfaces.http.attack_controller import router as attack_router
 
@@ -20,16 +20,17 @@ async def lifespan(app: FastAPI):
     Manage application lifecycle events
     """
     logger.info("Starting RMU Attack API...")
-    await container.initialize()
+    container = Container()
     logger.info("Started RMU Attack API")
 
     yield
 
     logger.info("Shutting down RMU Attack API...")
-    await container.cleanup()
+    # No cleanup needed for dependency-injector container
     logger.info("Shut down complete")
 
 
+container = Container()
 app = FastAPI(
     title=settings.APP_NAME,
     description=settings.APP_DESCRIPTION,
@@ -57,7 +58,7 @@ async def health_check():
     """
     try:
         # Test database connectivity through the repository
-        attack_repository = container.get_attack_repository()
+        attack_repository = container.attack_repository()
         if hasattr(attack_repository, "connect"):
             await attack_repository.connect()
         db_status = "connected"
