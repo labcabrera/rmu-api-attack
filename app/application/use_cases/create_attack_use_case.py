@@ -16,6 +16,7 @@ class CreateAttackUseCase:
         command.validate()
         attack = Attack(
             id=None,
+            game_id=command.game_id,
             action_id=command.action_id,
             source_id=command.source_id,
             target_id=command.target_id,

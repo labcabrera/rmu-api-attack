@@ -171,6 +171,7 @@ class Attack:
     """Attack domain entity."""
 
     id: str
+    game_id: str
     action_id: str
     source_id: str
     target_id: str

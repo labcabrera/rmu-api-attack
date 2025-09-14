@@ -5,7 +5,6 @@ This class handles conversion between Attack domain entities and MongoDB documen
 
 from typing import Dict, Any, Optional
 from bson import ObjectId
-
 from app.domain.entities import (
     Attack,
     AttackModifiers,
@@ -44,6 +43,7 @@ class MongoAttackConverter:
         """Convert Attack domain entity to dictionary for MongoDB"""
 
         attack_dict = {
+            "gameId": attack.game_id,
             "actionId": attack.action_id,
             "sourceId": attack.source_id,
             "targetId": attack.target_id,
@@ -269,6 +269,7 @@ class MongoAttackConverter:
 
         return Attack(
             id=attack_id,
+            game_id=attack_dict.get("gameId", ""),
             action_id=attack_dict.get("actionId", ""),
             source_id=attack_dict.get("sourceId", ""),
             target_id=attack_dict.get("targetId", ""),
