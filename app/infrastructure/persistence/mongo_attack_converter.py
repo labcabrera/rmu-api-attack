@@ -21,6 +21,7 @@ from app.domain.entities import (
     CriticalTableEntry,
     CriticalEffect,
     AttackFumbleResult,
+    AttackArmor,
 )
 from app.domain.entities.enums import (
     AttackStatus,
@@ -53,7 +54,13 @@ class MongoAttackConverter:
                 "attackTable": attack.modifiers.attack_table,
                 "attackSize": attack.modifiers.attack_size,
                 "fumbleTable": attack.modifiers.fumble_table,
-                "at": attack.modifiers.at,
+                "armor": {
+                    "at": attack.modifiers.armor.at,
+                    "body_at": attack.modifiers.armor.body_at,
+                    "head_at": attack.modifiers.armor.head_at,
+                    "arms_at": attack.modifiers.armor.arms_at,
+                    "legs_at": attack.modifiers.armor.legs_at,
+                },
                 "actionPoints": attack.modifiers.action_points,
                 "fumble": attack.modifiers.fumble,
                 "rollModifiers": {
@@ -194,7 +201,14 @@ class MongoAttackConverter:
             attack_table=attack_dict.get("modifiers", {}).get("attackTable", ""),
             attack_size=attack_dict.get("modifiers", {}).get("attackSize", ""),
             fumble_table=attack_dict.get("modifiers", {}).get("fumbleTable", ""),
-            at=attack_dict.get("modifiers", {}).get("at", 0),
+            # at=attack_dict.get("modifiers", {}).get("at", 0),
+            armor=AttackArmor(
+                at=modifiers_data.get("armor", {}).get("at", None),
+                body_at=modifiers_data.get("armor", {}).get("body_at", None),
+                head_at=modifiers_data.get("armor", {}).get("head_at", None),
+                arms_at=modifiers_data.get("armor", {}).get("arms_at", None),
+                legs_at=modifiers_data.get("armor", {}).get("legs_at", None),
+            ),
             action_points=attack_dict.get("modifiers", {}).get("actionPoints", 4),
             fumble=attack_dict.get("modifiers", {}).get("fumble", 1),
             roll_modifiers=roll_modifiers,

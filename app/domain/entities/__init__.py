@@ -1,17 +1,18 @@
 from .attack import (
     Attack,
-    AttackModifiers,
     AttackRoll,
     AttackResult,
-    AttackRollModifiers,
-    AttackSituationalModifiers,
     AttackCalculations,
     AttackBonusEntry,
-    AttackTableEntry,
-    AttackFeature,
-    AttackSkill,
     AttackFumbleResult,
 )
+from .attack_table_entry import AttackTableEntry
+from .attack_modifiers import AttackModifiers
+from .attack_roll_modifiers import AttackRollModifiers
+from .attack_situational_modifiers import AttackSituationalModifiers
+from .attack_skill import AttackSkill
+from .attack_feature import AttackFeature
+from .attack_armor import AttackArmor
 from .critical import (
     CriticalEffect,
     CriticalTableEntry,
@@ -38,6 +39,7 @@ __all__ = [
     "AttackTableEntry",
     "CriticalTableEntry",
     "AttackFeature",
+    "AttackArmor",
     "AttackSkill",
     "AttackFumbleResult",
     "CriticalEffect",

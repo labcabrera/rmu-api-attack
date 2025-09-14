@@ -9,7 +9,7 @@ from app.infrastructure.adapters.external.attack_table_rest_adapter import (
     AttackTableRestAdapter,
     AttackTableRestAdapterWithRetry,
 )
-from app.domain.entities.attack_table import AttackTableEntry
+from domain.entities.attack_table_entry import AttackTableEntry
 
 
 class TestAttackTableRestAdapter:

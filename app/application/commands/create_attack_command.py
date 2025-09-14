@@ -28,3 +28,5 @@ class CreateAttackCommand:
             raise ValueError("Target identifier is required")
         if not self.modifiers:
             raise ValueError("Modifiers are required")
+        if not self.modifiers.armor:
+            raise ValueError("Armor data is required")
