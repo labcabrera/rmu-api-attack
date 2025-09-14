@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.application.commands import UpdateAttackRollCommand
@@ -16,10 +17,17 @@ class UpdateAttackRollRequestDTO(BaseModel):
     )
 
     roll: int = Field(..., description="Roll value to apply to the attack")
+    location: Optional[str] = Field(
+        None,
+        description=(
+            "Location of the attack. Required if not a called shot and using different AT values."
+        ),
+    )
 
     def to_command(self, attack_id: str) -> UpdateAttackRollCommand:
         """Convert to command for use in application layer."""
         return UpdateAttackRollCommand(
             attack_id=attack_id,
             roll=self.roll,
+            location=self.location,
         )

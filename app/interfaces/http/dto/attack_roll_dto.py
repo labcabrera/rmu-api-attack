@@ -7,6 +7,8 @@ class AttackRollDTO(BaseModel):
     """DTO for attack roll"""
 
     roll: int = Field(..., description="Roll result")
+    location: Optional[str] = Field(None, description="Hit location")
+    at: int = Field(..., description="Resolved armor type")
     criticalRolls: Optional[dict[str, int]] = Field(
         None, description="Critical rolls by type"
     )
@@ -17,6 +19,8 @@ class AttackRollDTO(BaseModel):
     def to_entity(self):
         return AttackRoll(
             roll=self.roll,
+            location=self.location,
+            at=self.at,
             critical_rolls=self.criticalRolls,
             fumble_roll=self.fumbleRoll,
         )
@@ -25,6 +29,8 @@ class AttackRollDTO(BaseModel):
     def from_entity(cls, entity: AttackRoll) -> "AttackRollDTO":
         return cls(
             roll=entity.roll,
+            location=entity.location,
+            at=entity.at,
             criticalRolls=entity.critical_rolls,
             fumbleRoll=entity.fumble_roll,
         )

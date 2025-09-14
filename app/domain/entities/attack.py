@@ -4,71 +4,15 @@ Domain entities for the RMU Attack system.
 
 from typing import Optional
 from dataclasses import dataclass
-from .attack_roll_modifiers import AttackRollModifiers
+
+from .attack_calculations import AttackCalculations
+from .attack_result import AttackResult
+from .attack_roll import AttackRoll
 from .attack_modifiers import AttackModifiers
-from .critical import CriticalEffect, AttackCriticalResult
-from .attack_table_entry import AttackTableEntry
 from .enums import (
     AttackStatus,
     AttackType,
-    FumbleStatus,
 )
-
-
-@dataclass
-class AttackBonusEntry:
-    """Attack bonus data"""
-
-    key: str
-    value: int
-
-
-@dataclass
-class AttackCalculations:
-    """Calculated data for attack processing"""
-
-    roll_modifiers: list[AttackBonusEntry] = None
-    critical_modifiers: list[AttackBonusEntry] = None
-    critical_severity_modifiers: list[AttackBonusEntry] = None
-    roll_total: int = 0
-    critical_total: int = 0
-    critical_severity_total: int = 0
-
-
-@dataclass
-class AttackRoll:
-    """Attack roll data"""
-
-    roll: Optional[int] = None
-    critical_rolls: dict[str, int] = None
-    fumble_roll: Optional[int] = None
-
-
-@dataclass
-class AttackFumbleResult:
-
-    status: FumbleStatus = None
-    text: Optional[str] = None
-    additional_damage_text: Optional[str] = None
-    damage: Optional[int] = None
-    effects: Optional[list[CriticalEffect]] = None
-
-
-@dataclass
-class AttackResult:
-    """Attack result data"""
-
-    attack_table_entry: Optional[AttackTableEntry] = None
-    criticals: list[AttackCriticalResult] = None
-    fumble: Optional[AttackFumbleResult] = None
-
-    def get_critical_by_key(self, key: str) -> Optional[AttackCriticalResult]:
-        """Get critical result by key"""
-        if self.criticals:
-            for critical in self.criticals:
-                if critical.key == key:
-                    return critical
-        return None
 
 
 @dataclass
@@ -85,6 +29,27 @@ class Attack:
     roll: Optional[AttackRoll] = None
     calculated: Optional[AttackCalculations] = None
     results: Optional[AttackResult] = None
+
+    def set_roll(self, roll: int, location: Optional[str]) -> None:
+        if not roll:
+            raise ValueError("Roll value must be provided")
+        if self.modifiers.called_shot and location:
+            raise ValueError("Location should not be provided for a called shot")
+        if not self.modifiers.armor.at and not location:
+            raise ValueError("Location must be provided using different AT values")
+        effective_location = location or self.modifiers.called_shot
+        effective_at = self.modifiers.armor.at
+        if not effective_at:
+            match effective_location:
+                case "body":
+                    effective_at = self.modifiers.armor.body_at
+                case "head":
+                    effective_at = self.modifiers.armor.head_at
+                case "arms":
+                    effective_at = self.modifiers.armor.arms_at
+                case "legs":
+                    effective_at = self.modifiers.armor.legs_at
+        self.roll = AttackRoll(roll=roll, location=effective_location, at=effective_at)
 
     def is_melee(self) -> bool:
         return self.modifiers.attack_type == AttackType.MELEE

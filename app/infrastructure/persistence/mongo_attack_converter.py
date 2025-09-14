@@ -112,6 +112,8 @@ class MongoAttackConverter:
         if attack.roll:
             attack_dict["roll"] = {
                 "roll": attack.roll.roll,
+                "location": attack.roll.location or None,
+                "at": attack.roll.at or None,
                 "criticalRolls": attack.roll.critical_rolls or None,
                 "fumbleRoll": attack.roll.fumble_roll or None,
             }
@@ -226,9 +228,10 @@ class MongoAttackConverter:
 
         roll = None
         if attack_dict.get("roll"):
-
             roll = AttackRoll(
                 roll=attack_dict["roll"]["roll"],
+                location=attack_dict["roll"].get("location", None),
+                at=attack_dict["roll"].get("at", None),
                 critical_rolls=attack_dict["roll"].get("criticalRolls", None),
                 fumble_roll=attack_dict["roll"].get("fumbleRoll", None),
             )
@@ -350,16 +353,6 @@ class MongoAttackConverter:
                 "text": attack_result.fumble.text,
                 "additionalDamageText": attack_result.fumble.additional_damage_text,
                 "damage": attack_result.fumble.damage,
-                # "effects": [
-                #     {
-                #         "status": effect.status,
-                #         "rounds": effect.rounds,
-                #         "value": effect.value,
-                #         "delay": effect.delay,
-                #         "condition": effect.condition,
-                #     }
-                #     for effect in attack_result.fumble.effects
-                # ],
             }
 
         return result_dict

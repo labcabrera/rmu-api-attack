@@ -68,9 +68,7 @@ class AttackCalculator:
         if not self._attack_table_client:
             raise ValueError("No attack table client configured")
         
-        at = attack.modifiers.armor.at
-        if not at:
-            raise ValueError("Not implemented armor calculation without at")
+        
 
         try:
             attack_table_entry = (

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -7,6 +8,7 @@ class UpdateAttackRollCommand:
 
     attack_id: str
     roll: int
+    location: Optional[str] = None
 
     def validate(self) -> None:
         """Validate command data"""
