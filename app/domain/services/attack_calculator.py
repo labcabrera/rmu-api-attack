@@ -76,7 +76,7 @@ class AttackCalculator:
                     attack_table=attack.modifiers.attack_table,
                     size=attack.modifiers.attack_size,
                     roll=attack.calculated.roll_total,
-                    at=at,
+                    at=attack.roll.at,
                 )
             )
             attack.results = AttackResult(
