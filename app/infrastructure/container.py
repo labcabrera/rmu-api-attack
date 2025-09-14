@@ -8,27 +8,16 @@ from app.infrastructure.config.attack_table_config import AttackTableApiConfig
 from app.domain.services.attack_calculator import AttackCalculator
 from app.domain.services.attack_domain_service import AttackDomainService
 from app.domain.services.attack_resolution_service import AttackResolutionService
-from app.application.use_cases.apply_attack_use_case import ApplyAttackUseCase
-from app.application.use_cases.create_attack_use_case import CreateAttackUseCase
-from app.application.use_cases.delete_attack_use_case import DeleteAttackUseCase
-from app.application.use_cases.search_attack_by_id_use_case import (
-    SearchAttackByIdUseCase,
-)
-from app.application.use_cases.search_attacks_by_rsql_use_case import (
-    SearchAttacksByRsqlUseCase,
-)
-from app.application.use_cases.update_attack_modifiers_use_case import (
-    UpdateAttackModifiersUseCase,
-)
-from app.application.use_cases.update_attack_roll_use_case import (
-    UpdateAttackRollUseCase,
-)
-from app.application.use_cases.update_critical_roll_use_case import (
-    UpdateCriticalRollUseCase,
-)
-from app.application.use_cases.update_fumble_roll_use_case import (
-    UpdateFumbleRollUseCase,
-)
+from app.application.use_cases import ApplyAttackUseCase
+from app.application.use_cases import CreateAttackUseCase
+from app.application.use_cases import DeleteAttackUseCase
+from app.application.use_cases import SearchAttackByIdUseCase
+from app.application.use_cases import SearchAttacksByRsqlUseCase
+from app.application.use_cases import UpdateAttackModifiersUseCase
+from app.application.use_cases import UpdateAttackRollUseCase
+from app.application.use_cases import UpdateCriticalRollUseCase
+from app.application.use_cases import UpdateAttackParryUseCase
+from app.application.use_cases import UpdateFumbleRollUseCase
 from app.infrastructure.config.config import settings
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -100,4 +89,9 @@ class Container(containers.DeclarativeContainer):
     )
     update_fumble_roll_use_case = providers.Singleton(
         UpdateFumbleRollUseCase, attack_resolution_service
+    )
+    update_attack_parry_use_case = providers.Singleton(
+        UpdateAttackParryUseCase,
+        attack_repository=attack_repository,
+        attack_calculator=attack_calculator,
     )
