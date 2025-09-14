@@ -205,7 +205,7 @@ class Attack:
     def set_roll(self, roll: int, location: Optional[str]) -> None:
         if not roll:
             raise ValueError("Roll value must be provided")
-        if self.modifiers.called_shot and location:
+        if self.is_called_shot() and location:
             raise ValueError("Location should not be provided for a called shot")
         if not self.modifiers.armor.at and not location:
             raise ValueError("Location must be provided using different AT values")
@@ -232,3 +232,8 @@ class Attack:
             and self.roll
             and self.roll.roll <= self.modifiers.fumble
         )
+    
+    def is_called_shot(self) -> bool:
+        if(not self.modifiers.called_shot):
+            return False
+        return self.modifiers.called_shot != 'none'
