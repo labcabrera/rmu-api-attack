@@ -23,6 +23,9 @@ class AttackModifiersDTO(BaseModel):
         ..., description="Action points available for the attack", ge=1
     )
     fumble: int = Field(1, description="Fumble threshold for the attack", ge=0)
+    calledShot: str | None = Field(
+        default=None, description="Called shot location or description"
+    )
     rollModifiers: AttackRollModifiersDTO = Field(
         ..., description="Modifiers for the attack roll"
     )
@@ -55,6 +58,7 @@ class AttackModifiersDTO(BaseModel):
             armor=self.armor.to_entity(),
             action_points=self.actionPoints,
             fumble=self.fumble,
+            called_shot=self.calledShot,
             roll_modifiers=self.rollModifiers.to_entity(),
             situational_modifiers=self.situationalModifiers.to_entity(),
             features=[feature.to_entity() for feature in self.features],
@@ -71,6 +75,7 @@ class AttackModifiersDTO(BaseModel):
             armor=AttackArmorDTO.from_entity(entity.armor),
             actionPoints=entity.action_points,
             fumble=entity.fumble,
+            calledShot=getattr(entity, "called_shot", None),
             rollModifiers=AttackRollModifiersDTO.from_entity(entity.roll_modifiers),
             situationalModifiers=AttackSituationalModifiersDTO.from_entity(
                 entity.situational_modifiers

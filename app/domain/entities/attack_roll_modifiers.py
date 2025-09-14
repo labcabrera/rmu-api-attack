@@ -9,6 +9,7 @@ class AttackRollModifiers:
     injury_penalty: int = 0
     pace_penalty: int = 0
     fatigue_penalty: int = 0
+    called_shot_penalty: int = 0
     bd: int = 0
     shield: int = 0
     range_penalty: int = 0

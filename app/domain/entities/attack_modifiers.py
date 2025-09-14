@@ -19,6 +19,7 @@ class AttackModifiers:
     armor: AttackArmor = None
     action_points: int = 4
     fumble: int = 1
+    called_shot: str = None
     roll_modifiers: AttackRollModifiers = None
     situational_modifiers: AttackSituationalModifiers = None
     features: list[AttackFeature] = None
