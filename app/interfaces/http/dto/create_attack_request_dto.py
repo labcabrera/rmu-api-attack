@@ -10,6 +10,7 @@ class CreateAttackRequestDTO(BaseModel):
         use_enum_values=True,
         json_schema_extra={
             "example": {
+                "gameId": "game_001",
                 "actionId": "action_001",
                 "sourceId": "character_001",
                 "targetId": "character_002",
@@ -32,15 +33,17 @@ class CreateAttackRequestDTO(BaseModel):
         },
     )
 
-    actionId: str = Field(..., description="Action ID")
-    sourceId: str = Field(..., description="Source ID")
-    targetId: str = Field(..., description="Target ID")
+    gameId: str = Field(..., description="Tactical game identifier")
+    actionId: str = Field(..., description="Action identifier")
+    sourceId: str = Field(..., description="Source identifier")
+    targetId: str = Field(..., description="Target identifier")
     modifiers: AttackModifiersDTO = Field(
         ..., description="Attack modifiers including type and bonuses"
     )
 
     def to_command(self):
         return CreateAttackCommand(
+            game_id=self.gameId,
             action_id=self.actionId,
             source_id=self.sourceId,
             target_id=self.targetId,

@@ -6,7 +6,6 @@ This adapter implements the AttackTableService port by making HTTP calls to an e
 import asyncio
 from typing import Optional
 import httpx
-
 from app.domain.entities import (
     AttackTableEntry,
     CriticalTableEntry,

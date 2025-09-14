@@ -10,6 +10,7 @@ from app.domain.entities.attack import AttackModifiers
 class CreateAttackCommand:
     """Command object for creating an attack"""
 
+    game_id: str
     action_id: str
     source_id: str
     target_id: str
@@ -17,11 +18,13 @@ class CreateAttackCommand:
 
     def validate(self) -> None:
         """Validate command data"""
+        if not self.game_id:
+            raise ValueError("Tactical game identifier is required")
         if not self.action_id:
-            raise ValueError("Action ID is required")
+            raise ValueError("Action identifier is required")
         if not self.source_id:
-            raise ValueError("Source ID is required")
+            raise ValueError("Source identifier is required")
         if not self.target_id:
-            raise ValueError("Target ID is required")
+            raise ValueError("Target identifier is required")
         if not self.modifiers:
             raise ValueError("Modifiers are required")

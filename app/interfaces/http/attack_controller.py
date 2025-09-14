@@ -4,7 +4,10 @@ Attack web controller.
 
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
-from app.infrastructure.dependency_container import container
+from app.infrastructure.container import Container
+
+# Instantiate the container only once at module level
+container = Container()
 from app.infrastructure.logging import log_endpoint, log_errors, get_logger
 from app.interfaces.http.dto import (
     AttackDTO,
@@ -41,7 +44,7 @@ async def search_attacks_by_rsql(
 
     logger.info(f"Search attacks << search: {search}, page: {page}, size: {size}")
     try:
-        use_case = container.get_search_attack_by_rsql_use_case()
+        use_case = container.search_attack_by_rsql_use_case()
         result_page = await use_case.execute(
             rsql_query=search,
             page=page,
@@ -67,7 +70,7 @@ async def search_attack_by_id(attack_id: str):
     logger.info(f"Retrieving attack with ID: {attack_id}")
 
     try:
-        use_case = container.get_search_attack_by_id_use_case()
+        use_case = container.search_attack_by_id_use_case()
         attack = await use_case.execute(attack_id)
         return AttackDTO.from_entity(attack)
 
@@ -93,7 +96,7 @@ async def create_attack(request: CreateAttackRequestDTO):
 
     try:
         command = request.to_command()
-        use_case = container.get_create_attack_use_case()
+        use_case = container.create_attack_use_case()
         created_attack = await use_case.execute(command)
         logger.info(f"Successfully created attack: {created_attack.id}")
         return AttackDTO.from_entity(created_attack)
@@ -124,7 +127,7 @@ async def update_attack_modifiers(
 
     try:
         command = request.to_command(attack_id=attack_id)
-        use_case = container.get_update_attack_modifiers_use_case()
+        use_case = container.update_attack_modifiers_use_case()
         attack = await use_case.execute(command)
         logger.info(f"Attack {attack_id} updated successfully")
         return AttackDTO.from_entity(attack)
@@ -152,7 +155,7 @@ async def delete_attack(attack_id: str):
 
     logger.info(f"Deleting attack: {attack_id}")
     try:
-        use_case = container.get_delete_attack_use_case()
+        use_case = container.delete_attack_use_case()
         deleted = await use_case.execute(attack_id)
         if not deleted:
             logger.warning(f"Attack not found for deletion: {attack_id}")
@@ -186,7 +189,7 @@ async def execute_attack_parry(attack_id: str, request: UpdateParryRequestDTO):
     try:
         command = request.to_command(attack_id=attack_id)
         command.validate()
-        use_case = container.get_update_attack_parry_use_case()
+        use_case = container.update_attack_parry_use_case()
         attack = await use_case.execute(command=command)
         logger.info(
             f"Successfully executed parry update for attack {attack_id}: {attack_id}"
@@ -221,7 +224,7 @@ async def execute_attack_roll(attack_id: str, request: UpdateAttackRollRequestDT
     try:
         command = request.to_command(attack_id=attack_id)
         command.validate()
-        use_case = container.get_update_attack_roll_use_case()
+        use_case = container.update_attack_roll_use_case()
         attack = await use_case.execute(command=command)
         logger.info(f"Successfully executed roll for attack {attack_id}: {attack_id}")
         return AttackDTO.from_entity(attack)
@@ -255,7 +258,7 @@ async def execute_attack_critical_roll(
     logger.info(f"Executing roll for attack {attack_id}: {request}")
     try:
         command = request.to_command(attack_id=attack_id)
-        use_case = container.get_update_critical_roll_use_case()
+        use_case = container.update_critical_roll_use_case()
         attack = await use_case.execute(command=command)
         logger.info(f"Successfully updated critical roll << {attack_id}")
         return AttackDTO.from_entity(attack)
@@ -290,7 +293,7 @@ async def execute_attack_fumble_roll(
     try:
         command = request.to_command(attack_id=attack_id)
         command.validate()
-        use_case = container.get_update_attack_roll_use_case()
+        use_case = container.update_attack_roll_use_case()
         attack = await use_case.execute(command=command)
         logger.info(f"Successfully executed roll for attack {attack_id}: {attack_id}")
         return AttackDTO.from_entity(attack)
@@ -321,7 +324,7 @@ async def apply_attack_results(attack_id: str, results_data: dict):
     logger.info(f"Applying results for attack {attack_id}: {results_data}")
 
     try:
-        use_case = container.get_apply_attack_use_case()
+        use_case = container.apply_attack_results_use_case()
         attack = await use_case.execute(attack_id, results_data)
         if not attack:
             logger.warning(f"Attack not found for results application: {attack_id}")

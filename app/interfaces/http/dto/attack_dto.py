@@ -18,10 +18,11 @@ from .attack_calculations_dto import AttackCalculationsDTO
 class AttackDTO(BaseModel):
     """DTO for complete attack"""
 
-    id: str = Field(..., description="Attack ID")
-    actionId: str = Field(..., description="Action ID")
-    sourceId: str = Field(..., description="Source ID")
-    targetId: str = Field(..., description="Target ID")
+    id: str = Field(..., description="Attack identifier")
+    gameId: str = Field(..., description="Tactical game identifier")
+    actionId: str = Field(..., description="Action identifier")
+    sourceId: str = Field(..., description="Source identifier")
+    targetId: str = Field(..., description="Target identifier")
     status: str = Field(..., description="Attack status")
     modifiers: AttackModifiersDTO = Field(..., description="Attack input")
     roll: Optional[AttackRollDTO] = Field(None, description="Attack roll")
@@ -35,6 +36,7 @@ class AttackDTO(BaseModel):
         json_schema_extra={
             "example": {
                 "id": "68837ba24b9293ca54e6ff72",
+                "gameId": "game_001",
                 "actionId": "action_001",
                 "sourceId": "character_001",
                 "targetId": "character_002",
@@ -70,6 +72,7 @@ class AttackDTO(BaseModel):
     def to_entity(self):
         return Attack(
             id=self.id,
+            game_id=self.gameId,
             action_id=self.actionId,
             source_id=self.sourceId,
             target_id=self.targetId,
@@ -84,6 +87,7 @@ class AttackDTO(BaseModel):
     def from_entity(cls, entity: Attack) -> "AttackDTO":
         return cls(
             id=entity.id,
+            gameId=entity.game_id,
             actionId=entity.action_id,
             sourceId=entity.source_id,
             targetId=entity.target_id,
