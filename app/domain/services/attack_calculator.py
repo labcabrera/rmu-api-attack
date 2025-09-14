@@ -113,8 +113,7 @@ class AttackCalculator:
         self.append_cover(attack)
         self.append_range_in_melee_bonus(attack)
         self.append_size_bonus(attack)
-        
-        # TODO called shot
+        self.append_called_shot_bonus(attack)
 
         attack.calculated.roll_modifiers = [
             p for p in attack.calculated.roll_modifiers if p.value != 0
@@ -270,6 +269,11 @@ class AttackCalculator:
     def append_size_bonus(self, attack: Attack) -> None:
         if attack.modifiers.situational_modifiers.size_difference and attack.modifiers.situational_modifiers.size_difference < 0:
             self.append_bonus(attack, "size-bonus", attack.modifiers.situational_modifiers.size_difference * 5)
+
+    def append_called_shot_bonus(self, attack: Attack) -> None: 
+        if attack.modifiers.called_shot:
+            basePenalty = attack.modifiers.roll_modifiers.called_shot_penalty or -25
+            self.append_with_skill(attack, "called-shot", basePenalty, "called-shot")
 
     def calculate_critical_modifiers(self, attack: Attack) -> None:
         if attack.calculated.roll_total > 175:
