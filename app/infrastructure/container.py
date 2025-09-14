@@ -1,7 +1,5 @@
 from dependency_injector import containers, providers
-from app.infrastructure.persistence.mongo_attack_repository import (
-    MongoAttackRepository,
-)
+from app.infrastructure.persistence import MongoAttackRepository
 from app.infrastructure.api_client.attack_table_rest_adapter import (
     AttackTableRestAdapter,
     AttackTableRestAdapterWithRetry,

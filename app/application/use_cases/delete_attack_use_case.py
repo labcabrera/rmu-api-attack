@@ -1,4 +1,4 @@
-from app.application.ports.attack_ports import AttackRepository
+from app.application.ports import AttackRepository
 
 
 class DeleteAttackUseCase:
