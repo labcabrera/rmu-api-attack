@@ -224,3 +224,25 @@ class RestrictedQuarters(Enum):
                 if i.value == value:
                     return i
         raise TypeError(f"Invalid RestrictedQuarters value: {value}")
+
+
+class CalledShot(Enum):
+    """Called shot enumeration"""
+
+    NONE = "none"
+    HEAD = "head"
+    BODY = "body"
+    ARMS = "arms"
+    LEGS = "legs"
+
+    @classmethod
+    def from_value(cls, value: Union[str, "CalledShot"]) -> "CalledShot":
+        if not value:
+            return None
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, str):
+            for i in cls:
+                if i.value == value:
+                    return i
+        raise TypeError(f"Invalid CalledShot value: {value}")

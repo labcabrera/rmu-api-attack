@@ -192,7 +192,7 @@ class Attack:
             self.append_bonus("size-bonus", sizeDif * 5)
 
     def append_called_shot_bonus(self) -> None:
-        if self.modifiers.called_shot:
+        if self.modifiers.called_shot and not self.modifiers.called_shot == 'none':
             basePenalty = self.modifiers.roll_modifiers.called_shot_penalty or -25
             self.append_with_skill("called-shot", basePenalty, "called-shot")
 
