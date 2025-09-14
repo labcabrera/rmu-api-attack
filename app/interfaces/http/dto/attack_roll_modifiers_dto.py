@@ -10,6 +10,7 @@ class AttackRollModifiersDTO(BaseModel):
     injuryPenalty: int = Field(0, description="Injury penalty to offensive bonus")
     pacePenalty: int = Field(0, description="Pace penalty to offensive bonus")
     fatiguePenalty: int = Field(0, description="Fatigue penalty to offensive bonus")
+    calledShotPenalty: int = Field(0, description="Called shot penalty")
     rangePenalty: int = Field(0, description="Range penalty")
     shield: int = Field(0, description="Shield defensive bonus")
     parry: int = Field(0, description="Parry value")
@@ -22,6 +23,7 @@ class AttackRollModifiersDTO(BaseModel):
             injury_penalty=self.injuryPenalty,
             pace_penalty=self.pacePenalty,
             fatigue_penalty=self.fatiguePenalty,
+            called_shot_penalty=self.calledShotPenalty,
             range_penalty=self.rangePenalty,
             shield=self.shield,
             parry=self.parry,
@@ -36,6 +38,7 @@ class AttackRollModifiersDTO(BaseModel):
             injuryPenalty=entity.injury_penalty,
             pacePenalty=entity.pace_penalty,
             fatiguePenalty=entity.fatigue_penalty,
+            calledShotPenalty=entity.called_shot_penalty,
             rangePenalty=entity.range_penalty,
             shield=entity.shield,
             parry=entity.parry,

@@ -56,6 +56,7 @@ class AttackFromMongoConverter:
             pace_penalty=roll_modifiers_data.get("pacePenalty", 0),
             fatigue_penalty=roll_modifiers_data.get("fatiguePenalty", 0),
             range_penalty=roll_modifiers_data.get("rangePenalty", 0),
+            called_shot_penalty=roll_modifiers_data.get("calledShotPenalty", 0),
             shield=roll_modifiers_data.get("shield", 0),
             parry=roll_modifiers_data.get("parry", 0),
             custom_bonus=roll_modifiers_data.get("customBonus", 0),

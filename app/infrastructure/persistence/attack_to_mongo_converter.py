@@ -45,6 +45,7 @@ class AttackToMongoConverter:
                     "injuryPenalty": attack.modifiers.roll_modifiers.injury_penalty,
                     "pacePenalty": attack.modifiers.roll_modifiers.pace_penalty,
                     "fatiguePenalty": attack.modifiers.roll_modifiers.fatigue_penalty,
+                    "calledShotPenalty": attack.modifiers.roll_modifiers.called_shot_penalty,
                     "rangePenalty": attack.modifiers.roll_modifiers.range_penalty,
                     "shield": attack.modifiers.roll_modifiers.shield,
                     "parry": attack.modifiers.roll_modifiers.parry,
