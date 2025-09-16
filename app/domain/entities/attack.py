@@ -38,29 +38,30 @@ class Attack:
     def append_all_modifiers(self) -> None:
         roll_modifiers = self.modifiers.roll_modifiers
         if self.roll:
-            self.append_bonus("roll", self.roll.roll)
+            self._append_bonus("roll", self.roll.roll)
 
-        self.append_bonus("bo", roll_modifiers.bo)
-        self.append_bonus("injury-penalty", roll_modifiers.injury_penalty)
-        self.append_bonus("fatigue-penalty", roll_modifiers.fatigue_penalty)
-        self.append_pace_penalty()
-        self.append_bonus("range-penalty", roll_modifiers.range_penalty)
-        self.append_bonus_bd()
-        self.append_bonus_bd_shield()
-        self.append_parry()
-        self.append_restricted_quarters()
-        self.append_source_statuses()
-        self.append_target_statuses()
-        self.append_source_weapon_type()
-        self.append_positional_source()
-        self.append_positional_target()
-        self.append_cover()
-        self.append_range_in_melee_bonus()
-        self.append_size_bonus()
-        self.append_called_shot_bonus()
-        self.append_bonus("custom-bonus", roll_modifiers.custom_bonus)
+        self._append_bonus("bo", roll_modifiers.bo)
+        self._append_bonus("injury-penalty", roll_modifiers.injury_penalty)
+        self._append_bonus("fatigue-penalty", roll_modifiers.fatigue_penalty)
+        self._append_pace_penalty()
+        self._append_bonus("range-penalty", roll_modifiers.range_penalty)
+        self._append_action_points()
+        self._append_bonus_bd()
+        self._append_bonus_bd_shield()
+        self._append_parry()
+        self._append_restricted_quarters()
+        self._append_source_statuses()
+        self._append_target_statuses()
+        self._append_source_weapon_type()
+        self._append_positional_source()
+        self._append_positional_target()
+        self._append_cover()
+        self._append_range_in_melee_bonus()
+        self._append_size_bonus()
+        self._append_called_shot_bonus()
+        self._append_bonus("custom-bonus", roll_modifiers.custom_bonus)
 
-    def append_bonus(self, key: str, value: int) -> None:
+    def _append_bonus(self, key: str, value: int) -> None:
         if not self.calculated:
             self.calculated = AttackCalculations()
         self.calculated.roll_modifiers.append(AttackBonusEntry(key=key, value=value))
@@ -70,30 +71,39 @@ class Attack:
     ) -> None:
         if not value or value == 0:
             return
-        skill_bonus = self.get_skill_bonus(skill_id)
+        skill_bonus = self._get_skill_bonus(skill_id)
         skill_bonus_adjusted = min(abs(value), skill_bonus)
-        self.append_bonus(key, value)
-        self.append_bonus(f"{key}-skill-{skill_id}", skill_bonus_adjusted)
+        self._append_bonus(key, value)
+        self._append_bonus(f"{key}-skill-{skill_id}", skill_bonus_adjusted)
 
-    def get_skill_bonus(self, skill_id: str) -> int:
+    def _get_skill_bonus(self, skill_id: str) -> int:
         for skill in self.modifiers.source_skills:
             if skill.skill_id == skill_id:
                 return skill.bonus
         return 0
 
-    def append_bonus_bd(self) -> None:
+    def _append_bonus_bd(self) -> None:
         if not self.modifiers.situational_modifiers.disabled_db:
-            self.append_bonus("bd", -self.modifiers.roll_modifiers.bd)
+            self._append_bonus("bd", -self.modifiers.roll_modifiers.bd)
 
-    def append_bonus_bd_shield(self) -> None:
+    def _append_action_points(self) -> None:
+        if(self.is_melee()):
+            self._append_bonus("action-points", (4 - self.modifiers.action_points) *-25)
+            return
+        else:
+            self._append_bonus("action-points", (3 - self.modifiers.action_points) *-25)
+            return
+        
+
+    def _append_bonus_bd_shield(self) -> None:
         if not self.modifiers.situational_modifiers.disabled_shield:
-            self.append_bonus("shield", -self.modifiers.roll_modifiers.shield)
+            self._append_bonus("shield", -self.modifiers.roll_modifiers.shield)
 
-    def append_parry(self) -> None:
+    def _append_parry(self) -> None:
         if not self.modifiers.situational_modifiers.disabled_parry:
-            self.append_bonus("parry", -self.modifiers.roll_modifiers.parry)
+            self._append_bonus("parry", -self.modifiers.roll_modifiers.parry)
 
-    def append_cover(self) -> None:
+    def _append_cover(self) -> None:
         bonus = 0
         isMelee = self.is_melee()
         match self.modifiers.situational_modifiers.cover:
@@ -109,9 +119,9 @@ class Attack:
                 bonus = -40 or not isMelee -80
             case Cover.HARD_FULL:
                 bonus = -100 or not isMelee -200
-        self.append_bonus("cover", bonus)
+        self._append_bonus("cover", bonus)
 
-    def append_positional_source(self) -> None:
+    def _append_positional_source(self) -> None:
         if self.modifiers.situational_modifiers.positional_source and self.is_melee():
             bonus = 0
             match self.modifiers.situational_modifiers.positional_source:
@@ -121,7 +131,7 @@ class Attack:
                     bonus = -70
             self.append_with_skill("positional-source", bonus, "reverse-strike")
 
-    def append_positional_target(self) -> None:
+    def _append_positional_target(self) -> None:
         if self.modifiers.situational_modifiers.positional_target and self.is_melee():
             bonus = 0
             match self.modifiers.situational_modifiers.positional_target:
@@ -129,9 +139,9 @@ class Attack:
                     bonus = 15
                 case PositionalTarget.REAR:
                     bonus = 35
-            self.append_bonus("positional-target", bonus)
+            self._append_bonus("positional-target", bonus)
 
-    def append_pace_penalty(self) -> None:
+    def _append_pace_penalty(self) -> None:
         if self.is_melee():
             self.append_with_skill(
                 "pace-penalty",
@@ -139,40 +149,40 @@ class Attack:
                 "footwork",
             )
         else:
-            self.append_bonus("pace-penalty", self.modifiers.roll_modifiers.pace_penalty)
+            self._append_bonus("pace-penalty", self.modifiers.roll_modifiers.pace_penalty)
 
-    def append_source_weapon_type(self) -> None:
+    def _append_source_weapon_type(self) -> None:
         if self.modifiers.situational_modifiers.off_hand:
             # TODO check ambidextrous talent
-            self.append_bonus("off-hand-weapon", -20)
+            self._append_bonus("off-hand-weapon", -20)
             if self.source_has_status("ambidextrous"):
-                self.append_bonus("ambidextrous", 20)
+                self._append_bonus("ambidextrous", 20)
         if (
             self.modifiers.situational_modifiers.two_handed_weapon
             and self.is_melee()
         ):
-            self.append_bonus("two-handed-weapon", 10)
+            self._append_bonus("two-handed-weapon", 10)
 
-    def append_range_in_melee_bonus(self) -> None:
+    def _append_range_in_melee_bonus(self) -> None:
         if not self.is_melee() and self.source_has_status("melee"):
-            self.append_bonus("range-in-melee", -20)
+            self._append_bonus("range-in-melee", -20)
 
-    def append_source_statuses(self) -> None:
+    def _append_source_statuses(self) -> None:
         if self.source_has_status("prone"):
-            self.append_bonus("prone-source", -50)
+            self._append_bonus("prone-source", -50)
 
-    def append_target_statuses(self) -> None:
+    def _append_target_statuses(self) -> None:
         if self.target_has_status("stunned"):
-            self.append_bonus("stunned-target", 20)
+            self._append_bonus("stunned-target", 20)
         if self.target_has_status("surprised"):
-            self.append_bonus("surprised-target", 25)
+            self._append_bonus("surprised-target", 25)
         if self.target_has_status("prone"):
             if self.is_melee():
-                self.append_bonus("prone-target", 30)
+                self._append_bonus("prone-target", 30)
             else:
-                self.append_bonus("prone-target", -30)
+                self._append_bonus("prone-target", -30)
 
-    def append_restricted_quarters(self) -> None:
+    def _append_restricted_quarters(self) -> None:
         if self.modifiers.situational_modifiers.restricted_quarters:
             bonus = 0;
             match self.modifiers.situational_modifiers.restricted_quarters:
@@ -186,12 +196,12 @@ class Attack:
                     bonus = -100
             self.append_with_skill("restricted-quarters", bonus, "restricted-quarters")
 
-    def append_size_bonus(self) -> None:
+    def _append_size_bonus(self) -> None:
         sizeDif = self.modifiers.situational_modifiers.size_difference
         if (sizeDif and sizeDif < 0):
-            self.append_bonus("size-bonus", sizeDif * 5)
+            self._append_bonus("size-bonus", sizeDif * 5)
 
-    def append_called_shot_bonus(self) -> None:
+    def _append_called_shot_bonus(self) -> None:
         if self.modifiers.called_shot and not self.modifiers.called_shot == 'none':
             basePenalty = self.modifiers.roll_modifiers.called_shot_penalty or -25
             self.append_with_skill("called-shot", basePenalty, "called-shot")
