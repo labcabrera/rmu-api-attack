@@ -14,6 +14,9 @@ class AttackRollModifiersDTO(BaseModel):
     rangePenalty: int = Field(0, description="Range penalty")
     shield: int = Field(0, description="Shield defensive bonus")
     parry: int = Field(0, description="Parry value")
+    attackNumber: int = Field(1, description="Number of the attack in a sequence", ge=1)
+    attackTargets: int = Field(1, description="Number of targets for the attack", ge=1)
+    gameLethality: int = Field(0, description="Game lethality")
     customBonus: int = Field(0, description="Custom bonus to offensive bonus")
 
     def to_entity(self):
@@ -27,6 +30,9 @@ class AttackRollModifiersDTO(BaseModel):
             range_penalty=self.rangePenalty,
             shield=self.shield,
             parry=self.parry,
+            attack_number=self.attackNumber,
+            attack_targets=self.attackTargets,
+            game_lethality=self.gameLethality,
             custom_bonus=self.customBonus,
         )
 
@@ -42,5 +48,8 @@ class AttackRollModifiersDTO(BaseModel):
             rangePenalty=entity.range_penalty,
             shield=entity.shield,
             parry=entity.parry,
+            attackNumber=entity.attack_number,
+            attackTargets=entity.attack_targets,
+            gameLethality=entity.game_lethality,
             customBonus=entity.custom_bonus,
         )

@@ -59,6 +59,9 @@ class AttackFromMongoConverter:
             called_shot_penalty=roll_modifiers_data.get("calledShotPenalty", 0),
             shield=roll_modifiers_data.get("shield", 0),
             parry=roll_modifiers_data.get("parry", 0),
+            attack_number=roll_modifiers_data.get("attackNumber", 1),
+            attack_targets=roll_modifiers_data.get("attackTargets", 1),
+            game_lethality=roll_modifiers_data.get("gameLethality", 0),
             custom_bonus=roll_modifiers_data.get("customBonus", 0),
         )
 

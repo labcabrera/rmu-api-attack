@@ -49,6 +49,9 @@ class AttackToMongoConverter:
                     "rangePenalty": attack.modifiers.roll_modifiers.range_penalty,
                     "shield": attack.modifiers.roll_modifiers.shield,
                     "parry": attack.modifiers.roll_modifiers.parry,
+                    "attackNumber": attack.modifiers.roll_modifiers.attack_number,
+                    "attackTargets": attack.modifiers.roll_modifiers.attack_targets,
+                    "gameLethality": attack.modifiers.roll_modifiers.game_lethality,
                     "customBonus": attack.modifiers.roll_modifiers.custom_bonus,
                 },
                 "situationalModifiers": {

@@ -14,4 +14,7 @@ class AttackRollModifiers:
     shield: int = 0
     range_penalty: int = 0
     parry: int = 0
+    attack_number: int = 1
+    attack_targets: int = 1
+    game_lethality: int = 0
     custom_bonus: int = 0

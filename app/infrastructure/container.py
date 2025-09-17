@@ -1,36 +1,24 @@
+from motor.motor_asyncio import AsyncIOMotorClient
 from dependency_injector import containers, providers
+
 from app.infrastructure.persistence import MongoAttackRepository
 from app.infrastructure.api_client.attack_table_rest_adapter import (
     AttackTableRestAdapter,
     AttackTableRestAdapterWithRetry,
 )
 from app.infrastructure.config.attack_table_config import AttackTableApiConfig
-from app.domain.services.attack_calculator import AttackCalculator
-from app.domain.services.attack_domain_service import AttackDomainService
-from app.domain.services.attack_resolution_service import AttackResolutionService
-from app.application.use_cases.apply_attack_use_case import ApplyAttackUseCase
-from app.application.use_cases.create_attack_use_case import CreateAttackUseCase
-from app.application.use_cases.delete_attack_use_case import DeleteAttackUseCase
-from app.application.use_cases.search_attack_by_id_use_case import (
-    SearchAttackByIdUseCase,
-)
-from app.application.use_cases.search_attacks_by_rsql_use_case import (
-    SearchAttacksByRsqlUseCase,
-)
-from app.application.use_cases.update_attack_modifiers_use_case import (
-    UpdateAttackModifiersUseCase,
-)
-from app.application.use_cases.update_attack_roll_use_case import (
-    UpdateAttackRollUseCase,
-)
-from app.application.use_cases.update_critical_roll_use_case import (
-    UpdateCriticalRollUseCase,
-)
-from app.application.use_cases.update_fumble_roll_use_case import (
-    UpdateFumbleRollUseCase,
-)
+from app.domain.services import AttackCalculator, AttackDomainService
+from app.application.use_cases import ApplyAttackUseCase
+from app.application.use_cases import CreateAttackUseCase
+from app.application.use_cases import DeleteAttackUseCase
+from app.application.use_cases import SearchAttackByIdUseCase
+from app.application.use_cases import SearchAttacksByRsqlUseCase
+from app.application.use_cases import UpdateAttackModifiersUseCase
+from app.application.use_cases import UpdateAttackRollUseCase
+from app.application.use_cases import UpdateCriticalRollUseCase
+from app.application.use_cases import UpdateAttackParryUseCase
+from app.application.use_cases import UpdateFumbleRollUseCase
 from app.infrastructure.config.config import settings
-from motor.motor_asyncio import AsyncIOMotorClient
 
 
 class Container(containers.DeclarativeContainer):
@@ -68,12 +56,6 @@ class Container(containers.DeclarativeContainer):
         attack_calculator=attack_calculator,
         attack_repository=attack_repository,
     )
-    attack_resolution_service = providers.Singleton(
-        AttackResolutionService,
-        attack_calculator=attack_calculator,
-        attack_repository=attack_repository,
-        attack_table_client=attack_table_service,
-    )
     apply_attack_results_use_case = providers.Singleton(
         ApplyAttackUseCase, attack_domain_service
     )
@@ -93,11 +75,24 @@ class Container(containers.DeclarativeContainer):
         attack_calculator=attack_calculator,
     )
     update_attack_roll_use_case = providers.Singleton(
-        UpdateAttackRollUseCase, attack_resolution_service
+        UpdateAttackRollUseCase,
+        attack_repository=attack_repository,
+        attack_calculator=attack_calculator,
     )
     update_critical_roll_use_case = providers.Singleton(
-        UpdateCriticalRollUseCase, attack_resolution_service
+        UpdateCriticalRollUseCase,
+        attack_repository=attack_repository,
+        attack_calculator=attack_calculator,
+        attack_table_client=attack_table_service,
     )
     update_fumble_roll_use_case = providers.Singleton(
-        UpdateFumbleRollUseCase, attack_resolution_service
+        UpdateFumbleRollUseCase,
+        attack_repository=attack_repository,
+        attack_calculator=attack_calculator,
+        attack_table_client=attack_table_service,
+    )
+    update_attack_parry_use_case = providers.Singleton(
+        UpdateAttackParryUseCase,
+        attack_repository=attack_repository,
+        attack_calculator=attack_calculator,
     )

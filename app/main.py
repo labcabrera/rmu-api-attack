@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+
 from app.infrastructure.config.config import settings
 from app.infrastructure.container import Container
 from app.infrastructure.logging import setup_logging, get_logger
@@ -13,24 +14,18 @@ setup_logging(
 
 logger = get_logger(__name__)
 
+container = Container()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Manage application lifecycle events
     """
-    logger.info("Starting RMU Attack API...")
-    container = Container()
-    logger.info("Started RMU Attack API")
-
     yield
-
     logger.info("Shutting down RMU Attack API...")
-    # No cleanup needed for dependency-injector container
-    logger.info("Shut down complete")
 
 
-container = Container()
 app = FastAPI(
     title=settings.APP_NAME,
     description=settings.APP_DESCRIPTION,

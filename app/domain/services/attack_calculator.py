@@ -1,6 +1,7 @@
 import math
 from typing import Optional
 from uuid import uuid4
+from xxlimited import new
 from app.domain.entities import (
     Attack,
     AttackCalculations,
@@ -11,15 +12,11 @@ from app.domain.entities import (
 )
 from app.domain.entities.enums import (
     AttackStatus,
-    Cover,
     CriticalStatus,
     FumbleStatus,
-    PositionalSource,
-    PositionalTarget,
-    RestrictedQuarters,
 )
 from app.application.ports import AttackNotificationPort, AttackTableClient
-from app.infrastructure.logging.logger_config import get_logger
+from app.infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -76,21 +73,16 @@ class AttackCalculator:
         if not self._attack_table_client:
             raise ValueError("No attack table client configured")
 
-        try:
-            attack_table_entry = await self._attack_table_client.get_attack_table_entry(
-                attack_table=attack.modifiers.attack_table,
-                size=attack.modifiers.attack_size,
-                roll=attack.calculated.roll_total,
-                at=attack.roll.at,
-            )
-            attack.results = AttackResult(
-                attack_table_entry=attack_table_entry,
-                criticals=[],
-            )
-        except Exception as e:
-            logger.error(f"Error calculating attack results: {e}")
-            # TODO update attack message
-            attack.status = AttackStatus.FAILED
+        attack_table_entry = await self._attack_table_client.get_attack_table_entry(
+            attack_table=attack.modifiers.attack_table,
+            size=attack.modifiers.attack_size,
+            roll=attack.calculated.roll_total,
+            at=attack.roll.at,
+        )
+        attack.results = AttackResult(
+            attack_table_entry=attack_table_entry,
+            criticals=[],
+        )
 
     def calculate_attack_roll_modifiers(self, attack: Attack) -> None:
         attack.append_all_modifiers()
