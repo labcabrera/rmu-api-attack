@@ -59,6 +59,9 @@ class Attack:
         self._append_range_in_melee_bonus()
         self._append_size_bonus()
         self._append_called_shot_bonus()
+        self._append_attack_number_bonus()
+        self._append_attack_target_bonus()
+        self._append_game_lethality()
         self._append_bonus("custom-bonus", roll_modifiers.custom_bonus)
 
     def _append_bonus(self, key: str, value: int) -> None:
@@ -66,7 +69,7 @@ class Attack:
             self.calculated = AttackCalculations()
         self.calculated.roll_modifiers.append(AttackBonusEntry(key=key, value=value))
 
-    def append_with_skill(
+    def _append_bonus_with_skill(
         self, key: str, value: int, skill_id: str
     ) -> None:
         if not value or value == 0:
@@ -129,7 +132,7 @@ class Attack:
                     bonus = -30
                 case PositionalSource.TO_REAR:
                     bonus = -70
-            self.append_with_skill("positional-source", bonus, "reverse-strike")
+            self._append_bonus_with_skill("positional-source", bonus, "reverse-strike")
 
     def _append_positional_target(self) -> None:
         if self.modifiers.situational_modifiers.positional_target and self.is_melee():
@@ -143,11 +146,8 @@ class Attack:
 
     def _append_pace_penalty(self) -> None:
         if self.is_melee():
-            self.append_with_skill(
-                "pace-penalty",
-                self.modifiers.roll_modifiers.pace_penalty,
-                "footwork",
-            )
+            bonus = self.modifiers.roll_modifiers.pace_penalty
+            self._append_bonus_with_skill("pace-penalty",bonus,"footwork")
         else:
             self._append_bonus("pace-penalty", self.modifiers.roll_modifiers.pace_penalty)
 
@@ -194,7 +194,7 @@ class Attack:
                     bonus = -75
                 case RestrictedQuarters.CONFINED:
                     bonus = -100
-            self.append_with_skill("restricted-quarters", bonus, "restricted-quarters")
+            self._append_bonus_with_skill("restricted-quarters", bonus, "restricted-quarters")
 
     def _append_size_bonus(self) -> None:
         sizeDif = self.modifiers.situational_modifiers.size_difference
@@ -204,7 +204,22 @@ class Attack:
     def _append_called_shot_bonus(self) -> None:
         if self.modifiers.called_shot and not self.modifiers.called_shot == 'none':
             basePenalty = self.modifiers.roll_modifiers.called_shot_penalty or -25
-            self.append_with_skill("called-shot", basePenalty, "called-shot")
+            self._append_bonus_with_skill("called-shot", basePenalty, "called-shot")
+
+    def _append_attack_number_bonus(self) -> None:
+        if self.modifiers.roll_modifiers.attack_number and self.modifiers.roll_modifiers.attack_number > 1:
+            bonus = -75 + (self.modifiers.roll_modifiers.attack_number - 2) * -25
+            self._append_bonus_with_skill("attack-number", bonus, "multiple-attacks")
+
+    def _append_attack_target_bonus(self) -> None:
+        if self.modifiers.roll_modifiers.attack_targets and self.modifiers.roll_modifiers.attack_targets > 1:
+            bonus = -20 * (self.modifiers.roll_modifiers.attack_targets - 1)
+            self._append_bonus_with_skill("attack-targets", bonus, "multiple-attacks")
+
+    def _append_game_lethality(self) -> None:
+        if self.modifiers.roll_modifiers.game_lethality and self.modifiers.roll_modifiers.game_lethality > 0:
+            bonus = self.modifiers.roll_modifiers.game_lethality
+            self._append_bonus("game-lethality", bonus)
 
     def source_has_status(self, status: str) -> bool:
         return status in self.modifiers.situational_modifiers.source_status
