@@ -135,6 +135,7 @@ class AttackCalculator:
         ):
             return
         critical_severity_map: dict[str, list[str]] = {
+            "Z": ["Z"],
             "A": ["A"],
             "B": ["B"],
             "C": ["C"],
