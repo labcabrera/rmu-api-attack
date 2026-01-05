@@ -236,11 +236,12 @@ class Attack:
         return status in self.modifiers.situational_modifiers.target_status
 
     def set_roll(self, roll: int, location: Optional[str]) -> None:
+        calledShot = self.is_called_shot()
         if not roll:
             raise ValueError("Roll value must be provided")
         if self.is_called_shot() and location:
             raise ValueError("Location should not be provided for a called shot")
-        if not self.modifiers.armor.at and not location:
+        if not self.modifiers.armor.at and not location and not calledShot:
             raise ValueError("Location must be provided using different AT values")
         effective_location = location or self.modifiers.called_shot
         effective_at = self.modifiers.armor.at
