@@ -138,7 +138,7 @@ class AttackTableRestAdapter(AttackTableClient):
                         )
                     )
             return FumbleTableEntry(
-                text=json.get("message", ""),
+                text=json.get("text", ""),
                 status=json.get("status", None),
                 additional_damage_text=json.get("additionalDamageText", None),
                 effects=effects,

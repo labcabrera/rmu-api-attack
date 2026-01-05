@@ -34,8 +34,8 @@ class AttackCalculator:
     async def calculate_attack(self, attack: Attack) -> None:
         self.validate_attack(attack)
         self.initialize_attack_calculations(attack)
+        self.calculate_attack_roll_modifiers(attack)
         if not attack.is_fumble():
-            self.calculate_attack_roll_modifiers(attack)
             self.calculate_critical_modifiers(attack)
             self.calculate_critical_severity_modifiers(attack)
             await self.calculate_attack_results(attack)
@@ -135,6 +135,7 @@ class AttackCalculator:
         ):
             return
         critical_severity_map: dict[str, list[str]] = {
+            "Z": ["Z"],
             "A": ["A"],
             "B": ["B"],
             "C": ["C"],

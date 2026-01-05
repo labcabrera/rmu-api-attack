@@ -2,7 +2,7 @@
 Domain entities for the RMU Attack system.
 """
 
-from typing import Optional
+from typing import Optional, Dict, Tuple
 from dataclasses import dataclass
 
 from app.domain.entities import AttackBonusEntry
@@ -19,6 +19,18 @@ from .enums import (
     RestrictedQuarters,
 )
 
+# Map type: for each Cover value store a pair (melee_bonus, ranged_bonus)
+MapCoverToInts = Dict[Cover, Tuple[int, int]]
+
+# bonuses: (melee, ranged)
+COVER_BONUSES: MapCoverToInts = {
+    Cover.SOFT_PARTIAL: (-10, -20),
+    Cover.SOFT_HALF: (-20, -40),
+    Cover.SOFT_FULL: (-50, -100),
+    Cover.HARD_PARTIAL: (-20, -40),
+    Cover.HARD_HALF: (-40, -80),
+    Cover.HARD_FULL: (-100, -200),
+}
 
 @dataclass
 class Attack:
@@ -61,6 +73,7 @@ class Attack:
         self._append_called_shot_bonus()
         self._append_attack_number_bonus()
         self._append_attack_target_bonus()
+        self._append_higher_ground_bonus()
         self._append_game_lethality()
         self._append_bonus("custom-bonus", roll_modifiers.custom_bonus)
 
@@ -108,20 +121,11 @@ class Attack:
 
     def _append_cover(self) -> None:
         bonus = 0
-        isMelee = self.is_melee()
-        match self.modifiers.situational_modifiers.cover:
-            case Cover.SOFT_PARTIAL:
-                bonus = -10 or not isMelee -20
-            case Cover.SOFT_HALF:
-                bonus = -20 or not isMelee -40
-            case Cover.SOFT_FULL:
-                bonus = -50 or not isMelee -100
-            case Cover.HARD_PARTIAL:
-                bonus = -20 or not isMelee -40
-            case Cover.HARD_HALF:
-                bonus = -40 or not isMelee -80
-            case Cover.HARD_FULL:
-                bonus = -100 or not isMelee -200
+        is_melee = self.is_melee()
+        cover = self.modifiers.situational_modifiers.cover
+        if cover in COVER_BONUSES:
+            melee_val, ranged_val = COVER_BONUSES[cover]
+            bonus = melee_val if is_melee else ranged_val
         self._append_bonus("cover", bonus)
 
     def _append_positional_source(self) -> None:
@@ -221,6 +225,10 @@ class Attack:
             bonus = self.modifiers.roll_modifiers.game_lethality
             self._append_bonus("game-lethality", bonus)
 
+    def _append_higher_ground_bonus(self) -> None:
+        if self.modifiers.situational_modifiers.higher_ground:
+            self._append_bonus_with_skill("higher-ground", 10, "higher-ground") 
+
     def source_has_status(self, status: str) -> bool:
         return status in self.modifiers.situational_modifiers.source_status
 
@@ -228,11 +236,12 @@ class Attack:
         return status in self.modifiers.situational_modifiers.target_status
 
     def set_roll(self, roll: int, location: Optional[str]) -> None:
+        calledShot = self.is_called_shot()
         if not roll:
             raise ValueError("Roll value must be provided")
         if self.is_called_shot() and location:
             raise ValueError("Location should not be provided for a called shot")
-        if not self.modifiers.armor.at and not location:
+        if not self.modifiers.armor.at and not location and not calledShot:
             raise ValueError("Location must be provided using different AT values")
         effective_location = location or self.modifiers.called_shot
         effective_at = self.modifiers.armor.at

@@ -293,7 +293,7 @@ async def execute_attack_fumble_roll(
     try:
         command = request.to_command(attack_id=attack_id)
         command.validate()
-        use_case = container.update_attack_roll_use_case()
+        use_case = container.update_fumble_roll_use_case()
         attack = await use_case.execute(command=command)
         logger.info(f"Successfully executed roll for attack {attack_id}: {attack_id}")
         return AttackDTO.from_entity(attack)
