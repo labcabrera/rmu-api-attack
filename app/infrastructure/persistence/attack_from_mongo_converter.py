@@ -92,7 +92,7 @@ class AttackFromMongoConverter:
         modifiers = AttackModifiers(
             attack_type=AttackType.from_value(modifiers_data["attackType"]),
             attack_table=attack_dict.get("modifiers", {}).get("attackTable", ""),
-            attack_size=attack_dict.get("modifiers", {}).get("attackSize", ""),
+            attack_size=attack_dict.get("modifiers", {}).get("attackSize", 2),
             fumble_table=attack_dict.get("modifiers", {}).get("fumbleTable", ""),
             armor=AttackArmor(
                 at=modifiers_data.get("armor", {}).get("at", None),

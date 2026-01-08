@@ -14,7 +14,7 @@ class AttackModifiers:
 
     attack_type: AttackType = None
     attack_table: str = None
-    attack_size: str = "medium"
+    attack_size: int = 2
     fumble_table: str = None
     armor: AttackArmor = None
     action_points: int = 4
@@ -36,8 +36,8 @@ class AttackModifiers:
             raise ValueError("Invalid roll modifiers")
         if not isinstance(self.attack_table, str):
             raise ValueError("attack_table must be a string")
-        if not isinstance(self.attack_size, str):
-            raise ValueError("attack_size must be a string")
+        if not isinstance(self.attack_size, int):
+            raise ValueError("attack_size must be an integer")
         if not isinstance(self.armor, AttackArmor):
             raise ValueError("armor must be an instance of AttackArmor")
         # TODO check armor

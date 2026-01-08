@@ -40,14 +40,14 @@ class AttackTableRestAdapter(AttackTableClient):
         return self._client
 
     async def get_attack_table_entry(
-        self, attack_table: str, size: str, roll: int, at: int
+        self, attack_table: str, size: int, roll: int, at: int
     ) -> AttackTableEntry:
 
         logger.info(f"Fetching attack table entry for roll={roll}, at={at}")
         try:
             client = await self._get_client()
             adjusted_roll = min(175, max(roll, 1))
-            url = f"{self.base_url}/attack-tables/{attack_table}/{size}/{at}/{adjusted_roll}"
+            url = f"{self.base_url}/attack-tables/{attack_table}/medium/{at}/{adjusted_roll}"
             logger.debug(f"Making request to {url}")
             response = await client.get(url)
             response.raise_for_status()
@@ -178,7 +178,7 @@ class AttackTableRestAdapterWithRetry(AttackTableRestAdapter):
         self.retry_delay = retry_delay
 
     async def get_attack_table_entry(
-        self, attack_table: str, size: str, roll: int, at: int
+        self, attack_table: str, size: int, roll: int, at: int
     ) -> Optional[AttackTableEntry]:
         """
         Get attack table entry with retry mechanism
