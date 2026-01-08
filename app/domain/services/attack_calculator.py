@@ -1,7 +1,5 @@
 import math
 from typing import Optional
-from uuid import uuid4
-from xxlimited import new
 from app.domain.entities import (
     Attack,
     AttackCalculations,
@@ -9,13 +7,14 @@ from app.domain.entities import (
     AttackFumbleResult,
     AttackResult,
     AttackCriticalResult,
+    AttackTableEntry,
 )
-from app.domain.services.attack_size_service import AttackSizeService
 from app.domain.entities.enums import (
     AttackStatus,
     CriticalStatus,
     FumbleStatus,
 )
+from app.domain.services.attack_size_service import AttackSizeService
 from app.application.ports import AttackNotificationPort, AttackTableClient
 from app.infrastructure.logging import get_logger
 
@@ -86,9 +85,25 @@ class AttackCalculator:
             roll=attack.calculated.roll_total,
             at=attack.roll.at,
         )
+        self.apply_size_modifiers(attack_table_entry, attack)
         attack.results = AttackResult(
             attack_table_entry=attack_table_entry,
             criticals=[],
+        )
+
+    def apply_size_modifiers(
+        self, attack_table_entry: AttackTableEntry, attack: Attack
+    ) -> None:
+        attack_table_entry.damage_base = attack_table_entry.damage
+        attack_table_entry.critical_severity_base = attack_table_entry.critical_severity
+        attack_table_entry.damage = math.ceil(
+            attack_table_entry.damage_base * attack.calculated.hit_size_multiplier
+        )
+        attack_table_entry.critical_severity = (
+            self._attack_size_service.get_adjusted_severity(
+                attack_table_entry.critical_severity_base,
+                attack.calculated.critical_size_modifier,
+            )
         )
 
     def calculate_attack_roll_modifiers(self, attack: Attack) -> None:
@@ -141,6 +156,7 @@ class AttackCalculator:
             or not attack.results.attack_table_entry.critical_type
         ):
             return
+
         critical_severity_map: dict[str, list[str]] = {
             "Z": ["Z"],
             "A": ["A"],

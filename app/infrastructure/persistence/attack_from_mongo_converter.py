@@ -203,6 +203,8 @@ class AttackFromMongoConverter:
                     damage=entry_data["damage"],
                     critical_type=entry_data.get("criticalType"),
                     critical_severity=entry_data.get("criticalSeverity"),
+                    damage_base=entry_data.get("damageBase", 0),
+                    critical_severity_base=entry_data.get("criticalSeverityBase", None),
                 )
 
             criticals = []

@@ -143,6 +143,8 @@ class AttackToMongoConverter:
                 "damage": attack_result.attack_table_entry.damage,
                 "criticalType": attack_result.attack_table_entry.critical_type,
                 "criticalSeverity": attack_result.attack_table_entry.critical_severity,
+                "damageBase": attack_result.attack_table_entry.damage_base,
+                "criticalSeverityBase": attack_result.attack_table_entry.critical_severity_base,
             }
         if attack_result.criticals:
             criticals = []
