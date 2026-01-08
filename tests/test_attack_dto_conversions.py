@@ -33,7 +33,7 @@ class TestAttackDTOConversions:
             modifiers=AttackModifiers(
                 attack_type=AttackType.MELEE,
                 attack_table="sword",
-                attack_size="medium",
+                attack_size=2,
                 at=5,
                 roll_modifiers=AttackRollModifiers(
                     bo=85,

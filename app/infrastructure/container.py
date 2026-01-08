@@ -8,6 +8,7 @@ from app.infrastructure.api_client.attack_table_rest_adapter import (
 )
 from app.infrastructure.config.attack_table_config import AttackTableApiConfig
 from app.domain.services import AttackCalculator, AttackDomainService
+from app.domain.services.attack_size_service import AttackSizeService
 from app.application.use_cases import ApplyAttackUseCase
 from app.application.use_cases import CreateAttackUseCase
 from app.application.use_cases import DeleteAttackUseCase
@@ -49,7 +50,9 @@ class Container(containers.DeclarativeContainer):
         attack_table_config,
     )
     attack_calculator = providers.Singleton(
-        AttackCalculator, attack_table_client=attack_table_service
+        AttackCalculator,
+        attack_table_client=attack_table_service,
+        attack_size_service=providers.Singleton(AttackSizeService),
     )
     attack_domain_service = providers.Singleton(
         AttackDomainService,

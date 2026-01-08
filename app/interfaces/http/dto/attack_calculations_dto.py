@@ -23,6 +23,12 @@ class AttackCalculationsDTO(BaseModel):
     criticalSeverityTotal: int = Field(
         0, description="Total calculated value for critical severity"
     )
+    criticalSizeModifier: int = Field(
+        0, description="Modifier applied to critical size calculations"
+    )
+    hitSizeMultiplier: float = Field(
+        1.0, description="Multiplier applied to hit calculation based on size"
+    )
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -43,6 +49,8 @@ class AttackCalculationsDTO(BaseModel):
             roll_total=self.rollTotal,
             critical_total=self.criticalTotal,
             critical_severity_total=self.criticalSeverityTotal,
+            critical_size_modifier=self.criticalSizeModifier,
+            hit_size_multiplier=self.hitSizeMultiplier,
         )
 
     @classmethod
@@ -61,4 +69,6 @@ class AttackCalculationsDTO(BaseModel):
             rollTotal=entity.roll_total,
             criticalTotal=entity.critical_total,
             criticalSeverityTotal=entity.critical_severity_total,
+            criticalSizeModifier=entity.critical_size_modifier,
+            hitSizeMultiplier=entity.hit_size_multiplier,
         )

@@ -14,6 +14,10 @@ class AttackTableEntryDTO(BaseModel):
     damage: int = Field(..., description="Damage points")
     criticalType: Optional[str] = Field(None, description="Critical type")
     criticalSeverity: Optional[str] = Field(None, description="Critical severity")
+    damageBase: int = Field(0, description="Base damage value")
+    criticalSeverityBase: Optional[str] = Field(
+        None, description="Base critical severity"
+    )
 
     def to_entity(self):
         return AttackTableEntry(
@@ -21,6 +25,8 @@ class AttackTableEntryDTO(BaseModel):
             damage=self.damage,
             critical_type=self.criticalType,
             critical_severity=self.criticalSeverity,
+            damage_base=self.damageBase,
+            critical_severity_base=self.criticalSeverityBase,
         )
 
     @classmethod
@@ -30,4 +36,6 @@ class AttackTableEntryDTO(BaseModel):
             damage=entity.damage,
             criticalType=entity.critical_type,
             criticalSeverity=entity.critical_severity,
+            damageBase=entity.damage_base,
+            criticalSeverityBase=entity.critical_severity_base,
         )

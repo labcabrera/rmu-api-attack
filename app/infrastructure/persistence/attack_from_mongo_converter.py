@@ -92,7 +92,7 @@ class AttackFromMongoConverter:
         modifiers = AttackModifiers(
             attack_type=AttackType.from_value(modifiers_data["attackType"]),
             attack_table=attack_dict.get("modifiers", {}).get("attackTable", ""),
-            attack_size=attack_dict.get("modifiers", {}).get("attackSize", ""),
+            attack_size=attack_dict.get("modifiers", {}).get("attackSize", 2),
             fumble_table=attack_dict.get("modifiers", {}).get("fumbleTable", ""),
             armor=AttackArmor(
                 at=modifiers_data.get("armor", {}).get("at", None),
@@ -163,6 +163,8 @@ class AttackFromMongoConverter:
                 roll_total=calculated_data.get("rollTotal", 0),
                 critical_total=calculated_data.get("criticalTotal", 0),
                 critical_severity_total=calculated_data.get("criticalSeverityTotal", 0),
+                critical_size_modifier=calculated_data.get("criticalSizeModifier", 0),
+                hit_size_multiplier=calculated_data.get("hitSizeMultiplier", 1.0),
             )
 
         results = AttackFromMongoConverter.dict_to_attack_result(attack_dict)
@@ -201,6 +203,8 @@ class AttackFromMongoConverter:
                     damage=entry_data["damage"],
                     critical_type=entry_data.get("criticalType"),
                     critical_severity=entry_data.get("criticalSeverity"),
+                    damage_base=entry_data.get("damageBase", 0),
+                    critical_severity_base=entry_data.get("criticalSeverityBase", None),
                 )
 
             criticals = []

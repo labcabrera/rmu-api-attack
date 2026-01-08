@@ -14,7 +14,7 @@ class AttackModifiersDTO(BaseModel):
 
     attackType: AttackType = Field(..., description="Type of attack (melee, ranged)")
     attackTable: str = Field(..., description="Attack table identifier")
-    attackSize: str = Field(..., description="Attack size identifier")
+    attackSize: int = Field(..., description="Attack size identifier")
     fumbleTable: str = Field(
         ..., description="Fumble table identifier", example="melee-one-hand"
     )
@@ -43,7 +43,7 @@ class AttackModifiersDTO(BaseModel):
             "example": {
                 "attackType": "melee",
                 "attackTable": "arming-sword",
-                "attackSize": "medium",
+                "attackSize": 2,
                 "at": 1,
             }
         },

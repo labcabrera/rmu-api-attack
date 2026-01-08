@@ -1,7 +1,5 @@
 import math
 from typing import Optional
-from uuid import uuid4
-from xxlimited import new
 from app.domain.entities import (
     Attack,
     AttackCalculations,
@@ -9,12 +7,14 @@ from app.domain.entities import (
     AttackFumbleResult,
     AttackResult,
     AttackCriticalResult,
+    AttackTableEntry,
 )
 from app.domain.entities.enums import (
     AttackStatus,
     CriticalStatus,
     FumbleStatus,
 )
+from app.domain.services.attack_size_service import AttackSizeService
 from app.application.ports import AttackNotificationPort, AttackTableClient
 from app.infrastructure.logging import get_logger
 
@@ -27,9 +27,11 @@ class AttackCalculator:
         self,
         notification_port: Optional[AttackNotificationPort] = None,
         attack_table_client: AttackTableClient = None,
+        attack_size_service: AttackSizeService = None,
     ):
         self._notification_port = notification_port
         self._attack_table_client = attack_table_client
+        self._attack_size_service = attack_size_service
 
     async def calculate_attack(self, attack: Attack) -> None:
         self.validate_attack(attack)
@@ -55,6 +57,8 @@ class AttackCalculator:
             raise ValueError("Attack already applied, cannot recalculate")
 
     def initialize_attack_calculations(self, attack: Attack) -> None:
+        critical_size_modifier = AttackSizeService.get_critical_size_modifier(attack)
+        hit_size_multiplier = AttackSizeService.get_hit_size_multiplier(attack)
         attack.calculated = AttackCalculations(
             roll_total=0,
             roll_modifiers=[],
@@ -62,6 +66,8 @@ class AttackCalculator:
             critical_total=0,
             critical_severity_modifiers=[],
             critical_severity_total=0,
+            critical_size_modifier=critical_size_modifier,
+            hit_size_multiplier=hit_size_multiplier,
         )
         attack.results = AttackResult(
             attack_table_entry=None,
@@ -79,10 +85,28 @@ class AttackCalculator:
             roll=attack.calculated.roll_total,
             at=attack.roll.at,
         )
+        self.apply_size_modifiers(attack_table_entry, attack)
         attack.results = AttackResult(
             attack_table_entry=attack_table_entry,
             criticals=[],
         )
+
+    def apply_size_modifiers(
+        self, attack_table_entry: AttackTableEntry, attack: Attack
+    ) -> None:
+        attack_table_entry.damage_base = attack_table_entry.damage
+        attack_table_entry.critical_severity_base = attack_table_entry.critical_severity
+        if attack_table_entry.damage_base:
+            attack_table_entry.damage = math.ceil(
+                attack_table_entry.damage_base * attack.calculated.hit_size_multiplier
+            )
+        if attack_table_entry.critical_severity:
+            attack_table_entry.critical_severity = (
+                self._attack_size_service.get_adjusted_severity(
+                    attack_table_entry.critical_severity_base,
+                    attack.calculated.critical_size_modifier,
+                )
+            )
 
     def calculate_attack_roll_modifiers(self, attack: Attack) -> None:
         attack.append_all_modifiers()
@@ -134,6 +158,7 @@ class AttackCalculator:
             or not attack.results.attack_table_entry.critical_type
         ):
             return
+
         critical_severity_map: dict[str, list[str]] = {
             "Z": ["Z"],
             "A": ["A"],

@@ -13,3 +13,5 @@ class AttackCalculations:
     roll_total: int = 0
     critical_total: int = 0
     critical_severity_total: int = 0
+    critical_size_modifier: int = 0
+    hit_size_multiplier: float = 1.0

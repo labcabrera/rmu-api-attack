@@ -6,7 +6,6 @@ These contain business logic that doesn't naturally fit into entities.
 from typing import Optional
 from app.domain.entities import Attack
 
-# TODO fix import
 from app.application.ports import AttackRepository, AttackNotificationPort
 from app.domain.entities.enums import AttackStatus
 from app.domain.exceptions import (
@@ -46,9 +45,10 @@ class AttackDomainService:
         """Apply results to an attack"""
 
         attack = await self._attack_repository.find_by_id(attack_id)
+
         if not attack:
             raise AttackNotFoundException(attack_id=attack_id)
-            return None
+
         if attack.status != AttackStatus.CALCULATED:
             raise AttackInvalidStateException(
                 attack_id=attack.id,

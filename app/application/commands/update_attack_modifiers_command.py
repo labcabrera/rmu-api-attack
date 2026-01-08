@@ -18,8 +18,10 @@ class UpdateAttackModifiersCommand:
             raise ValueError("Attack type is required")
         if not self.modifiers.attack_table:
             raise ValueError("Attack table is required")
-        if not self.modifiers.attack_size:
-            raise ValueError("Attack size is required")
+        if self.modifiers.attack_size is None or not isinstance(
+            self.modifiers.attack_size, int
+        ):
+            raise ValueError("Attack size must be an integer")
         if (
             not isinstance(self.modifiers.at, int)
             or self.modifiers.at < 1
