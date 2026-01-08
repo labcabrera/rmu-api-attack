@@ -10,6 +10,7 @@ from app.domain.entities import (
     AttackResult,
     AttackCriticalResult,
 )
+from app.domain.services.attack_size_service import AttackSizeService
 from app.domain.entities.enums import (
     AttackStatus,
     CriticalStatus,
@@ -27,9 +28,11 @@ class AttackCalculator:
         self,
         notification_port: Optional[AttackNotificationPort] = None,
         attack_table_client: AttackTableClient = None,
+        attack_size_service: AttackSizeService = None,
     ):
         self._notification_port = notification_port
         self._attack_table_client = attack_table_client
+        self._attack_size_service = attack_size_service
 
     async def calculate_attack(self, attack: Attack) -> None:
         self.validate_attack(attack)
@@ -55,6 +58,22 @@ class AttackCalculator:
             raise ValueError("Attack already applied, cannot recalculate")
 
     def initialize_attack_calculations(self, attack: Attack) -> None:
+        # Compute size-based modifiers using AttackSizeService if available
+        if self._attack_size_service:
+            try:
+                critical_size_modifier = AttackSizeService.get_critical_size_modifier(
+                    attack
+                )
+            except Exception:
+                critical_size_modifier = 0
+            try:
+                hit_size_multiplier = AttackSizeService.get_hit_size_multiplier(attack)
+            except Exception:
+                hit_size_multiplier = 1.0
+        else:
+            critical_size_modifier = 0
+            hit_size_multiplier = 1.0
+
         attack.calculated = AttackCalculations(
             roll_total=0,
             roll_modifiers=[],
@@ -62,6 +81,8 @@ class AttackCalculator:
             critical_total=0,
             critical_severity_modifiers=[],
             critical_severity_total=0,
+            critical_size_modifier=critical_size_modifier,
+            hit_size_multiplier=hit_size_multiplier,
         )
         attack.results = AttackResult(
             attack_table_entry=None,

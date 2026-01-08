@@ -163,6 +163,8 @@ class AttackFromMongoConverter:
                 roll_total=calculated_data.get("rollTotal", 0),
                 critical_total=calculated_data.get("criticalTotal", 0),
                 critical_severity_total=calculated_data.get("criticalSeverityTotal", 0),
+                critical_size_modifier=calculated_data.get("criticalSizeModifier", 0),
+                hit_size_multiplier=calculated_data.get("hitSizeMultiplier", 1.0),
             )
 
         results = AttackFromMongoConverter.dict_to_attack_result(attack_dict)

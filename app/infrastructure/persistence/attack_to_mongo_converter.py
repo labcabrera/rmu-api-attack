@@ -117,6 +117,8 @@ class AttackToMongoConverter:
                 "rollTotal": attack.calculated.roll_total,
                 "criticalTotal": attack.calculated.critical_total,
                 "criticalSeverityTotal": attack.calculated.critical_severity_total,
+                "criticalSizeModifier": attack.calculated.critical_size_modifier,
+                "hitSizeMultiplier": attack.calculated.hit_size_multiplier,
             }
         else:
             attack_dict["calculated"] = None
