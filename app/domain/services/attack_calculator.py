@@ -96,15 +96,17 @@ class AttackCalculator:
     ) -> None:
         attack_table_entry.damage_base = attack_table_entry.damage
         attack_table_entry.critical_severity_base = attack_table_entry.critical_severity
-        attack_table_entry.damage = math.ceil(
-            attack_table_entry.damage_base * attack.calculated.hit_size_multiplier
-        )
-        attack_table_entry.critical_severity = (
-            self._attack_size_service.get_adjusted_severity(
-                attack_table_entry.critical_severity_base,
-                attack.calculated.critical_size_modifier,
+        if attack_table_entry.damage_base:
+            attack_table_entry.damage = math.ceil(
+                attack_table_entry.damage_base * attack.calculated.hit_size_multiplier
             )
-        )
+        if attack_table_entry.critical_severity:
+            attack_table_entry.critical_severity = (
+                self._attack_size_service.get_adjusted_severity(
+                    attack_table_entry.critical_severity_base,
+                    attack.calculated.critical_size_modifier,
+                )
+            )
 
     def calculate_attack_roll_modifiers(self, attack: Attack) -> None:
         attack.append_all_modifiers()
