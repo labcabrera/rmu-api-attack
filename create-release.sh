@@ -30,7 +30,7 @@ show_help() {
     echo "  1. Verify that git flow is initialized"
     echo "  2. Check repository status"
     echo "  3. Create release branch from develop"
-    echo "  4. Update version in configuration files"
+    echo "  4. Update version in pyproject.toml"
     echo "  5. Refresh uv.lock"
     echo "  6. Run local quality checks"
     echo "  7. Finish release (merge to main and develop)"
@@ -169,14 +169,6 @@ update_version_files() {
         execute_command "sed -i 's/^version = .*/version = \"${version}\"/' pyproject.toml" "Update version in pyproject.toml"
     fi
     
-    # Update __init__.py if exists
-    if [ -f "app/__init__.py" ]; then
-        execute_command "sed -i 's/__version__ = .*/__version__ = \"${version}\"/' app/__init__.py" "Update version in app/__init__.py"
-    fi
-    
-    # Create or update VERSION file
-    execute_command "echo '${version}' > VERSION" "Create VERSION file"
-
     # Refresh uv.lock because the project version is stored there too
     execute_command "UV_CACHE_DIR=\"\${UV_CACHE_DIR:-/tmp/uv-cache}\" uv lock" "Refresh uv.lock"
 
@@ -187,7 +179,7 @@ update_version_files() {
     fi
     
     # Commit version changes
-    execute_command "git add pyproject.toml uv.lock VERSION app/__init__.py" "Add version changes"
+    execute_command "git add pyproject.toml uv.lock" "Add version changes"
     execute_command "git commit -m 'chore: bump version to ${version}'" "Commit version changes"
 }
 

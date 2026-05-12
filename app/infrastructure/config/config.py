@@ -1,5 +1,8 @@
 import os
+from importlib.metadata import PackageNotFoundError, version
 from urllib.parse import urlsplit, urlunsplit
+
+PACKAGE_NAME = "rmu-api-attack"
 
 
 def _getenv(*names: str, default: str | None = None) -> str | None:
@@ -8,6 +11,13 @@ def _getenv(*names: str, default: str | None = None) -> str | None:
         if value:
             return value
     return default
+
+
+def _package_version() -> str:
+    try:
+        return version(PACKAGE_NAME)
+    except PackageNotFoundError:
+        return "0.0.0"
 
 
 class Settings:
@@ -41,7 +51,7 @@ class Settings:
         self.APP_DESCRIPTION = (
             "API for managing RMU (Role Master Unified) attack system"
         )
-        self.APP_VERSION = "1.0.0"
+        self.APP_VERSION = _package_version()
 
         # Development Configuration
         self.DEBUG = os.getenv("DEBUG", "false").lower() == "true"

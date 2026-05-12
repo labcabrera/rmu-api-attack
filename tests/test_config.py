@@ -1,3 +1,5 @@
+from importlib.metadata import version
+
 from app.infrastructure.config.config import Settings
 
 
@@ -24,3 +26,9 @@ def test_redacted_mongodb_url_hides_credentials(monkeypatch):
         "mongodb://***:***@localhost:27017/rmu-attack?authSource=admin"
     )
     assert "admin:admin" not in settings.REDACTED_MONGODB_URL
+
+
+def test_app_version_comes_from_package_metadata():
+    settings = Settings()
+
+    assert settings.APP_VERSION == version("rmu-api-attack")
