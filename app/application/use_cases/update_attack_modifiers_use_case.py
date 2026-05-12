@@ -1,12 +1,11 @@
 from typing import Optional
 
-from app.domain.entities import Attack
-from app.domain.services.attack_calculator import AttackCalculator
-from app.application.ports import AttackNotificationPort, AttackRepository
-
 from app.application.commands import (
     UpdateAttackModifiersCommand,
 )
+from app.application.ports import AttackNotificationPort, AttackRepository
+from app.domain.entities import Attack
+from app.domain.services.attack_calculator import AttackCalculator
 
 
 class UpdateAttackModifiersUseCase:

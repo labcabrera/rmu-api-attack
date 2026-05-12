@@ -21,7 +21,6 @@ from app.domain.entities.enums import (
 
 
 class TestAttackDTOConversions:
-
     def test_attack_dto_conversion(self):
 
         attack = Attack(

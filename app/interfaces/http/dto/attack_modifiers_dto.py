@@ -2,11 +2,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.domain.entities import AttackModifiers
 from app.domain.entities.enums import AttackType
+
 from .attack_armor_dto import AttackArmorDTO
-from .attack_skill_dto import AttackSkillDTO
 from .attack_feature_dto import AttackFeatureDTO
 from .attack_roll_modifiers_dto import AttackRollModifiersDTO
 from .attack_situational_modifiers_dto import AttackSituationalModifiersDTO
+from .attack_skill_dto import AttackSkillDTO
 
 
 class AttackModifiersDTO(BaseModel):

@@ -1,8 +1,8 @@
-from app.domain.entities import Attack
 from app.application.commands import UpdateCriticalRollCommand
 from app.application.ports import AttackRepository, AttackTableClient
-from app.domain.services import AttackCalculator
+from app.domain.entities import Attack
 from app.domain.entities.enums import AttackStatus, CriticalStatus
+from app.domain.services import AttackCalculator
 
 
 class UpdateCriticalRollUseCase:

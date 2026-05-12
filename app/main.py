@@ -1,9 +1,10 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from app.infrastructure.config.config import settings
 from app.infrastructure.container import Container
-from app.infrastructure.logging import setup_logging, get_logger
+from app.infrastructure.logging import get_logger, setup_logging
 from app.interfaces.http.attack_controller import router as attack_router
 
 setup_logging(

@@ -3,35 +3,36 @@ MongoDB converter for Attack entities.
 This class handles conversion between Attack domain entities and MongoDB documents.
 """
 
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from app.domain.entities import (
     Attack,
-    AttackModifiers,
-    AttackRoll,
-    AttackResult,
-    AttackRollModifiers,
-    AttackCalculations,
-    AttackBonusEntry,
-    AttackSituationalModifiers,
-    AttackTableEntry,
-    AttackFeature,
-    AttackSkill,
-    AttackCriticalResult,
-    CriticalTableEntry,
-    CriticalEffect,
-    AttackFumbleResult,
     AttackArmor,
+    AttackBonusEntry,
+    AttackCalculations,
+    AttackCriticalResult,
+    AttackFeature,
+    AttackFumbleResult,
+    AttackModifiers,
+    AttackResult,
+    AttackRoll,
+    AttackRollModifiers,
+    AttackSituationalModifiers,
+    AttackSkill,
+    AttackTableEntry,
+    CriticalEffect,
+    CriticalTableEntry,
 )
 from app.domain.entities.enums import (
     AttackStatus,
     AttackType,
     Cover,
     CriticalStatus,
+    DodgeType,
     FumbleStatus,
     PositionalSource,
     PositionalTarget,
     RestrictedQuarters,
-    DodgeType,
 )
 
 
@@ -169,7 +170,7 @@ class AttackFromMongoConverter:
 
         results = AttackFromMongoConverter.dict_to_attack_result(attack_dict)
 
-        if not "status" in attack_dict:
+        if "status" not in attack_dict:
             raise ValueError("Attack dictionary must contain 'status' field")
 
         try:

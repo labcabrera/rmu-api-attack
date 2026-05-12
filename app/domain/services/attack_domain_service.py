@@ -4,15 +4,16 @@ These contain business logic that doesn't naturally fit into entities.
 """
 
 from typing import Optional
-from app.domain.entities import Attack
 
-from app.application.ports import AttackRepository, AttackNotificationPort
+from app.application.ports import AttackNotificationPort, AttackRepository
+from app.domain.entities import Attack
 from app.domain.entities.enums import AttackStatus
 from app.domain.exceptions import (
     AttackInvalidStateException,
     AttackNotFoundException,
     AttackValidationException,
 )
+
 from .attack_calculator import AttackCalculator
 
 

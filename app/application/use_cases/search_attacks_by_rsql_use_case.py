@@ -1,8 +1,8 @@
 from typing import Optional
 
+from app.application.ports import AttackRepository
 from app.domain.entities.attack import Attack
 from app.domain.entities.page import Page, Pagination
-from app.application.ports import AttackRepository
 
 
 class SearchAttacksByRsqlUseCase:

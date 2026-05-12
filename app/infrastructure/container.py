@@ -1,25 +1,27 @@
-from motor.motor_asyncio import AsyncIOMotorClient
 from dependency_injector import containers, providers
+from motor.motor_asyncio import AsyncIOMotorClient
 
-from app.infrastructure.persistence import MongoAttackRepository
+from app.application.use_cases import (
+    ApplyAttackUseCase,
+    CreateAttackUseCase,
+    DeleteAttackUseCase,
+    SearchAttackByIdUseCase,
+    SearchAttacksByRsqlUseCase,
+    UpdateAttackModifiersUseCase,
+    UpdateAttackParryUseCase,
+    UpdateAttackRollUseCase,
+    UpdateCriticalRollUseCase,
+    UpdateFumbleRollUseCase,
+)
+from app.domain.services import AttackCalculator, AttackDomainService
+from app.domain.services.attack_size_service import AttackSizeService
 from app.infrastructure.api_client.attack_table_rest_adapter import (
     AttackTableRestAdapter,
     AttackTableRestAdapterWithRetry,
 )
 from app.infrastructure.config.attack_table_config import AttackTableApiConfig
-from app.domain.services import AttackCalculator, AttackDomainService
-from app.domain.services.attack_size_service import AttackSizeService
-from app.application.use_cases import ApplyAttackUseCase
-from app.application.use_cases import CreateAttackUseCase
-from app.application.use_cases import DeleteAttackUseCase
-from app.application.use_cases import SearchAttackByIdUseCase
-from app.application.use_cases import SearchAttacksByRsqlUseCase
-from app.application.use_cases import UpdateAttackModifiersUseCase
-from app.application.use_cases import UpdateAttackRollUseCase
-from app.application.use_cases import UpdateCriticalRollUseCase
-from app.application.use_cases import UpdateAttackParryUseCase
-from app.application.use_cases import UpdateFumbleRollUseCase
 from app.infrastructure.config.config import settings
+from app.infrastructure.persistence import MongoAttackRepository
 
 
 class Container(containers.DeclarativeContainer):

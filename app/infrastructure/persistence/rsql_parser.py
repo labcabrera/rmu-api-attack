@@ -4,8 +4,8 @@ This module provides functionality to parse RSQL expressions into MongoDB querie
 """
 
 import re
-from typing import Dict, Any, Optional, Union
 from enum import Enum
+from typing import Any, Dict, Optional, Union
 
 
 class RSQLOperator(Enum):

@@ -1,5 +1,5 @@
-from app.domain.entities.attack import Attack
 from app.application.ports import AttackRepository
+from app.domain.entities.attack import Attack
 
 
 class SearchAttackByIdUseCase:

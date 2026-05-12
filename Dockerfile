@@ -4,9 +4,8 @@ FROM python:3.11-slim AS builder
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_VENV_IN_PROJECT=1 \
-    POETRY_CACHE_DIR=/tmp/poetry_cache
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -14,20 +13,23 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN pip install poetry==1.6.1
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:0.5.31 /uv /uvx /bin/
 
 # Set work directory
 WORKDIR /app
 
-# Copy poetry files
-COPY pyproject.toml poetry.lock* ./
+# Copy dependency metadata
+COPY pyproject.toml uv.lock ./
 
-# Configure poetry and install dependencies
-RUN poetry config virtualenvs.create true && \
-    poetry config virtualenvs.in-project true && \
-    poetry install --only=main --no-root && \
-    rm -rf $POETRY_CACHE_DIR
+# Install dependencies first for better layer caching
+RUN uv sync --frozen --no-dev --no-install-project
+
+# Copy application code
+COPY . .
+
+# Install the project package
+RUN uv sync --frozen --no-dev
 
 # Production stage
 FROM python:3.11-slim AS production
@@ -52,7 +54,8 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 
 # Copy application code
-COPY . .
+COPY --from=builder /app/app /app/app
+COPY --from=builder /app/pyproject.toml /app/pyproject.toml
 
 # Change ownership of the app directory
 RUN chown -R appuser:appuser /app

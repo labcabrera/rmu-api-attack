@@ -3,17 +3,16 @@ Attack web controller.
 """
 
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Query
-from app.infrastructure.container import Container
 
-# Instantiate the container only once at module level
-container = Container()
-from app.infrastructure.logging import log_endpoint, log_errors, get_logger
+from fastapi import APIRouter, HTTPException, Query
+
+from app.infrastructure.container import Container
+from app.infrastructure.logging import get_logger, log_endpoint, log_errors
 from app.interfaces.http.dto import (
     AttackDTO,
-    PagedAttacksDTO,
     AttackNotFoundDTO,
     CreateAttackRequestDTO,
+    PagedAttacksDTO,
     UpdateAttackModifiersRequestDTO,
     UpdateAttackRollRequestDTO,
     UpdateCriticalRollRequestDTO,
@@ -21,6 +20,8 @@ from app.interfaces.http.dto import (
     UpdateParryRequestDTO,
 )
 
+# Instantiate the container only once at module level
+container = Container()
 logger = get_logger(__name__)
 router = APIRouter(prefix="/attacks", tags=["Attacks"])
 

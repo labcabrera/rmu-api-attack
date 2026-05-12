@@ -3,20 +3,21 @@ MongoDB adapter for attack persistence.
 This is an infrastructure adapter that implements the AttackRepository port.
 """
 
-from typing import Optional, List
+from typing import List, Optional
+
+from bson import ObjectId
 from fastapi import HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
-from bson import ObjectId
 
-from app.domain.exceptions import AttackNotFoundException
-from app.domain.entities import Attack
 from app.application.ports import AttackRepository
-from app.infrastructure.logging import get_logger
+from app.domain.entities import Attack
+from app.domain.exceptions import AttackNotFoundException
 from app.infrastructure.config.config import settings
+from app.infrastructure.logging import get_logger
 
-from .rsql_parser import RSQLParser
 from .attack_from_mongo_converter import AttackFromMongoConverter
 from .attack_to_mongo_converter import AttackToMongoConverter
+from .rsql_parser import RSQLParser
 
 logger = get_logger(__name__)
 
