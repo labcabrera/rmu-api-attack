@@ -11,7 +11,7 @@ from .attack_table_entry_dto import AttackTableEntryDTO
 from .create_attack_request_dto import CreateAttackRequestDTO
 from .critical_effect_dto import CriticalEffectDTO
 from .errors_dto import AttackNotFoundDTO
-from .pagination_dto import PaginationDTO, PagedAttacksDTO
+from .pagination_dto import PagedAttacksDTO, PaginationDTO
 from .update_attack_modifiers_request_dto import UpdateAttackModifiersRequestDTO
 from .update_attack_roll_request_dto import UpdateAttackRollRequestDTO
 from .update_critical_roll_request_dto import UpdateCriticalRollRequestDTO

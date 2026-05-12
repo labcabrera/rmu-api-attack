@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -19,6 +19,7 @@ show_help() {
     echo "Options:"
     echo "  -h, --help     Show this help"
     echo "  -d, --dry-run  Show commands without executing"
+    echo "  --skip-checks  Skip local quality checks before committing version changes"
     echo ""
     echo "Examples:"
     echo "  $0 1.2.0"
@@ -29,10 +30,12 @@ show_help() {
     echo "  1. Verify that git flow is initialized"
     echo "  2. Check repository status"
     echo "  3. Create release branch from develop"
-    echo "  4. Update version in configuration files"
-    echo "  5. Finish release (merge to main and develop)"
-    echo "  6. Create version tag"
-    echo "  7. Push main, develop and tags"
+    echo "  4. Update version in pyproject.toml"
+    echo "  5. Refresh uv.lock"
+    echo "  6. Run local quality checks"
+    echo "  7. Finish release (merge to main and develop)"
+    echo "  8. Create version tag"
+    echo "  9. Push main, develop and tags"
 }
 
 log_info() {
@@ -84,9 +87,17 @@ validate_version() {
 
 check_prerequisites() {
     log_info "Checking prerequisites..."
+
     # Check git
     if ! command -v git &> /dev/null; then
         log_error "git is not installed"
+        exit 1
+    fi
+
+    # Check uv
+    if ! command -v uv &> /dev/null; then
+        log_error "uv is not installed"
+        log_error "Install it from: https://docs.astral.sh/uv/getting-started/installation/"
         exit 1
     fi
     
@@ -158,16 +169,17 @@ update_version_files() {
         execute_command "sed -i 's/^version = .*/version = \"${version}\"/' pyproject.toml" "Update version in pyproject.toml"
     fi
     
-    # Update __init__.py if exists
-    if [ -f "app/__init__.py" ]; then
-        execute_command "sed -i 's/__version__ = .*/__version__ = \"${version}\"/' app/__init__.py" "Update version in app/__init__.py"
+    # Refresh uv.lock because the project version is stored there too
+    execute_command "UV_CACHE_DIR=\"\${UV_CACHE_DIR:-/tmp/uv-cache}\" uv lock" "Refresh uv.lock"
+
+    if [ "$SKIP_CHECKS" = false ]; then
+        execute_command "./local-test.sh" "Run local quality checks"
+    else
+        log_warning "Skipping local quality checks"
     fi
     
-    # Create or update VERSION file
-    execute_command "echo '${version}' > VERSION" "Create VERSION file"
-    
     # Commit version changes
-    execute_command "git add ." "Add version changes"
+    execute_command "git add pyproject.toml uv.lock" "Add version changes"
     execute_command "git commit -m 'chore: bump version to ${version}'" "Commit version changes"
 }
 
@@ -210,6 +222,7 @@ create_release() {
 main() {
     local version=""
     DRY_RUN=false
+    SKIP_CHECKS=false
     
     # Parse arguments
     while [[ $# -gt 0 ]]; do
@@ -220,6 +233,10 @@ main() {
                 ;;
             -d|--dry-run)
                 DRY_RUN=true
+                shift
+                ;;
+            --skip-checks)
+                SKIP_CHECKS=true
                 shift
                 ;;
             -*)
@@ -256,6 +273,7 @@ main() {
     echo -e "${BLUE}═══════════════════════════════════════${NC}"
     echo -e "Version to create: ${GREEN}v${version}${NC}"
     echo -e "Dry-run mode: ${YELLOW}${DRY_RUN}${NC}"
+    echo -e "Skip checks: ${YELLOW}${SKIP_CHECKS}${NC}"
     echo -e "Repository: ${BLUE}$(pwd)${NC}"
     echo -e "${BLUE}═══════════════════════════════════════${NC}\n"
     

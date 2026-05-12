@@ -4,7 +4,8 @@ These are interfaces that define contracts for external dependencies.
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from typing import List, Optional
+
 from app.domain.entities import Attack
 
 

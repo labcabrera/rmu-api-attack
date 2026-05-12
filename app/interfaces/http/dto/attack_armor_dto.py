@@ -1,6 +1,6 @@
-from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
-from app.domain.entities import AttackBonusEntry, AttackArmor
+
+from app.domain.entities import AttackArmor
 
 
 class AttackArmorDTO(BaseModel):

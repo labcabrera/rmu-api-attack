@@ -5,14 +5,16 @@ This adapter implements the AttackTableService port by making HTTP calls to an e
 
 import asyncio
 from typing import Optional
+
 import httpx
+
+from app.application.ports import AttackTableClient
 from app.domain.entities import (
     AttackTableEntry,
-    CriticalTableEntry,
     CriticalEffect,
+    CriticalTableEntry,
     FumbleTableEntry,
 )
-from app.application.ports import AttackTableClient
 from app.infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
@@ -58,9 +60,11 @@ class AttackTableRestAdapter(AttackTableClient):
                 damage=json.get("damage", 0),
                 critical_type=json.get("criticalType", None),
                 critical_severity=json.get("criticalSeverity", None),
-                damage_base=json.get("damageBase", 0),
-                critical_severity_base=json.get("criticalSeverityBase", None),
             )
+            if not entry.damage:
+                entry.damage = 0
+            entry.damage_base = entry.damage
+            entry.critical_severity_base = entry.critical_severity
             logger.info(f"Successfully retrieved attack table entry: {entry}")
             return entry
         except Exception as e:

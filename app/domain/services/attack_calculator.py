@@ -1,12 +1,14 @@
 import math
 from typing import Optional
+
+from app.application.ports import AttackNotificationPort, AttackTableClient
 from app.domain.entities import (
     Attack,
-    AttackCalculations,
     AttackBonusEntry,
+    AttackCalculations,
+    AttackCriticalResult,
     AttackFumbleResult,
     AttackResult,
-    AttackCriticalResult,
     AttackTableEntry,
 )
 from app.domain.entities.enums import (
@@ -15,14 +17,12 @@ from app.domain.entities.enums import (
     FumbleStatus,
 )
 from app.domain.services.attack_size_service import AttackSizeService
-from app.application.ports import AttackNotificationPort, AttackTableClient
 from app.infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
 
 
 class AttackCalculator:
-
     def __init__(
         self,
         notification_port: Optional[AttackNotificationPort] = None,
@@ -147,11 +147,6 @@ class AttackCalculator:
             p.value for p in attack.calculated.critical_severity_modifiers
         )
 
-    def calculate_fumble_result(self, attack: Attack) -> None:
-        attack.fumble = AttackFumbleResult(
-            status=AttackStatus.PENDING_FUMBLE_ROLL,
-        )
-
     def create_critical_results(self, attack: Attack) -> None:
         if (
             not attack.results.attack_table_entry
@@ -192,9 +187,7 @@ class AttackCalculator:
         ]
         # TODO check additional critical features
         for idx, critical in enumerate(attack.results.criticals):
-            critical.key = (
-                f"{critical.critical_type}_{critical.critical_severity}_{idx+1}".lower()
-            )
+            critical.key = f"{critical.critical_type}_{critical.critical_severity}_{idx + 1}".lower()
 
     def update_status(self, attack: Attack) -> None:
         if attack.results.criticals:

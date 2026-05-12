@@ -3,17 +3,17 @@ Attack web controller.
 """
 
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Query
-from app.infrastructure.container import Container
 
-# Instantiate the container only once at module level
-container = Container()
-from app.infrastructure.logging import log_endpoint, log_errors, get_logger
+from fastapi import APIRouter, HTTPException, Query
+
+from app.domain.exceptions import AttackNotFoundException
+from app.infrastructure.container import Container
+from app.infrastructure.logging import get_logger, log_endpoint, log_errors
 from app.interfaces.http.dto import (
     AttackDTO,
-    PagedAttacksDTO,
     AttackNotFoundDTO,
     CreateAttackRequestDTO,
+    PagedAttacksDTO,
     UpdateAttackModifiersRequestDTO,
     UpdateAttackRollRequestDTO,
     UpdateCriticalRollRequestDTO,
@@ -21,6 +21,8 @@ from app.interfaces.http.dto import (
     UpdateParryRequestDTO,
 )
 
+# Instantiate the container only once at module level
+container = Container()
 logger = get_logger(__name__)
 router = APIRouter(prefix="/attacks", tags=["Attacks"])
 
@@ -76,6 +78,11 @@ async def search_attack_by_id(attack_id: str):
 
     except HTTPException:
         raise
+    except AttackNotFoundException as e:
+        raise HTTPException(
+            status_code=404,
+            detail={"detail": str(e), "attack_id": attack_id},
+        )
     except Exception as e:
         logger.error(f"Error retrieving attack {attack_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

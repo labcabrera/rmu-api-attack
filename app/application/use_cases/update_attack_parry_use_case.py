@@ -1,8 +1,9 @@
 from typing import Optional
+
+from app.application.commands import UpdateAttackParryCommand
+from app.application.ports import AttackNotificationPort, AttackRepository
 from app.domain.entities import Attack
 from app.domain.services.attack_calculator import AttackCalculator
-from app.application.ports import AttackNotificationPort, AttackRepository
-from app.application.commands import UpdateAttackParryCommand
 
 
 class UpdateAttackParryUseCase:

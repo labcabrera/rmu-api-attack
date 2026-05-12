@@ -2,7 +2,6 @@
 .git
 .gitignore
 README.md
-README.adoc
 
 # Python
 __pycache__
@@ -60,6 +59,7 @@ test_*.py
 docs/
 *.md
 *.adoc
+!README.adoc
 
 # Docker
 Dockerfile*

@@ -1,10 +1,9 @@
-from app.domain.entities import Attack
-from app.domain.services import AttackCalculator
 from app.application.commands import UpdateFumbleRollCommand
-
 from app.application.ports import AttackRepository, AttackTableClient
+from app.domain.entities import Attack
 from app.domain.entities.attack_fumble_result import AttackFumbleResult
 from app.domain.entities.enums import AttackStatus, FumbleStatus
+from app.domain.services import AttackCalculator
 
 
 class UpdateFumbleRollUseCase:

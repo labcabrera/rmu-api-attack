@@ -3,9 +3,9 @@ Domain entity for pagination.
 This represents a page of results with metadata.
 """
 
-from dataclasses import dataclass
-from typing import List, TypeVar, Generic
 import math
+from dataclasses import dataclass
+from typing import Generic, List, TypeVar
 
 T = TypeVar("T")
 

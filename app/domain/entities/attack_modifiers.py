@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
 from .attack_armor import AttackArmor
-from .attack_skill import AttackSkill
+from .attack_feature import AttackFeature
 from .attack_roll_modifiers import AttackRollModifiers
 from .attack_situational_modifiers import AttackSituationalModifiers
-from .attack_feature import AttackFeature
+from .attack_skill import AttackSkill
 from .enums import AttackType
 
 
