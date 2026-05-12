@@ -1,6 +1,6 @@
 [project]
 name = "rmu-api-attack"
-version = "0.3.3"
+version = "0.4.0"
 description = "RMU API Attack - FastAPI application for managing RPG attacks"
 readme = { file = "README.adoc", content-type = "text/plain" }
 requires-python = ">=3.11,<3.13"
