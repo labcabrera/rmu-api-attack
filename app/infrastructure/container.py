@@ -25,8 +25,6 @@ from app.infrastructure.persistence import MongoAttackRepository
 
 
 class Container(containers.DeclarativeContainer):
-    wiring_config = containers.WiringConfiguration(packages=["app"])
-
     mongo_client = providers.Singleton(AsyncIOMotorClient, settings.MONGODB_URL)
     mongo_database = providers.Singleton(
         lambda client: client.get_default_database(), mongo_client

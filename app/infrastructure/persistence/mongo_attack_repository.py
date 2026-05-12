@@ -6,12 +6,12 @@ This is an infrastructure adapter that implements the AttackRepository port.
 from typing import List, Optional
 
 from bson import ObjectId
-from fastapi import HTTPException
+from bson.errors import InvalidId
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from app.application.ports import AttackRepository
 from app.domain.entities import Attack
-from app.domain.exceptions import AttackNotFoundException
+from app.domain.exceptions import AttackNotFoundException, AttackRepositoryException
 from app.infrastructure.config.config import settings
 from app.infrastructure.logging import get_logger
 
@@ -71,9 +71,11 @@ class MongoAttackRepository(AttackRepository):
             else:
                 logger.warning(f"Attack with ID {attack_id} not found")
                 raise AttackNotFoundException(attack_id)
+        except (AttackNotFoundException, InvalidId):
+            raise AttackNotFoundException(attack_id)
         except Exception as e:
             logger.error(f"Error finding attack by ID: {attack_id} - {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            raise AttackRepositoryException(str(e), operation="find_by_id")
 
     async def find_by_rsql(
         self, rsql_query: Optional[str] = None, limit: int = 10, skip: int = 0
@@ -91,8 +93,8 @@ class MongoAttackRepository(AttackRepository):
                 attacks.append(AttackFromMongoConverter.dict_to_attack(doc))
             return attacks
         except Exception as e:
-            print(f"Error in find_by_rsql: {e}")
-            return []
+            logger.error(f"Error finding attacks by RSQL: {e}")
+            raise AttackRepositoryException(str(e), operation="find_by_rsql")
 
     async def save(self, attack: Attack) -> Attack:
         await self.connect()
@@ -103,7 +105,7 @@ class MongoAttackRepository(AttackRepository):
             return attack
         except Exception as e:
             logger.error(f"Error saving attack: {e}")
-            raise ValueError(f"Failed to save attack: {str(e)}")
+            raise AttackRepositoryException(str(e), operation="save")
 
     async def update(self, attack: Attack) -> Optional[Attack]:
         await self.connect()
@@ -117,7 +119,7 @@ class MongoAttackRepository(AttackRepository):
                 return None
             return attack
         except Exception as e:
-            raise ValueError(f"Failed to update attack: {str(e)}")
+            raise AttackRepositoryException(str(e), operation="update")
 
     async def delete(self, attack_id: str) -> bool:
         await self.connect()
@@ -125,8 +127,13 @@ class MongoAttackRepository(AttackRepository):
             object_id = ObjectId(attack_id)
             result = await self._collection.delete_one({"_id": object_id})
             return result.deleted_count > 0
-        except Exception:
+        except InvalidId:
             return False
+        except Exception:
+            logger.exception("Error deleting attack %s", attack_id)
+            raise AttackRepositoryException(
+                "Failed to delete attack", operation="delete"
+            )
 
     async def exists(self, attack_id: str) -> bool:
         await self.connect()
@@ -134,8 +141,13 @@ class MongoAttackRepository(AttackRepository):
             object_id = ObjectId(attack_id)
             count = await self._collection.count_documents({"_id": object_id})
             return count > 0
-        except Exception:
+        except InvalidId:
             return False
+        except Exception:
+            logger.exception("Error checking attack existence %s", attack_id)
+            raise AttackRepositoryException(
+                "Failed to check attack", operation="exists"
+            )
 
     async def count_by_rsql(self, rsql_query: Optional[str] = None) -> int:
         """Count attacks by RSQL query"""
@@ -149,7 +161,7 @@ class MongoAttackRepository(AttackRepository):
             return count
         except Exception as e:
             logger.error(f"Error counting by RSQL: {e}")
-            raise ValueError(f"Failed to count attacks: {str(e)}")
+            raise AttackRepositoryException(str(e), operation="count_by_rsql")
 
     async def find_all(
         self,

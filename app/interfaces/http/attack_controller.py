@@ -6,6 +6,7 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
+from app.domain.exceptions import AttackNotFoundException
 from app.infrastructure.container import Container
 from app.infrastructure.logging import get_logger, log_endpoint, log_errors
 from app.interfaces.http.dto import (
@@ -77,6 +78,11 @@ async def search_attack_by_id(attack_id: str):
 
     except HTTPException:
         raise
+    except AttackNotFoundException as e:
+        raise HTTPException(
+            status_code=404,
+            detail={"detail": str(e), "attack_id": attack_id},
+        )
     except Exception as e:
         logger.error(f"Error retrieving attack {attack_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

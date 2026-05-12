@@ -1,27 +1,71 @@
 import os
+from urllib.parse import urlsplit, urlunsplit
+
+
+def _getenv(*names: str, default: str | None = None) -> str | None:
+    for name in names:
+        value = os.getenv(name)
+        if value:
+            return value
+    return default
 
 
 class Settings:
     """Application settings and configuration"""
 
-    # MongoDB Configuration
-    MONGODB_URL: str = os.getenv(
-        "RMU_MONGO_ATTACK_URI",
-        "mongodb://admin:admin@localhost:27017/rmu-attack?authSource=admin",
+    DEFAULT_MONGODB_URL = (
+        "mongodb://admin:admin@localhost:27017/rmu-attack?authSource=admin"
     )
 
-    # API Configuration
-    API_VERSION: str = "v1"
-    API_PREFIX: str = f"/{API_VERSION}"
+    def __init__(self) -> None:
+        # MongoDB Configuration
+        self.MONGODB_URL = _getenv(
+            "RMU_MONGO_ATTACK_URI",
+            "MONGO_URI",
+            "MONGODB_URL",
+            default=self.DEFAULT_MONGODB_URL,
+        )
+        self.MONGODB_DATABASE = _getenv(
+            "RMU_MONGO_ATTACK_DATABASE",
+            "MONGO_DATABASE",
+            "MONGODB_DATABASE",
+            default="rmu-attack",
+        )
 
-    # Application Configuration
-    APP_NAME: str = "RMU API Attack"
-    APP_DESCRIPTION: str = "API for managing RMU (Role Master Unified) attack system"
-    APP_VERSION: str = "1.0.0"
+        # API Configuration
+        self.API_VERSION = "v1"
+        self.API_PREFIX = f"/{self.API_VERSION}"
 
-    # Development Configuration
-    DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
-    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO").upper()
+        # Application Configuration
+        self.APP_NAME = "RMU API Attack"
+        self.APP_DESCRIPTION = (
+            "API for managing RMU (Role Master Unified) attack system"
+        )
+        self.APP_VERSION = "1.0.0"
+
+        # Development Configuration
+        self.DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+        self.LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+
+    @property
+    def REDACTED_MONGODB_URL(self) -> str:
+        """Return the MongoDB URL without credentials for diagnostics."""
+        parsed = urlsplit(self.MONGODB_URL)
+        if not parsed.username and not parsed.password:
+            return self.MONGODB_URL
+
+        host = parsed.hostname or ""
+        if parsed.port:
+            host = f"{host}:{parsed.port}"
+        return urlunsplit(
+            (
+                parsed.scheme,
+                f"***:***@{host}",
+                parsed.path,
+                parsed.query,
+                parsed.fragment,
+            )
+        )
 
     class Config:
         case_sensitive = True
