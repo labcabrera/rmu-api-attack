@@ -1,6 +1,8 @@
 = RMU API Attack
 :linkattrs:
 :icons: font
+:toc:
+:toclevels: 2
 
 image:https://img.shields.io/badge/license-GPL3.0-green.svg[License,link="https://www.gnu.org/licenses/gpl-3.0.html"]
 image:https://img.shields.io/badge/rolemaster-rmu-green.svg[Rolemaster,link="http://ironcrown.co.uk/unified-rolemaster/"]
@@ -12,7 +14,8 @@ image:https://img.shields.io/badge/Python-3.11-green?logo=python[Python 3.11,lin
 </a>
 ++++
 
-REST API for attack management in the Rolemaster Unified system using Python with MongoDB.
+REST API for managing Rolemaster Unified attack resolution.
+The service stores attack state in MongoDB and delegates attack, critical and fumble table lookups to the RMU attack tables API.
 
 This project is part of RMU Online: https://github.com/labcabrera/rmu-platform
 
@@ -21,20 +24,189 @@ WARNING: *This application is an independent project developed by fans of Rolema
 
 == Description
 
-This API exposes endpoints to manage attack information, including creating, querying, updating, and deleting attacks according
-to RMU system.
+RMU API Attack owns the lifecycle of an attack:
+
+* Create an attack with tactical modifiers.
+* Calculate roll, critical and fumble modifiers.
+* Resolve attack table results using the external attack tables API.
+* Track pending rolls and apply final results.
+* Persist attack state in MongoDB.
 
 image::diagrams/c4-context.png[API Attack Context System]
 
-== Prerequisites
+== Architecture
+
+The code follows a layered, ports-and-adapters style:
+
+|===
+| Layer | Package | Responsibility
+
+| HTTP interface
+| `app/interfaces/http`
+| FastAPI routers and Pydantic DTOs.
+
+| Application
+| `app/application`
+| Commands, ports and use cases.
+
+| Domain
+| `app/domain`
+| Attack entities, value objects, services and domain exceptions.
+
+| Infrastructure
+| `app/infrastructure`
+| MongoDB repository, REST clients, configuration, logging and dependency container.
+|===
+
+== Requirements
 
 * Python 3.11+
-* MongoDB (local or remote instance)
-* uv
+* link:https://docs.astral.sh/uv/[uv]
+* MongoDB
+* RMU attack tables API, by default expected at `http://localhost:3005/v1`
 
-== Installation
+== Quick Start
 
-Clone the repository and navigate to the project directory. Then execute:
+[source,bash]
+----
+uv sync --all-groups
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+----
+
+Interactive API documentation:
+
+* Swagger UI: http://localhost:8000/docs
+* ReDoc: http://localhost:8000/redoc
+* Health check: http://localhost:8000/health
+
+== Configuration
+
+Environment variables:
+
+|===
+| Variable | Default | Description
+
+| `RMU_MONGO_ATTACK_URI`
+| `mongodb://admin:admin@localhost:27017/rmu-attack?authSource=admin`
+| MongoDB connection string. `MONGO_URI` and `MONGODB_URL` are also accepted for compatibility.
+
+| `RMU_MONGO_ATTACK_DATABASE`
+| `rmu-attack`
+| MongoDB database name for legacy repository mode. `MONGO_DATABASE` and `MONGODB_DATABASE` are also accepted.
+
+| `RMU_API_ATTACK_TABLES_URL`
+| `http://localhost:3005/v1`
+| Base URL of the attack tables API.
+
+| `RMU_API_ATTACK_TABLES_TIMEOUT`
+| `30.0`
+| HTTP timeout in seconds for attack table requests.
+
+| `RMU_API_ATTACK_TABLES_ENABLE_RETRY`
+| `false`
+| Enables retry wrapper for the attack tables API client.
+
+| `RMU_API_ATTACK_TABLES_MAX_RETRIES`
+| `3`
+| Maximum retries when retry support is enabled.
+
+| `RMU_API_ATTACK_TABLES_RETRY_DELAY`
+| `1.0`
+| Base retry delay in seconds.
+
+| `RMU_API_ATTACK_TABLES_KEY`
+| _empty_
+| Optional bearer token for the attack tables API.
+
+| `LOG_LEVEL`
+| `INFO`
+| Application log level.
+
+| `DEBUG`
+| `false`
+| Enables development debug mode.
+|===
+
+== API Overview
+
+|===
+| Method | Path | Description
+
+| `GET`
+| `/`
+| Service metadata.
+
+| `GET`
+| `/health`
+| API and MongoDB connectivity status.
+
+| `GET`
+| `/v1/attacks`
+| Search attacks using an optional RSQL query.
+
+| `GET`
+| `/v1/attacks/{attack_id}`
+| Retrieve one attack by id.
+
+| `POST`
+| `/v1/attacks`
+| Create a new attack.
+
+| `PATCH`
+| `/v1/attacks/{attack_id}`
+| Update attack modifiers.
+
+| `DELETE`
+| `/v1/attacks/{attack_id}`
+| Delete an attack.
+
+| `PATCH`
+| `/v1/attacks/{attack_id}/parry`
+| Update parry value.
+
+| `PATCH`
+| `/v1/attacks/{attack_id}/roll`
+| Apply attack roll.
+
+| `PATCH`
+| `/v1/attacks/{attack_id}/critical-roll`
+| Apply one critical roll.
+
+| `PATCH`
+| `/v1/attacks/{attack_id}/fumble-roll`
+| Apply fumble roll.
+
+| `POST`
+| `/v1/attacks/{attack_id}/apply`
+| Apply attack result to the tactical module.
+|===
+
+== Domain Model Summary
+
+The main aggregate is `Attack`.
+It is intentionally split into stable blocks:
+
+|===
+| Block | Purpose
+
+| `modifiers`
+| Tactical input used to calculate the attack: attack type, table, size, armor, roll modifiers, situational modifiers, features and source skills.
+
+| `roll`
+| Dice roll data for the attack, criticals and fumbles.
+
+| `calculated`
+| Derived modifier breakdowns and totals.
+
+| `results`
+| Attack table entry, critical results and fumble result.
+|===
+
+Attack status flow:
+
+image::diagrams/attack-status-state-diagram.png[Attack Status State Diagram]
+
+== Development
 
 Install dependencies:
 
@@ -43,273 +215,127 @@ Install dependencies:
 uv sync --all-groups
 ----
 
-Run the application:
+Run checks:
 
 [source,bash]
 ----
-uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+./local-test.sh
 ----
 
-== Configuration
-
-The application can be configured using environment variables:
-
-* `MONGO_URI`: MongoDB connection string (default: `mongodb://localhost:27017`)
-* `MONGO_DATABASE`: Database name (default: `rmu-attacks`)
-* `DEBUG`: Enable debug mode (default: `false`)
-* `LOG_LEVEL`: Logging level (default: `INFO`)
-
-== Endpoints
-
-
-* `GET /v1/attacks/{attackId}` - Search attack by Id
-* `GET /v1/attacks/` - Search attacks with RSQL
-* `POST /v1/attacks/` - Create a new attack
-* `PATCH /v1/attacks/{attackId}` - Update attack modifiers
-* `DELETE /v1/attacks/{attackId}` - Delete an attack
-* `POST /v1/attacks/{attackId}/roll` - Update attack roll
-* `POST /v1/attacks/{attackUd}/apply` - Applies the result of the attack to the tactical game system
-
-* `GET /` - Root endpoint with API information
-* `GET /health` - Health check endpoint with database connectivity status
-
-== Documentation
-
-Once the application is running, you can access the interactive documentation at:
-
-* Swagger UI: http://localhost:8000/docs
-* ReDoc: http://localhost:8000/redoc
-
-== Development
-
-=== Running Tests
+Run individual commands:
 
 [source,bash]
 ----
 uv run pytest tests/ -v
-----
-
-=== Code Quality
-
-[source,bash]
-----
 uv run ruff format app tests
 uv run ruff check app
 ----
 
-== Model Schema
+== Docker
 
-The main entity of the domain is the Attack which has the following structure:
+Build the image:
 
-[source,json]
+[source,bash]
 ----
-{
-    "id": "6888972603b67e285cae95f0",
-    "actionId": "action_001",
-    "sourceId": "character_001",
-    "targetId": "character_002",
-    "status": "draft",
-    "modifiers": {
-        "attackType": "melee",
-        "attackTable": "arming-sword",
-        "attackSize": "medium",
-        "at": 1,
-        "actionPoints": 4,
-        "fumble": 2,
-        "rollModifiers": {
-            "bo": 100,
-            "bd": -20,
-            "injuryPenalty": 0,
-            "pacePenalty": 0,
-            "fatiguePenalty": 0,
-            "rangePenalty": 0,
-            "shield": 0,
-            "parry": 0,
-            "customBonus": 0
-        },
-        "situationalModifiers": {
-            "cover": "none",
-            "restrictedQuarters": "none",
-            "positionalSource": "none",
-            "positionalTarget": "none",
-            "dodge": "none",
-            "disabledDB": false,
-            "disabledShield": false,
-            "disabledParry": false,
-            "sizeDifference": 0,
-            "offHand": false,
-            "twoHandedWeapon": false,
-            "higherGround": false,
-            "sourceStatus": [],
-            "targetStatus": []
-        },
-        "features": [],
-        "sourceSkills": []
-    },
-    "roll": {
-        "roll": 128,
-        "criticalRolls": {
-            "p_e_1": 12,
-            "p_a_2": 45
-        },
-        "fumbleRoll": null
-    },
-    "calculated": {
-        "rollModifiers": [
-            {
-                "key": "roll",
-                "value": 128
-            },
-            {
-                "key": "bo",
-                "value": 100
-            },
-            {
-                "key": "bd",
-                "value": -20
-            }
-        ],
-        "criticalModifiers": [
-            {
-                "key": "absolute-hit",
-                "value": 7
-            }
-        ],
-        "criticalSeverityModifiers": [],
-        "rollTotal": 208,
-        "criticalTotal": 7,
-        "criticalSeverityTotal": 0
-    },
-    "results": {
-        "attackTableEntry": {
-            "text": "26FP",
-            "damage": 26,
-            "criticalType": "P",
-            "criticalSeverity": "F"
-        },
-        "criticals": [
-            {
-                "key": "p_e_1",
-                "status": "rolled",
-                "criticalType": "P",
-                "criticalSeverity": "E",
-                "adjustedRoll": 19,
-                "result": {
-                    "text": "Foe flinches from blow, avoiding even greater damage to his neck.",
-                    "damage": 15,
-                    "location": "head",
-                    "effects": [
-                        {
-                            "status": "bleeding",
-                            "rounds": null,
-                            "value": 2,
-                            "delay": null,
-                            "condition": null
-                        },
-                        {
-                            "status": "stunned",
-                            "rounds": 1,
-                            "value": -25,
-                            "delay": null,
-                            "condition": null
-                        }
-                    ]
-                }
-            },
-            {
-                "key": "p_a_2",
-                "status": "rolled",
-                "criticalType": "P",
-                "criticalSeverity": "A",
-                "adjustedRoll": 52,
-                "result": {
-                    "text": "Point sinks an inch into foe's bicep muscle.",
-                    "damage": 2,
-                    "location": "arm",
-                    "effects": [
-                        {
-                            "status": "bleeding",
-                            "rounds": null,
-                            "value": 2,
-                            "delay": null,
-                            "condition": null
-                        },
-                        {
-                            "status": "penalty",
-                            "rounds": null,
-                            "value": -5,
-                            "delay": null,
-                            "condition": null
-                        }
-                    ]
-                }
-            }
-        ]
-    }
-}
+docker build -t labcabrera/rmu-api-attack:latest .
 ----
 
-It is divided into the following blocks:
+Run locally on the RMU Docker network:
 
-* *modifiers*: values calculated in the tactical module used for the creation and update of the attack.
-* *roll*: information on dice rolls applicable to attack or critical rolls.
-* *results*: result of the attack, whether it is an attack with no effect, a damage, a set of critical hits, or a failure.
+[source,bash]
+----
+./docker-run.sh
+----
 
-=== Attack Status
+== Release
 
-image::diagrams/attack-status-state-diagram.png[Attack Status State Diagram]
+Releases are created with git-flow:
 
-== Skills, character combat statuses and attack features
+[source,bash]
+----
+./create-release.sh 0.4.0
+----
 
-=== Source target skills allowed
+The release script:
 
-|===
-| Skill                 | Description
-| _footwork_            | Reduces melee pace modifier.
-| _reverse-strike_      | Reduces positional target bonus when attacking from the rear.
-| _restricted-quarters_ | Reduces positional target bonus when attacking in restricted quarters.
-|===
+* starts a `release/<version>` branch from `develop`;
+* updates the version in `pyproject.toml`;
+* refreshes `uv.lock`;
+* runs local checks;
+* finishes the release and pushes `main`, `develop` and tags.
 
-=== Source statuses allowed
+== RMU Modifiers Reference
 
-|===
-| Status           | Description
-|_prone_           | Applies -50 penalty.
-|_ambidextrous_    | Reduces off-hand penalty.
-|===
-
-=== Target statuses allowed
+=== Source skills
 
 |===
-| Status           | Description
-| _stunned_        | Applies 20 bonus.
-| _prone_          | Applies 30 bonus for melee attacks or -30 penalty for ranged attacks.
-| _melee_          | Indicates that the target is in melee range, which can affect ranged attacks.
-| _flying_         | Applies a -10 penalty.
+| Skill | Description
+
+| `footwork`
+| Reduces melee pace modifier.
+
+| `reverse-strike`
+| Reduces positional source penalty when attacking from flank or rear.
+
+| `restricted-quarters`
+| Reduces restricted quarters penalty.
+|===
+
+=== Source statuses
+
+|===
+| Status | Description
+
+| `prone`
+| Applies a source penalty.
+
+| `ambidextrous`
+| Reduces off-hand penalty.
+|===
+
+=== Target statuses
+
+|===
+| Status | Description
+
+| `stunned`
+| Applies an attack bonus.
+
+| `surprised`
+| Applies an attack bonus.
+
+| `prone`
+| Applies a melee bonus or ranged penalty.
+
+| `melee`
+| Penalizes ranged attacks made while engaged in melee.
 |===
 
 === Attack features
 
 |===
-| Feature           | Description
-| _slaying-attack_  | Values from _i_ to _v_. Add a critical bonus to critical roll.
+| Feature | Description
+
+| `slaying-attack`
+| Adds critical roll bonuses according to feature value.
 |===
 
 == Technology Stack
 
-* **FastAPI**: Modern Python web framework
-* **MongoDB**: NoSQL database via Motor (async driver)
-* **Pydantic**: Data validation and serialization
-* **Uvicorn**: ASGI server
-* **Pytest**: Testing framework
-* **Hexagonal Architecture**: Clean architecture with ports and adapters pattern
+* FastAPI
+* Pydantic v2
+* MongoDB with Motor
+* httpx
+* dependency-injector
+* uv
+* pytest
+* Ruff
 
-== TODO
+== Roadmap
 
-* Update actions points penalty
-* Called shots
-* Disarm attacks
-* Katas modifiers
-* Protecting others
-* Mounted combat
-* Subdual
+* Called shots.
+* Disarm attacks.
+* Katas modifiers.
+* Protecting others.
+* Mounted combat.
+* Subdual attacks.
