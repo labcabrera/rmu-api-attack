@@ -1,10 +1,11 @@
-# Activate virtual environment
-if [ -d ".venv" ]; then
-    echo "📦 Activating virtual environment..."
-    source .venv/bin/activate
-else
-    echo "❌ Virtual environment not found. Run 'python -m venv .venv' first."
-    exit 1
-fi
+#!/bin/bash
 
-pytest tests/ -v
+set -euo pipefail
+
+export UV_CACHE_DIR="${UV_CACHE_DIR:-/tmp/uv-cache}"
+export UV_LINK_MODE="${UV_LINK_MODE:-copy}"
+
+uv sync --all-groups
+uv run ruff format --check app tests
+uv run ruff check app
+uv run pytest tests/ -v

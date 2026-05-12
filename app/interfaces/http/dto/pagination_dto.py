@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
+
 from app.domain.entities import Page, Pagination
+
 from .attack_dto import AttackDTO
 
 

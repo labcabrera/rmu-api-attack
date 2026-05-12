@@ -1,9 +1,10 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from app.infrastructure.config.config import settings
 from app.infrastructure.container import Container
-from app.infrastructure.logging import setup_logging, get_logger
+from app.infrastructure.logging import get_logger, setup_logging
 from app.interfaces.http.attack_controller import router as attack_router
 
 setup_logging(
@@ -64,16 +65,5 @@ async def health_check():
         "status": "healthy" if db_status == "connected" else "unhealthy",
         "version": settings.APP_VERSION,
         "database": db_status,
-        "mongodb_url": (
-            settings.MONGODB_URL.replace(
-                (
-                    settings.MONGODB_URL.split("@")[-1]
-                    if "@" in settings.MONGODB_URL
-                    else ""
-                ),
-                "***",
-            )
-            if "@" in settings.MONGODB_URL
-            else settings.MONGODB_URL
-        ),
+        "mongodb_url": settings.REDACTED_MONGODB_URL,
     }

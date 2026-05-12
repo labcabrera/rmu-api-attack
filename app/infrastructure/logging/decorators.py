@@ -2,11 +2,14 @@
 Logging decorators for endpoints and error handling
 """
 
+import asyncio
 import functools
 import time
 import traceback
-from typing import Any, Callable, Dict
-from fastapi import Request, HTTPException
+from typing import Any, Callable
+
+from fastapi import HTTPException, Request
+
 from app.infrastructure.logging.logger_config import get_logger
 
 logger = get_logger(__name__)
@@ -177,7 +180,3 @@ def log_errors(func: Callable) -> Callable:
         return async_wrapper
     else:
         return sync_wrapper
-
-
-# Import asyncio at the end to avoid circular imports
-import asyncio

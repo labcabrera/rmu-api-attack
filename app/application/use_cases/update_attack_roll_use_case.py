@@ -1,12 +1,10 @@
-from app.domain.entities import Attack
-
 from app.application.commands import UpdateAttackRollCommand
 from app.application.ports import AttackRepository
+from app.domain.entities import Attack
 from app.domain.services import AttackCalculator
 
 
 class UpdateAttackRollUseCase:
-
     def __init__(
         self,
         attack_repository: AttackRepository,

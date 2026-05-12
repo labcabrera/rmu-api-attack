@@ -4,7 +4,6 @@ from app.domain.entities import AttackTableEntry, CriticalTableEntry, FumbleTabl
 
 
 class AttackTableClient(ABC):
-
     @abstractmethod
     async def get_attack_table_entry(
         self, attack_table: str, size: int, roll: int, at: int

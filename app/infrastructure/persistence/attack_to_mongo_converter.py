@@ -3,8 +3,10 @@ MongoDB converter for Attack entities.
 This class handles conversion between Attack domain entities and MongoDB documents.
 """
 
-from typing import Dict, Any, Optional
+from typing import Any, Dict
+
 from bson import ObjectId
+
 from app.domain.entities import (
     Attack,
     AttackResult,

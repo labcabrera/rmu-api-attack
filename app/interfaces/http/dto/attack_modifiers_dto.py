@@ -2,11 +2,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.domain.entities import AttackModifiers
 from app.domain.entities.enums import AttackType
+
 from .attack_armor_dto import AttackArmorDTO
-from .attack_skill_dto import AttackSkillDTO
 from .attack_feature_dto import AttackFeatureDTO
 from .attack_roll_modifiers_dto import AttackRollModifiersDTO
 from .attack_situational_modifiers_dto import AttackSituationalModifiersDTO
+from .attack_skill_dto import AttackSkillDTO
 
 
 class AttackModifiersDTO(BaseModel):
@@ -15,9 +16,7 @@ class AttackModifiersDTO(BaseModel):
     attackType: AttackType = Field(..., description="Type of attack (melee, ranged)")
     attackTable: str = Field(..., description="Attack table identifier")
     attackSize: int = Field(..., description="Attack size identifier")
-    fumbleTable: str = Field(
-        ..., description="Fumble table identifier", example="melee-one-hand"
-    )
+    fumbleTable: str = Field(..., description="Fumble table identifier")
     armor: AttackArmorDTO = Field(..., description="Attack armor data")
     actionPoints: int = Field(
         ..., description="Action points available for the attack", ge=1
@@ -45,6 +44,7 @@ class AttackModifiersDTO(BaseModel):
                 "attackTable": "arming-sword",
                 "attackSize": 2,
                 "at": 1,
+                "fumbleTable": "melee-one-hand",
             }
         },
     )

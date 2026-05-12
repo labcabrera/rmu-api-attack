@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.domain.entities import AttackCalculations
+
 from .attack_bonus_entry_dto import AttackBonusEntryDTO
 
 

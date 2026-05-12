@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
+
 from app.domain.entities import AttackSituationalModifiers
 from app.domain.entities.enums import (
     Cover,

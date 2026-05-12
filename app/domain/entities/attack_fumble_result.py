@@ -7,7 +7,6 @@ from .enums import FumbleStatus
 
 @dataclass
 class AttackFumbleResult:
-
     status: FumbleStatus = None
     text: Optional[str] = None
     additional_damage_text: Optional[str] = None

@@ -1,10 +1,11 @@
 from typing import Optional
+
 from pydantic import BaseModel, ConfigDict, Field
+
 from app.domain.entities import CriticalEffect
 
 
 class CriticalEffectDTO(BaseModel):
-
     status: str = Field(..., description="Text description of the critical")
     rounds: Optional[int] = Field(
         None, description="Round number for the critical effect"

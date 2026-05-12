@@ -30,7 +30,7 @@ image::diagrams/c4-context.png[API Attack Context System]
 
 * Python 3.11+
 * MongoDB (local or remote instance)
-* pip
+* uv
 
 == Installation
 
@@ -40,16 +40,14 @@ Install dependencies:
 
 [source,bash]
 ----
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+uv sync --all-groups
 ----
 
 Run the application:
 
 [source,bash]
 ----
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ----
 
 == Configuration
@@ -88,7 +86,15 @@ Once the application is running, you can access the interactive documentation at
 
 [source,bash]
 ----
-pytest tests/ -v
+uv run pytest tests/ -v
+----
+
+=== Code Quality
+
+[source,bash]
+----
+uv run ruff format app tests
+uv run ruff check app
 ----
 
 == Model Schema

@@ -1,9 +1,9 @@
 from pydantic import BaseModel, Field
+
 from app.domain.entities import AttackSkill
 
 
 class AttackSkillDTO(BaseModel):
-
     skillId: str = Field(..., description="Identifier for the skill")
     bonus: int = Field(..., description="Bonus for the skill")
 
