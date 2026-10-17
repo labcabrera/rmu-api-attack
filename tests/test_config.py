@@ -32,3 +32,21 @@ def test_app_version_comes_from_package_metadata():
     settings = Settings()
 
     assert settings.APP_VERSION == version("rmu-api-attack")
+
+
+def test_attack_tables_uri_prefers_new_name(monkeypatch):
+    from app.infrastructure.config.attack_table_config import AttackTableApiConfig
+
+    monkeypatch.setenv("RMU_API_ATTACK_TABLES_URI", "http://new:3005/v1")
+    monkeypatch.setenv("RMU_API_ATTACK_TABLES_URL", "http://legacy:3005/v1")
+
+    assert AttackTableApiConfig.from_env().base_url == "http://new:3005/v1"
+
+
+def test_attack_tables_uri_accepts_legacy_name(monkeypatch):
+    from app.infrastructure.config.attack_table_config import AttackTableApiConfig
+
+    monkeypatch.delenv("RMU_API_ATTACK_TABLES_URI", raising=False)
+    monkeypatch.setenv("RMU_API_ATTACK_TABLES_URL", "http://legacy:3005/v1")
+
+    assert AttackTableApiConfig.from_env().base_url == "http://legacy:3005/v1"
