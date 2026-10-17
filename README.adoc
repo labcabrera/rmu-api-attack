@@ -94,9 +94,9 @@ Environment variables:
 | `rmu-attack`
 | MongoDB database name for legacy repository mode. `MONGO_DATABASE` and `MONGODB_DATABASE` are also accepted.
 
-| `RMU_API_ATTACK_TABLES_URL`
+| `RMU_API_ATTACK_TABLES_URI`
 | `http://localhost:3005/v1`
-| Base URL of the attack tables API.
+| Base URL of the attack tables API. `RMU_API_ATTACK_TABLES_URL` is also accepted for compatibility.
 
 | `RMU_API_ATTACK_TABLES_TIMEOUT`
 | `30.0`

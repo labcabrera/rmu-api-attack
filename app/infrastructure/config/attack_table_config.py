@@ -23,8 +23,14 @@ class AttackTableApiConfig:
         """Create configuration from environment variables"""
         import os
 
+        # RMU_API_ATTACK_TABLES_URL is the legacy name, still accepted for compatibility.
+        base_url = (
+            os.getenv("RMU_API_ATTACK_TABLES_URI")
+            or os.getenv("RMU_API_ATTACK_TABLES_URL")
+            or "http://localhost:3005/v1"
+        )
         return cls(
-            base_url=os.getenv("RMU_API_ATTACK_TABLES_URL", "http://localhost:3005/v1"),
+            base_url=base_url,
             timeout=float(os.getenv("RMU_API_ATTACK_TABLES_TIMEOUT", "30.0")),
             api_key=os.getenv("RMU_API_ATTACK_TABLES_KEY"),
             max_retries=int(os.getenv("RMU_API_ATTACK_TABLES_MAX_RETRIES", "3")),
